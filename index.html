@@ -98,7 +98,6 @@
       padding: 10px 14px;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
     }
     input:focus, select:focus {
       border-color: #ffffff;
@@ -110,6 +109,72 @@
       border-radius: 6px;
       font-weight: bold;
       text-transform: uppercase;
+    }
+
+    /* Электронный чек */
+    .receipt-box {
+      background: #0d0d0d;
+      border: 1px dashed #3a3a3a;
+      border-radius: 16px;
+      padding: 16px;
+      position: relative;
+    }
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* Трекер статуса заказа */
+    .step-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      position: relative;
+      padding-bottom: 18px;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 28px;
+      bottom: 0;
+      width: 2px;
+      background: #333;
+    }
+    .step-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: bold;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+    .step-done {
+      background: #10b981;
+      color: #000;
+    }
+    .step-active {
+      background: #f59e0b;
+      color: #000;
+      animation: pulse 1.5s infinite;
+    }
+    .step-wait {
+      background: #222;
+      color: #666;
+      border: 1px solid #333;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
     }
   </style>
 </head>
@@ -226,7 +291,7 @@
       <!-- ================= 2. ВВОД ЮЗЕРНЕЙМА ================= -->
       <section id="screenUsername" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
         <button onclick="goToScreen('screenCatalog')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
-          ← Вернуться назад
+          ← Вернуться в каталог
         </button>
 
         <div style="background: rgba(16,16,16,0.9); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
@@ -246,125 +311,159 @@
             <input type="text" id="inputUsername" placeholder="username" style="width: 100%; padding-left: 32px;" class="font-mono">
           </div>
           <p style="font-size: 11px; color: #888;">
-            На этот юзернейм администратор отправит код авторизации.
+            На этот юзернейм администратор отправит код авторизации для входа в аккаунт.
           </p>
         </div>
 
         <button onclick="submitUsername()" class="btn-grow" style="width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 14px; font-weight: 900; font-size: 13px; text-transform: uppercase;">
-          Перейти к оплате →
+          Сформировать чек заказа →
         </button>
       </section>
 
-      <!-- ================= 3. ТОЛЬКО ПРЯМАЯ ОПЛАТА ================= -->
+      <!-- ================= 3. ЭЛЕКТРОННЫЙ ЧЕК ЗАКАЗА ================= -->
       <section id="screenPayment" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
         <button onclick="goToScreen('screenUsername')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
-          ← Изменить юзернейм
+          ← Изменить данные
         </button>
 
-        <!-- Карточка заказа -->
-        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
-          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
-            <span>Покупатель: <b id="paySummaryUser" style="color: #fff;" class="font-mono">@user</b></span>
-            <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
+        <!-- ВЫБОР ВАЛЮТЫ -->
+        <div style="background: #111; padding: 10px; border-radius: 12px; border: 1px solid #262626;">
+          <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: bold; display: block; margin-bottom: 6px;">
+            Валюта оплаты (сеть TON):
+          </span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 12px;">
+              ₮ USDT (TON)
+            </button>
+            <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 12px;">
+              ⚡ GRAM (TON)
+            </button>
+          </div>
+        </div>
+
+        <!-- КАРТОЧКА ЧЕКА -->
+        <div class="receipt-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #3a3a3a; padding-bottom: 10px; margin-bottom: 8px;">
+            <span style="font-weight: 900; font-size: 13px; letter-spacing: 0.5px;">🧾 ЭЛЕКТРОННЫЙ ЧЕК</span>
+            <span id="receiptOrderCode" class="font-mono" style="font-size: 13px; font-weight: 900; color: #4ade80;">UJ-000000</span>
           </div>
 
-          <div style="margin-top: 4px;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
-              Вариант оплаты (сеть TON):
-            </span>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 12px;">
-                ₮ USDT (TON)
-              </button>
-              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 12px;">
-                ⚡ GRAM (TON)
-              </button>
-            </div>
+          <div class="receipt-row">
+            <span style="color: #777;">Товар:</span>
+            <span id="receiptItem" style="font-weight: bold; color: #eee;">Америка (+1)</span>
+          </div>
+          <div class="receipt-row">
+            <span style="color: #777;">Покупатель:</span>
+            <span id="receiptUser" class="font-mono" style="color: #eee;">@user</span>
+          </div>
+          <div class="receipt-row">
+            <span style="color: #777;">Сеть:</span>
+            <span style="font-weight: bold; color: #0088cc;">The Open Network (TON)</span>
+          </div>
+          <div class="receipt-row">
+            <span style="color: #777;">Кошелек магазина:</span>
+            <span class="font-mono" style="color: #aaa; font-size: 11px;">UQBsw7...F1Y</span>
+          </div>
+          <div class="receipt-row" style="background: rgba(74, 222, 128, 0.06); padding: 8px 6px; border-radius: 8px; margin: 4px 0;">
+            <span style="color: #4ade80; font-weight: bold;">Комментарий:</span>
+            <span id="receiptComment" class="font-mono" style="color: #4ade80; font-weight: 900; font-size: 13px;">UJ-000000</span>
           </div>
 
-          <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; display: flex; justify-content: space-between; align-items: baseline;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #888;">Итого к переводу:</span>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; padding-top: 8px; border-top: 1px dashed #3a3a3a;">
+            <span style="font-size: 12px; text-transform: uppercase; color: #888; font-weight: bold;">К оплате:</span>
             <div style="text-align: right;">
-              <span id="payOldPrice" class="font-mono hidden" style="font-size: 12px; color: #666; text-decoration: line-through; margin-right: 6px;"></span>
-              <span id="payFinalAmount" class="font-mono" style="font-size: 22px; font-weight: 900; color: #fff;">0.80 USDT</span>
+              <span id="receiptOldPrice" class="font-mono hidden" style="font-size: 12px; color: #666; text-decoration: line-through; margin-right: 6px;"></span>
+              <span id="receiptAmount" class="font-mono" style="font-size: 24px; font-weight: 900; color: #fff;">0.80 USDT</span>
             </div>
           </div>
         </div>
 
-        <!-- Уникальный комментарий заказа для блокчейна -->
-        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 12px 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold;">Уникальный код заказа:</div>
-            <div id="orderCodeDisplay" class="font-mono" style="font-size: 16px; font-weight: 900; color: #4ade80; margin-top: 2px;">UJ-000000</div>
-          </div>
-          <span class="badge" style="background: #142818; color: #4ade80; border: 1px solid #285430;">Блокчейн-проверка</span>
-        </div>
-
-        <!-- БЛОК ПРЯМОЙ ОПЛАТЫ (TON Connect) -->
-        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 16px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Прямая оплата:</span>
-            <span class="badge" style="background: #0088cc; color: #fff;">TON Connect</span>
-          </div>
-
+        <!-- КНОПКА ОПЛАТЫ ПО ЧЕКУ -->
+        <div style="background: #111; border: 1px solid #262626; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
           <div id="walletActionsContainer">
-            <!-- 1. Кнопка привязки кошелька -->
-            <button id="btnConnectWallet" onclick="connectTonWallet()" class="btn-grow" style="width: 100%; padding: 15px; background: #1f1f1f; border: 1px solid #3a3a3a; color: #ffffff; border-radius: 14px; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <!-- Кнопка привязки кошелька -->
+            <button id="btnConnectWallet" onclick="connectTonWallet()" class="btn-grow" style="width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #3a3a3a; color: #ffffff; border-radius: 12px; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
               <span>🔗</span> Привязать кошелек (Tonkeeper)
             </button>
 
-            <!-- 2. Кнопка оплаты (появляется только после привязки) -->
-            <div id="walletConnectedBlock" class="hidden" style="display: flex; flex-direction: column; gap: 10px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; background: #0a0a0a; padding: 8px 12px; border-radius: 10px; border: 1px solid #262626;">
+            <!-- Кнопка прямой оплаты (появляется после привязки) -->
+            <div id="walletConnectedBlock" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; background: #0a0a0a; padding: 6px 10px; border-radius: 8px; border: 1px solid #262626;">
                 <span>Кошелек: <b id="connectedWalletAddr" class="font-mono" style="color: #4ade80;"></b></span>
                 <button onclick="disconnectTonWallet()" style="background: none; border: none; color: #f87171; cursor: pointer; text-decoration: underline; font-size: 11px;">Сменить</button>
               </div>
 
-              <button onclick="payViaConnectedWallet()" class="btn-grow" style="width: 100%; padding: 16px; background: #0088cc; color: #ffffff; border: none; border-radius: 14px; font-weight: 900; font-size: 14px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 20px rgba(0,136,204,0.35);">
-                <span>💎</span> Оплатить через кошелек
+              <button onclick="executePayment()" class="btn-grow" style="width: 100%; padding: 16px; background: #0088cc; color: #ffffff; border: none; border-radius: 12px; font-weight: 900; font-size: 14px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,136,204,0.35);">
+                <span>💎</span> Оплатить по чеку
               </button>
             </div>
           </div>
-
-          <p style="font-size: 11px; color: #666; text-align: center; line-height: 1.4;">
-            Код заказа будет автоматически внесён в комментарий к переводу. Бот сразу проверит транзакцию в сети TON.
-          </p>
         </div>
 
         <!-- Промокод -->
         <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
-          <label style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Промокод на скидку:</label>
           <div style="display: flex; gap: 8px;">
-            <input type="text" id="inputPromo" placeholder="ВВЕДИТЕ ПРОМОКОД" style="flex: 1; text-transform: uppercase;" class="font-mono">
+            <input type="text" id="inputPromo" placeholder="ПРОМОКОД" style="flex: 1; text-transform: uppercase;" class="font-mono">
             <button onclick="applyPromoCode()" class="btn-grow" style="padding: 0 16px; background: #262626; color: #fff; border: 1px solid #444; border-radius: 12px; font-weight: bold; font-size: 12px;">
-              Ввод
+              Применить
             </button>
           </div>
           <div id="promoMessage" class="hidden" style="font-size: 12px;"></div>
         </div>
       </section>
 
-      <!-- ================= 4. УСПЕХ ================= -->
-      <section id="screenSuccess" class="hidden" style="text-align: center; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;">
-        <div style="width: 56px; height: 56px; border-radius: 50%; background: #141414; border: 1px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
-          ✓
-        </div>
-        <div>
-          <h2 style="font-size: 18px; font-weight: 800;">Заявка отправлена</h2>
-          <p style="font-size: 12px; color: #888; margin-top: 4px;">
-            Бот проверяет транзакцию в блокчейне TON. Вы можете вернуться в чат.
-          </p>
+      <!-- ================= 4. ПОСЛЕДОВАТЕЛЬНОСТЬ И СТАТУС ВЫДАЧИ ================= -->
+      <section id="screenSuccess" class="hidden" style="display: flex; flex-direction: column; gap: 16px; padding: 8px 0;">
+        
+        <div style="text-align: center; margin-bottom: 4px;">
+          <h2 style="font-size: 18px; font-weight: 900;">Статус выполнения заказа</h2>
+          <p class="font-mono" id="statusHeaderCode" style="font-size: 13px; color: #4ade80; margin-top: 2px;">#UJ-000000</p>
         </div>
 
-        <div class="font-mono" style="background: rgba(16,16,16,0.9); border: 1px solid #2a2a2a; border-radius: 14px; padding: 12px; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px;">
-          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Код заказа:</span><span id="resCode" style="color: #4ade80; font-weight: bold;"></span></div>
-          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Товар:</span><span id="resCountry"></span></div>
-          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Юзернейм:</span><span id="resUser"></span></div>
-          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Сумма:</span><span id="resAmount" style="font-weight: bold; color: #fff;"></span></div>
+        <!-- ПОСЛЕДОВАТЕЛЬНОСТЬ ИЗ 3 ШАГОВ -->
+        <div style="background: #0d0d0d; border: 1px solid #262626; border-radius: 16px; padding: 16px;">
+          
+          <!-- Шаг 1 -->
+          <div class="step-item">
+            <div class="step-icon step-done">✓</div>
+            <div>
+              <div style="font-weight: 800; font-size: 13px; color: #fff;">1. Заказ сформирован</div>
+              <div style="font-size: 11px; color: #888; margin-top: 2px;">
+                Чек создан, реквизиты и комментарий зафиксированы
+              </div>
+            </div>
+          </div>
+
+          <!-- Шаг 2 -->
+          <div class="step-item">
+            <div class="step-icon step-active" id="step2Icon">🔄</div>
+            <div>
+              <div style="font-weight: 800; font-size: 13px; color: #fff;" id="step2Title">2. Оплата в сети TON</div>
+              <div style="font-size: 11px; color: #aaa; margin-top: 2px;" id="step2Desc">
+                Запрос передан кошельку. Бот ожидает зачисления средств...
+              </div>
+            </div>
+          </div>
+
+          <!-- Шаг 3 -->
+          <div class="step-item" style="padding-bottom: 0;">
+            <div class="step-icon step-wait" id="step3Icon">3</div>
+            <div>
+              <div style="font-weight: 800; font-size: 13px; color: #888;" id="step3Title">3. Выдача номера Telegram</div>
+              <div style="font-size: 11px; color: #666; margin-top: 2px;" id="step3Desc">
+                Администратор @uj_92 выдаёт номер и код подтверждения
+              </div>
+            </div>
+          </div>
+
         </div>
 
+        <!-- Кнопки действий -->
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <button onclick="resetShop()" class="btn-grow" style="padding: 12px; background: #111; border: 1px solid #333; color: #888; border-radius: 12px; font-size: 12px;">
+          <a id="successAdminChatBtn" href="https://t.me/uj_92" target="_blank" class="btn-grow" style="text-decoration: none; padding: 15px; background: #ffffff; color: #000000; border-radius: 14px; font-weight: 900; font-size: 13px; text-transform: uppercase; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>💬</span> Написать админу @uj_92 за номером
+          </a>
+          <button onclick="resetShop()" class="btn-grow" style="padding: 12px; background: #141414; border: 1px solid #333; color: #888; border-radius: 12px; font-size: 12px;">
             Вернуться в каталог
           </button>
         </div>
@@ -459,21 +558,16 @@
       currentOrderCode: ''
     };
 
-    // Создание уникального комментария для каждого заказа
     function generateOrderCode() {
-      const rand = Math.floor(100000 + Math.random() * 900000);
-      return `UJ-${rand}`;
+      return 'UJ-' + Math.floor(100000 + Math.random() * 900000);
     }
 
     let tonConnectUI = null;
     try {
       tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
         manifestUrl: 'https://uj-92-shop.github.io/uj92-shop/tonconnect-manifest.json',
-        uiPreferences: {
-          theme: TON_CONNECT_UI.THEME.DARK
-        }
+        uiPreferences: { theme: TON_CONNECT_UI.THEME.DARK }
       });
-
       tonConnectUI.onStatusChange(wallet => {
         updateWalletButtonState(wallet);
       });
@@ -497,7 +591,6 @@
             formatted = TON_CONNECT_UI.toUserFriendlyAddress(raw);
           }
         } catch (err) {}
-
         addrEl.textContent = formatted.slice(0, 4) + '...' + formatted.slice(-4);
       } else {
         btnConnect.classList.remove('hidden');
@@ -507,29 +600,22 @@
 
     async function connectTonWallet() {
       if (tonConnectUI) {
-        try {
-          await tonConnectUI.openModal();
-        } catch (e) {
-          console.error("TON Connect modal error:", e);
-        }
+        try { await tonConnectUI.openModal(); } catch (e) {}
       }
     }
 
     async function disconnectTonWallet() {
       if (tonConnectUI) {
-        try {
-          await tonConnectUI.disconnect();
-        } catch (e) {}
+        try { await tonConnectUI.disconnect(); } catch (e) {}
         updateWalletButtonState(null);
       }
     }
 
-    // Создание текстового payload с кодом заказа для блокчейна TON
     function createCommentPayload(text) {
       const encoder = new TextEncoder();
       const textBytes = encoder.encode(text);
       const payload = new Uint8Array(4 + textBytes.length);
-      payload.set(textBytes, 4); // первые 4 байта = 0x00000000 (текстовый опкод)
+      payload.set(textBytes, 4);
       let binary = '';
       for (let i = 0; i < payload.byteLength; i++) {
         binary += String.fromCharCode(payload[i]);
@@ -537,13 +623,8 @@
       return btoa(binary);
     }
 
-    // Прямой перевод через привязанный кошелёк
-    async function payViaConnectedWallet() {
-      if (!tonConnectUI || !tonConnectUI.connected) {
-        connectTonWallet();
-        return;
-      }
-
+    // Запуск оплаты
+    async function executePayment() {
       const orderCode = state.currentOrderCode;
       const payloadBase64 = createCommentPayload(orderCode);
 
@@ -553,29 +634,28 @@
           messages: [
             {
               address: TON_WALLET,
-              amount: "10000000", // 0.01 TON
+              amount: "10000000", // 0.01 TON в нанотонах
               payload: payloadBase64
             }
           ]
         };
-
         await tonConnectUI.sendTransaction(tx);
-        finishOrder(orderCode);
       } catch (e) {
-        console.warn("TON Connect direct send error, falling back to deep link:", e);
-        // Резервный переход в приложение Tonkeeper с предзаполненным кодом
+        console.warn("Falling back to Tonkeeper Deep Link:", e);
         const deepLink = `https://app.tonkeeper.com/transfer/${TON_WALLET}?text=${encodeURIComponent(orderCode)}`;
         if (tg && typeof tg.openLink === 'function') {
           tg.openLink(deepLink);
         } else {
           window.location.href = deepLink;
         }
-        finishOrder(orderCode);
       }
+
+      // Переход на экран выполнения заказа
+      showSuccessScreen(orderCode);
     }
 
-    function finishOrder(orderCode) {
-      const finalAmountStr = document.getElementById('payFinalAmount').textContent;
+    function showSuccessScreen(orderCode) {
+      const finalAmountStr = document.getElementById('receiptAmount').textContent;
       const orderData = {
         order_code: orderCode,
         country: state.selectedCountry,
@@ -588,18 +668,42 @@
         wallet: TON_WALLET
       };
 
+      // Передача данных боту
       if (tg) {
-        try {
-          tg.sendData(JSON.stringify(orderData));
-        } catch(e) {}
+        try { tg.sendData(JSON.stringify(orderData)); } catch(e) {}
       }
 
-      document.getElementById('resCode').textContent = orderCode;
-      document.getElementById('resCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
-      document.getElementById('resUser').textContent = '@' + state.username;
-      document.getElementById('resAmount').textContent = finalAmountStr;
+      document.getElementById('statusHeaderCode').textContent = '#' + orderCode;
+      
+      const adminMsg = encodeURIComponent(
+        `Здравствуйте! Я оплатил заказ #${orderCode}\n` +
+        `Товар: Номер ${state.selectedCountry} (${state.selectedCode})\n` +
+        `Сумма: ${finalAmountStr} (${state.currency})\n` +
+        `Мой юзернейм: @${state.username}`
+      );
+      document.getElementById('successAdminChatBtn').href = `https://t.me/${ADMIN_USERNAME}?text=${adminMsg}`;
 
       goToScreen('screenSuccess');
+
+      // Имитация перехода статуса Шага 2 в статус "Подтверждено" через 15 секунд
+      setTimeout(() => {
+        const s2Icon = document.getElementById('step2Icon');
+        const s2Title = document.getElementById('step2Title');
+        const s2Desc = document.getElementById('step2Desc');
+        const s3Icon = document.getElementById('step3Icon');
+        const s3Title = document.getElementById('step3Title');
+
+        if (s2Icon) {
+          s2Icon.className = "step-icon step-done";
+          s2Icon.textContent = "✓";
+          s2Title.style.color = "#4ade80";
+          s2Desc.textContent = "Транзакция обнаружена в блокчейне сети TON.";
+        }
+        if (s3Icon) {
+          s3Icon.className = "step-icon step-active";
+          s3Title.style.color = "#ffffff";
+        }
+      }, 14000);
     }
 
     function verifyAdminAccess() {
@@ -712,14 +816,13 @@
       if (u.startsWith('@')) u = u.substring(1);
       state.username = u;
 
-      // При каждом переходе к оплате генерируется свежий код
       state.currentOrderCode = generateOrderCode();
-      document.getElementById('orderCodeDisplay').textContent = state.currentOrderCode;
+      document.getElementById('receiptOrderCode').textContent = state.currentOrderCode;
+      document.getElementById('receiptComment').textContent = state.currentOrderCode;
+      document.getElementById('receiptItem').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
+      document.getElementById('receiptUser').textContent = '@' + state.username;
 
-      document.getElementById('paySummaryUser').textContent = '@' + state.username;
-      document.getElementById('paySummaryCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
-
-      updatePaymentDisplay();
+      updateReceiptAmount();
       goToScreen('screenPayment');
     }
 
@@ -735,12 +838,12 @@
         bGram.style.background = '#fff'; bGram.style.color = '#000'; bGram.style.borderColor = '#fff';
         bUsdt.style.background = '#141414'; bUsdt.style.color = '#aaa'; bUsdt.style.borderColor = '#333';
       }
-      updatePaymentDisplay();
+      updateReceiptAmount();
     }
 
-    function updatePaymentDisplay() {
+    function updateReceiptAmount() {
       let finalUsd = state.selectedPriceUsd;
-      const oldEl = document.getElementById('payOldPrice');
+      const oldEl = document.getElementById('receiptOldPrice');
 
       if (state.appliedDiscountPercent > 0) {
         finalUsd = finalUsd * (1 - state.appliedDiscountPercent / 100);
@@ -751,7 +854,7 @@
         oldEl.classList.add('hidden');
       }
 
-      const amountEl = document.getElementById('payFinalAmount');
+      const amountEl = document.getElementById('receiptAmount');
       if (state.currency === 'USDT') {
         amountEl.textContent = finalUsd.toFixed(2) + ' USDT';
       } else {
@@ -778,7 +881,7 @@
         msg.textContent = 'Такого промокода больше нет';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
-        updatePaymentDisplay();
+        updateReceiptAmount();
         return;
       }
 
@@ -787,17 +890,17 @@
         msg.textContent = 'Промокод закончился';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
-        updatePaymentDisplay();
+        updateReceiptAmount();
         return;
       }
 
       const used = (promo.usedUsers && promo.usedUsers[userKey]) ? promo.usedUsers[userKey] : 0;
       if (used >= promo.limitPerUser) {
         msg.style.color = '#fbbf24';
-        msg.textContent = 'Промокод уже недоступен';
+        msg.textContent = 'Промокод уже использован вами';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
-        updatePaymentDisplay();
+        updateReceiptAmount();
         return;
       }
 
@@ -805,7 +908,7 @@
       state.appliedDiscountPercent = promo.discount;
       msg.style.color = '#34d399';
       msg.textContent = '✓ Скидка ' + promo.discount + '% применена!';
-      updatePaymentDisplay();
+      updateReceiptAmount();
     }
 
     function resetShop() {
