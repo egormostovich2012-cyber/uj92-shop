@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UJ92_shop</title>
+  
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #000000;
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .font-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* Фоновые волны */
+    #waveCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.25;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Анимации кнопок */
+    .btn-grow {
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, border-color 0.15s;
+      cursor: pointer;
+    }
+    .btn-grow:hover {
+      transform: scale(1.03);
+    }
+    .btn-grow:active {
+      transform: scale(0.97);
+    }
+
+    .card-item {
+      background: rgba(15, 15, 15, 0.92);
+      border: 1px solid #262626;
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+    .card-item:hover {
+      transform: translateY(-2px) scale(1.01);
+      border-color: #555555;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    input, select {
+      background: #141414;
+      border: 1px solid #333333;
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #ffffff;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Анимированный фон -->
+  <canvas id="waveCanvas"></canvas>
+
+  <div class="app-container">
+    
+    <!-- Шапка -->
+    <header style="margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 12px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">UJ92_shop</h1>
+            <span class="badge" style="background: #fff; color: #000;">bot</span>
+          </div>
+          <p style="font-size: 11px; color: #888; margin-top: 2px;">Магазин аккаунтов Telegram</p>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <a href="https://t.me/uj_92_rew" target="_blank" class="btn-grow" style="text-decoration: none; color: #eee; font-size: 12px; background: #141414; border: 1px solid #333; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 4px;">
+            <span>⭐</span>
+            <span style="font-weight: 600;">Отзывы</span>
+          </a>
+          <button onclick="toggleAdminModal(true)" class="btn-grow" style="background: #141414; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 10px; font-size: 13px;">
+            ⚙️
+          </button>
+        </div>
+      </div>
+
+      <!-- Статус админа и курс GRAM -->
+      <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: #0a0a0a; border: 1px solid #222; padding: 8px 12px; border-radius: 12px;">
+        <div id="adminStatusDisplay" style="display: flex; align-items: center; gap: 6px;">
+          <span id="statusDot" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+          <span id="statusText" style="color: #ccc; font-weight: 500;">Админ @uj_92: Онлайн</span>
+        </div>
+        <div class="font-mono" style="color: #888;">
+          1 GRAM ≈ <span id="gramRateDisplay" style="color: #fff; font-weight: bold;">$1.24</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main style="flex: 1;">
+
+      <!-- ================= 1. КАТАЛОГ ================= -->
+      <section id="screenCatalog" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; letter-spacing: 0.5px;">
+          Выберите страну номера:
+        </div>
+
+        <!-- 1. Америка -->
+        <div onclick="selectProduct('Америка', '+1', 0.80, '🇺🇸')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇺🇸</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Америка</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+1 код региона</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-0.80">~0.65 GRAM</div>
+          </div>
+        </div>
+
+        <!-- 2. Бангладеш -->
+        <div onclick="selectProduct('Бангладеш', '+880', 1.00, '🇧🇩')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇧🇩</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Бангладеш</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+880 код региона</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$1.00</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-1.00">~0.81 GRAM</div>
+          </div>
+        </div>
+
+        <!-- 3. Индия -->
+        <div onclick="selectProduct('Индия', '+91', 0.80, '🇮🇳')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇮🇳</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Индия</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+91 код региона</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-0.80-2">~0.65 GRAM</div>
+          </div>
+        </div>
+
+        <!-- 4. Британия -->
+        <div onclick="selectProduct('Британия', '+44', 1.80, '🇬🇧')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇬🇧</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Британия</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+44 код региона</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$1.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-1.80">~1.45 GRAM</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. ВВОД ЮЗЕРНЕЙМА ================= -->
+      <section id="screenUsername" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+        <button onclick="goToScreen('screenCatalog')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
+          ← Вернуться в каталог
+        </button>
+
+        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="selectedFlag" style="font-size: 24px;">🇺🇸</span>
+            <span id="selectedTitle" style="font-weight: bold; font-size: 15px;">Америка (+1)</span>
+          </div>
+          <span id="selectedPriceUsd" class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</span>
+        </div>
+
+        <div style="background: #111; border: 1px solid #222; padding: 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+          <label style="font-size: 12px; text-transform: uppercase; color: #ccc; font-weight: 600;">
+            Ваш юзернейм в Telegram:
+          </label>
+          <div style="position: relative;">
+            <span class="font-mono" style="position: absolute; left: 12px; top: 10px; color: #666;">@</span>
+            <input type="text" id="inputUsername" placeholder="username" style="width: 100%; padding-left: 32px;" class="font-mono">
+          </div>
+          <p style="font-size: 11px; color: #777;">
+            На этот юзернейм админ отправит код для входа в аккаунт.
+          </p>
+        </div>
+
+        <button onclick="submitUsername()" class="btn-grow" style="width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 14px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+          Перейти к оплате →
+        </button>
+      </section>
+
+      <!-- ================= 3. ОПЛАТА ================= -->
+      <section id="screenPayment" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+        <button onclick="goToScreen('screenUsername')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
+          ← Изменить юзернейм
+        </button>
+
+        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
+            <span>Покупатель: <b id="paySummaryUser" style="color: #fff;" class="font-mono">@user</b></span>
+            <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
+          </div>
+
+          <!-- Выбор валюты -->
+          <div style="margin-top: 4px;">
+            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
+              Валюта перевода (сеть TON):
+            </span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 12px;">
+                ₮ USDT (TON)
+              </button>
+              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 12px;">
+                ⚡ GRAM (TON)
+              </button>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid #222; padding-top: 10px; display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 11px; text-transform: uppercase; color: #888;">Итого к оплате:</span>
+            <div style="text-align: right;">
+              <span id="payOldPrice" class="font-mono hidden" style="font-size: 12px; color: #666; text-decoration: line-through; margin-right: 6px;"></span>
+              <span id="payFinalAmount" class="font-mono" style="font-size: 22px; font-weight: 900; color: #fff;">0.80 USDT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Промокод -->
+        <div style="background: #111; border: 1px solid #222; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Промокод на скидку:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="inputPromo" placeholder="ВВЕДИТЕ ПРОМОКОД" style="flex: 1; text-transform: uppercase;" class="font-mono">
+            <button onclick="applyPromoCode()" class="btn-grow" style="padding: 0 16px; background: #262626; color: #fff; border: 1px solid #444; border-radius: 12px; font-weight: bold; font-size: 12px;">
+              Ввод
+            </button>
+          </div>
+          <div id="promoMessage" class="hidden" style="font-size: 12px;"></div>
+        </div>
+
+        <!-- Кошелек и QR-код -->
+        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Кошелек TON:</span>
+            <span style="font-size: 10px; background: #1a1a1a; padding: 2px 6px; border-radius: 6px; color: #888; border: 1px solid #282828;">Сеть The Open Network</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; background: #0a0a0a; border: 1px solid #262626; padding: 8px 10px; border-radius: 12px;">
+            <div id="walletAddressText" class="font-mono" style="flex: 1; font-size: 11px; color: #eee; word-break: break-all; line-height: 1.3;">
+              UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y
+            </div>
+            <button onclick="copyWallet()" class="btn-grow" id="copyBtn" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px;">
+              Копия
+            </button>
+          </div>
+
+          <div style="display: flex; justify-content: center; padding: 8px 0;">
+            <div style="background: #fff; padding: 8px; border-radius: 12px; line-height: 0;">
+              <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=ton://transfer/UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y" alt="QR" width="130" height="130" style="display: block;">
+            </div>
+          </div>
+          <p style="font-size: 11px; text-align: center; color: #666;">
+            Отсканируйте через Tonkeeper или Wallet в Telegram
+          </p>
+        </div>
+
+        <!-- Кнопка «Я ОПЛАТИЛ» -->
+        <button onclick="confirmPayment()" class="btn-grow" style="width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 16px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,255,255,0.15);">
+          ✓ Я ОПЛАТИЛ
+        </button>
+      </section>
+
+      <!-- ================= 4. УСПЕХ ================= -->
+      <section id="screenSuccess" class="hidden" style="text-align: center; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: #141414; border: 1px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
+          ✓
+        </div>
+        <div>
+          <h2 style="font-size: 18px; font-weight: 800;">Заявка сформирована</h2>
+          <p style="font-size: 12px; color: #888; margin-top: 4px;">
+            Данные отправлены боту. Также вы можете написать администратору напрямую:
+          </p>
+        </div>
+
+        <div class="font-mono" style="background: #111; border: 1px solid #222; border-radius: 14px; padding: 12px; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Товар:</span><span id="resCountry"></span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Юзернейм:</span><span id="resUser"></span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Сумма:</span><span id="resAmount" style="font-weight: bold; color: #fff;"></span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Промокод:</span><span id="resPromo"></span></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <a id="directAdminLink" href="https://t.me/uj_92" target="_blank" class="btn-grow" style="text-decoration: none; padding: 14px; background: #fff; color: #000; border-radius: 12px; font-weight: 800; font-size: 12px; text-transform: uppercase;">
+            Написать админу @uj_92 в ЛС
+          </a>
+          <button onclick="resetShop()" class="btn-grow" style="padding: 12px; background: #111; border: 1px solid #333; color: #888; border-radius: 12px; font-size: 12px;">
+            Вернуться в магазин
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Подвал -->
+    <footer style="margin-top: 20px; border-top: 1px solid #1a1a1a; padding-top: 10px; text-align: center; font-size: 11px; color: #555;">
+      UJ92_shop &bull; Администратор: <a href="https://t.me/uj_92" target="_blank" style="color: #777; text-decoration: underline;">@uj_92</a>
+    </footer>
+
+  </div>
+
+  <!-- Модальное окно настроек админа -->
+  <div id="adminModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #0d0d0d; border: 1px solid #262626; width: 100%; max-width: 360px; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 8px;">
+        <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase;">Панель администратора</h3>
+        <button onclick="toggleAdminModal(false)" style="background: none; border: none; color: #888; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Статус Онлайн -->
+      <div>
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Ваш статус:</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <button id="adminBtnOnline" onclick="setAdminStatus(true)" class="btn-grow" style="padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 1px solid #10b981; background: #064e3b; color: #a7f3d0;">
+            🟢 Онлайн
+          </button>
+          <button id="adminBtnOffline" onclick="setAdminStatus(false)" class="btn-grow" style="padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 1px solid #333; background: #141414; color: #777;">
+            ⚪ Не в сети
+          </button>
+        </div>
+      </div>
+
+      <!-- Курс GRAM -->
+      <div style="border-top: 1px solid #222; padding-top: 10px;">
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курс 1 GRAM ($):</label>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1;">
+          <button onclick="updateGramRate()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 0 12px; border-radius: 10px; font-weight: bold; font-size: 12px;">
+            ОК
+          </button>
+        </div>
+      </div>
+
+      <!-- Управление промокодами -->
+      <div style="border-top: 1px solid #222; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold;">Добавить промокод:</label>
+        <input type="text" id="newPromoCode" placeholder="КОД (например: SALE20)" class="font-mono" style="text-transform: uppercase;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <input type="number" id="newPromoDiscount" placeholder="Скидка %" value="15" class="font-mono">
+          <input type="number" id="newPromoLimit" placeholder="Лимит/чел." value="1" class="font-mono">
+        </div>
+        <select id="newPromoStatus">
+          <option value="active">🟢 Активен</option>
+          <option value="ended">🔴 Промокод закончился</option>
+          <option value="no_longer_exists">⚪ Такого промокода больше нет</option>
+        </select>
+        <button onclick="createPromo()" class="btn-grow" style="padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 10px; font-weight: bold; font-size: 12px;">
+          + Сохранить
+        </button>
+
+        <div style="margin-top: 6px;">
+          <span style="font-size: 10px; color: #666; text-transform: uppercase;">Список промокодов:</span>
+          <div id="promoListContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px; max-height: 120px; overflow-y: auto;"></div>
+        </div>
+      </div>
+
+      <button onclick="toggleAdminModal(false)" class="btn-grow" style="padding: 10px; background: #141414; border: 1px solid #333; color: #aaa; border-radius: 10px; font-size: 12px;">
+        Закрыть
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Безопасное хранилище (защита от ошибок в Telegram Webview)
+    const storage = {
+      get: function(key, fallback) {
+        try {
+          const val = localStorage.getItem(key);
+          return val !== null ? val : fallback;
+        } catch(e) {
+          return fallback;
+        }
+      },
+      set: function(key, val) {
+        try {
+          localStorage.setItem(key, val);
+        } catch(e) {}
+      }
+    };
+
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      try {
+        tg.expand();
+        tg.ready();
+      } catch(e) {}
+    }
+
+    const TON_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y";
+    const ADMIN_USERNAME = "uj_92";
+
+    let state = {
+      gramRate: parseFloat(storage.get('uj92_gram_rate', '1.24')) || 1.24,
+      isAdminOnline: storage.get('uj92_admin_online', 'true') === 'true',
+      selectedCountry: null,
+      selectedCode: null,
+      selectedPriceUsd: 0,
+      selectedFlag: '',
+      username: '',
+      currency: 'USDT',
+      appliedPromo: null,
+      appliedDiscountPercent: 0
+    };
+
+    let promoDatabase = [];
+    try {
+      promoDatabase = JSON.parse(storage.get('uj92_promos', '[]'));
+      if (!promoDatabase || promoDatabase.length === 0) {
+        promoDatabase = [
+          { code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} },
+          { code: 'OLD20', discount: 20, limitPerUser: 1, status: 'ended', usedUsers: {} },
+          { code: 'WINTER', discount: 10, limitPerUser: 1, status: 'no_longer_exists', usedUsers: {} }
+        ];
+      }
+    } catch(e) {
+      promoDatabase = [{ code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} }];
+    }
+
+    function savePromos() {
+      storage.set('uj92_promos', JSON.stringify(promoDatabase));
+      renderAdminPromoList();
+    }
+
+    function goToScreen(screenId) {
+      ['screenCatalog', 'screenUsername', 'screenPayment', 'screenSuccess'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function selectProduct(country, code, priceUsd, flag) {
+      state.selectedCountry = country;
+      state.selectedCode = code;
+      state.selectedPriceUsd = priceUsd;
+      state.selectedFlag = flag;
+      state.appliedPromo = null;
+      state.appliedDiscountPercent = 0;
+
+      document.getElementById('selectedFlag').textContent = flag;
+      document.getElementById('selectedTitle').textContent = country + ' (' + code + ')';
+      document.getElementById('selectedPriceUsd').textContent = '$' + priceUsd.toFixed(2);
+
+      const input = document.getElementById('inputUsername');
+      if (tg?.initDataUnsafe?.user?.username && !input.value) {
+        input.value = tg.initDataUnsafe.user.username;
+      }
+      goToScreen('screenUsername');
+    }
+
+    function submitUsername() {
+      let u = document.getElementById('inputUsername').value.trim();
+      if (!u) {
+        alert('Пожалуйста, укажите ваш Telegram username!');
+        return;
+      }
+      if (u.startsWith('@')) u = u.substring(1);
+      state.username = u;
+
+      document.getElementById('paySummaryUser').textContent = '@' + state.username;
+      document.getElementById('paySummaryCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
+
+      updatePaymentDisplay();
+      goToScreen('screenPayment');
+    }
+
+    function setCurrency(cur) {
+      state.currency = cur;
+      const bUsdt = document.getElementById('btnCurUsdt');
+      const bGram = document.getElementById('btnCurGram');
+
+      if (cur === 'USDT') {
+        bUsdt.style.background = '#fff'; bUsdt.style.color = '#000'; bUsdt.style.borderColor = '#fff';
+        bGram.style.background = '#141414'; bGram.style.color = '#aaa'; bGram.style.borderColor = '#333';
+      } else {
+        bGram.style.background = '#fff'; bGram.style.color = '#000'; bGram.style.borderColor = '#fff';
+        bUsdt.style.background = '#141414'; bUsdt.style.color = '#aaa'; bUsdt.style.borderColor = '#333';
+      }
+      updatePaymentDisplay();
+    }
+
+    function updatePaymentDisplay() {
+      let finalUsd = state.selectedPriceUsd;
+      const oldEl = document.getElementById('payOldPrice');
+
+      if (state.appliedDiscountPercent > 0) {
+        finalUsd = finalUsd * (1 - state.appliedDiscountPercent / 100);
+        oldEl.classList.remove('hidden');
+        oldEl.textContent = state.currency === 'USDT' 
+          ? '$' + state.selectedPriceUsd.toFixed(2) 
+          : (state.selectedPriceUsd / state.gramRate).toFixed(2) + ' GRAM';
+      } else {
+        oldEl.classList.add('hidden');
+      }
+
+      const amountEl = document.getElementById('payFinalAmount');
+      if (state.currency === 'USDT') {
+        amountEl.textContent = finalUsd.toFixed(2) + ' USDT';
+      } else {
+        amountEl.textContent = (finalUsd / state.gramRate).toFixed(2) + ' GRAM';
+      }
+    }
+
+    function applyPromoCode() {
+      const code = document.getElementById('inputPromo').value.trim().toUpperCase();
+      const msg = document.getElementById('promoMessage');
+      msg.classList.remove('hidden');
+
+      if (!code) {
+        msg.style.color = '#888';
+        msg.textContent = 'Введите промокод';
+        return;
+      }
+
+      const promo = promoDatabase.find(p => p.code === code);
+      const userKey = (state.username || 'user').toLowerCase();
+
+      if (!promo) {
+        msg.style.color = '#888';
+        msg.textContent = 'Такого промокода больше нет';
+        state.appliedPromo = null;
+        state.appliedDiscountPercent = 0;
+        updatePaymentDisplay();
+        return;
+      }
+
+      if (promo.status === 'ended') {
+        msg.style.color = '#f87171';
+        msg.textContent = 'Промокод закончился';
+        state.appliedPromo = null;
+        state.appliedDiscountPercent = 0;
+        updatePaymentDisplay();
+        return;
+      }
+
+      if (promo.status === 'no_longer_exists') {
+        msg.style.color = '#888';
+        msg.textContent = 'Такого промокода больше нет';
+        state.appliedPromo = null;
+        state.appliedDiscountPercent = 0;
+        updatePaymentDisplay();
+        return;
+      }
+
+      const used = (promo.usedUsers && promo.usedUsers[userKey]) ? promo.usedUsers[userKey] : 0;
+      if (used >= promo.limitPerUser) {
+        msg.style.color = '#fbbf24';
+        msg.textContent = 'Промокод уже недоступен';
+        state.appliedPromo = null;
+        state.appliedDiscountPercent = 0;
+        updatePaymentDisplay();
+        return;
+      }
+
+      state.appliedPromo = promo.code;
+      state.appliedDiscountPercent = promo.discount;
+      msg.style.color = '#34d399';
+      msg.textContent = '✓ Скидка ' + promo.discount + '% применена!';
+      updatePaymentDisplay();
+    }
+
+    function copyWallet() {
+      navigator.clipboard.writeText(TON_WALLET).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = 'Копия'; }, 1800);
+      }).catch(() => {
+        alert(TON_WALLET);
+      });
+    }
+
+    function confirmPayment() {
+      if (state.appliedPromo) {
+        const promo = promoDatabase.find(p => p.code === state.appliedPromo);
+        if (promo) {
+          const userKey = (state.username || 'user').toLowerCase();
+          if (!promo.usedUsers) promo.usedUsers = {};
+          promo.usedUsers[userKey] = (promo.usedUsers[userKey] || 0) + 1;
+          savePromos();
+        }
+      }
+
+      const finalAmountStr = document.getElementById('payFinalAmount').textContent;
+      const orderData = {
+        country: state.selectedCountry,
+        code: state.selectedCode,
+        buyer_username: '@' + state.username,
+        price_usd: state.selectedPriceUsd.toFixed(2),
+        currency: state.currency,
+        price_val: finalAmountStr,
+        promo: state.appliedPromo ? state.appliedPromo + ' (-' + state.appliedDiscountPercent + '%)' : 'Не применялся',
+        wallet: TON_WALLET
+      };
+
+      if (tg) {
+        try {
+          tg.sendData(JSON.stringify(orderData));
+        } catch(e) {}
+      }
+
+      const text = encodeURIComponent(
+        'Покупка номера UJ92_shop:\n' +
+        '• Товар: ' + state.selectedCountry + ' (' + state.selectedCode + ')\n' +
+        '• Юзернейм: @' + state.username + '\n' +
+        '• Сумма: ' + finalAmountStr + '\n' +
+        '• Промокод: ' + orderData.promo + '\n' +
+        '• Кошелек: ' + TON_WALLET
+      );
+      document.getElementById('directAdminLink').href = 'https://t.me/' + ADMIN_USERNAME + '?text=' + text;
+
+      document.getElementById('resCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
+      document.getElementById('resUser').textContent = '@' + state.username;
+      document.getElementById('resAmount').textContent = finalAmountStr;
+      document.getElementById('resPromo').textContent = orderData.promo;
+
+      goToScreen('screenSuccess');
+    }
+
+    function resetShop() {
+      document.getElementById('inputPromo').value = '';
+      document.getElementById('promoMessage').classList.add('hidden');
+      state.appliedPromo = null;
+      state.appliedDiscountPercent = 0;
+      goToScreen('screenCatalog');
+    }
+
+    function toggleAdminModal(show) {
+      document.getElementById('adminModal').classList.toggle('hidden', !show);
+      if (show) renderAdminPromoList();
+    }
+
+    function setAdminStatus(isOnline) {
+      state.isAdminOnline = isOnline;
+      storage.set('uj92_admin_online', isOnline ? 'true' : 'false');
+      updateAdminStatusUI();
+    }
+
+    function updateAdminStatusUI() {
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      const bOn = document.getElementById('adminBtnOnline');
+      const bOff = document.getElementById('adminBtnOffline');
+
+      if (state.isAdminOnline) {
+        dot.style.background = '#10b981';
+        text.textContent = 'Админ @uj_92: Онлайн';
+        bOn.style.borderColor = '#10b981'; bOn.style.background = '#064e3b'; bOn.style.color = '#a7f3d0';
+        bOff.style.borderColor = '#333'; bOff.style.background = '#141414'; bOff.style.color = '#777';
+      } else {
+        dot.style.background = '#666';
+        text.textContent = 'Админ @uj_92: Не в сети';
+        bOff.style.borderColor = '#fff'; bOff.style.background = '#222'; bOff.style.color = '#fff';
+        bOn.style.borderColor = '#333'; bOn.style.background = '#141414'; bOn.style.color = '#777';
+      }
+    }
+
+    function updateGramRate() {
+      const val = parseFloat(document.getElementById('adminGramInput').value);
+      if (val && val > 0) {
+        state.gramRate = val;
+        storage.set('uj92_gram_rate', val.toString());
+        renderGramPrices();
+        alert('Курс обновлен: $' + val);
+      }
+    }
+
+    function renderGramPrices() {
+      document.getElementById('gramRateDisplay').textContent = '$' + state.gramRate.toFixed(2);
+      document.getElementById('adminGramInput').value = state.gramRate;
+
+      const p08 = (0.80 / state.gramRate).toFixed(2);
+      const p10 = (1.00 / state.gramRate).toFixed(2);
+      const p18 = (1.80 / state.gramRate).toFixed(2);
+
+      const el08 = document.getElementById('gramPrice-0.80');
+      const el08_2 = document.getElementById('gramPrice-0.80-2');
+      const el10 = document.getElementById('gramPrice-1.00');
+      const el18 = document.getElementById('gramPrice-1.80');
+
+      if (el08) el08.textContent = '~' + p08 + ' GRAM';
+      if (el08_2) el08_2.textContent = '~' + p08 + ' GRAM';
+      if (el10) el10.textContent = '~' + p10 + ' GRAM';
+      if (el18) el18.textContent = '~' + p18 + ' GRAM';
+    }
+
+    function createPromo() {
+      const code = document.getElementById('newPromoCode').value.trim().toUpperCase();
+      const disc = parseInt(document.getElementById('newPromoDiscount').value);
+      const lim = parseInt(document.getElementById('newPromoLimit').value) || 1;
+      const status = document.getElementById('newPromoStatus').value;
+
+      if (!code || isNaN(disc) || disc <= 0) {
+        alert('Введите корректный код и скидку');
+        return;
+      }
+
+      const existing = promoDatabase.find(p => p.code === code);
+      if (existing) {
+        existing.discount = disc;
+        existing.limitPerUser = lim;
+        existing.status = status;
+      } else {
+        promoDatabase.push({ code: code, discount: disc, limitPerUser: lim, status: status, usedUsers: {} });
+      }
+
+      savePromos();
+      document.getElementById('newPromoCode').value = '';
+      alert('Промокод сохранен!');
+    }
+
+    function deletePromo(code) {
+      promoDatabase = promoDatabase.filter(p => p.code !== code);
+      savePromos();
+    }
+
+    function renderAdminPromoList() {
+      const c = document.getElementById('promoListContainer');
+      c.innerHTML = '';
+      if (promoDatabase.length === 0) {
+        c.innerHTML = '<div style="font-size: 11px; color: #555;">Нет промокодов</div>';
+        return;
+      }
+      promoDatabase.forEach(p => {
+        const d = document.createElement('div');
+        d.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: #141414; padding: 6px 8px; border-radius: 8px; font-size: 11px; border: 1px solid #222;';
+        d.innerHTML = '<div><b style="color: #fff;" class="font-mono">' + p.code + '</b> <span style="color: #777;">-' + p.discount + '%</span></div><button onclick="deletePromo(\'' + p.code + '\')" style="background: none; border: none; color: #f87171; cursor: pointer;">✕</button>';
+        c.appendChild(d);
+      });
+    }
+
+    // Фоновая плавная анимация волн
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, step = 0;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      step += 0.008;
+      const lines = [
+        { y: height * 0.35, len: 0.0035, amp: 30, spd: 0.7, col: 'rgba(255,255,255,0.22)' },
+        { y: height * 0.55, len: 0.0025, amp: 40, spd: -0.5, col: 'rgba(180,180,180,0.18)' },
+        { y: height * 0.75, len: 0.0040, amp: 35, spd: 0.9, col: 'rgba(220,220,220,0.15)' }
+      ];
+      lines.forEach(l => {
+        ctx.beginPath();
+        ctx.strokeStyle = l.col;
+        ctx.lineWidth = 1.5;
+        for (let x = 0; x <= width; x += 12) {
+          const y = l.y + Math.sin(x * l.len + step * l.spd) * l.amp;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    updateAdminStatusUI();
+    renderGramPrices();
+    renderAdminPromoList();
+  </script>
+</body>
+</html>
