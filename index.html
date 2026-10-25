@@ -8,7 +8,7 @@
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Официальная библиотека TON Connect UI -->
+  <!-- TON Connect UI -->
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
   <style>
@@ -34,7 +34,6 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
-    /* Фоновые контрастные волны */
     #waveCanvas {
       position: fixed;
       top: 0;
@@ -59,7 +58,6 @@
       justify-content: space-between;
     }
 
-    /* Анимации кнопок */
     .btn-grow {
       transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, border-color 0.15s;
       cursor: pointer;
@@ -117,7 +115,6 @@
 </head>
 <body>
 
-  <!-- Анимированный Canvas с волнами -->
   <canvas id="waveCanvas"></canvas>
 
   <div class="app-container">
@@ -139,7 +136,6 @@
             <span style="font-weight: 600;">Отзывы</span>
           </a>
 
-          <!-- Кнопка админки (скрыта по умолчанию) -->
           <button id="adminSettingsBtn" onclick="toggleAdminModal(true)" class="btn-grow hidden" style="background: #ffffff; border: 1px solid #ffffff; color: #000000; padding: 6px 10px; border-radius: 10px; font-size: 13px;">
             ⚙️ Админ
           </button>
@@ -147,13 +143,11 @@
       </div>
     </header>
 
-    <!-- Основной контент -->
     <main style="flex: 1;">
 
       <!-- ================= 1. КАТАЛОГ ================= -->
       <section id="screenCatalog" style="display: flex; flex-direction: column; gap: 12px;">
         
-        <!-- БЛОК КУРСА GRAM С BYBIT -->
         <div style="background: rgba(14, 14, 14, 0.95); border: 1px solid #2a2a2a; border-radius: 16px; padding: 12px 16px; backdrop-filter: blur(8px); display: flex; justify-content: space-between; align-items: center;">
           <div>
             <div style="display: flex; align-items: center; gap: 6px;">
@@ -172,7 +166,6 @@
           Выберите регион номера:
         </div>
 
-        <!-- 1. Америка -->
         <div onclick="selectProduct('Америка', '+1', 0.80, '🇺🇸')" class="card-item btn-grow">
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 28px;">🇺🇸</span>
@@ -187,7 +180,6 @@
           </div>
         </div>
 
-        <!-- 2. Бангладеш -->
         <div onclick="selectProduct('Бангладеш', '+880', 1.00, '🇧🇩')" class="card-item btn-grow">
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 28px;">🇧🇩</span>
@@ -202,7 +194,6 @@
           </div>
         </div>
 
-        <!-- 3. Индия -->
         <div onclick="selectProduct('Индия', '+91', 0.80, '🇮🇳')" class="card-item btn-grow">
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 28px;">🇮🇳</span>
@@ -217,7 +208,6 @@
           </div>
         </div>
 
-        <!-- 4. Британия -->
         <div onclick="selectProduct('Британия', '+44', 1.80, '🇬🇧')" class="card-item btn-grow">
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 28px;">🇬🇧</span>
@@ -265,19 +255,19 @@
         </button>
       </section>
 
-      <!-- ================= 3. ОПЛАТА ================= -->
+      <!-- ================= 3. ТОЛЬКО ПРЯМАЯ ОПЛАТА ================= -->
       <section id="screenPayment" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
         <button onclick="goToScreen('screenUsername')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
           ← Изменить юзернейм
         </button>
 
+        <!-- Карточка заказа -->
         <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
           <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
             <span>Покупатель: <b id="paySummaryUser" style="color: #fff;" class="font-mono">@user</b></span>
             <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
           </div>
 
-          <!-- Выбор валюты -->
           <div style="margin-top: 4px;">
             <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
               Вариант оплаты (сеть TON):
@@ -301,33 +291,44 @@
           </div>
         </div>
 
-        <!-- ================= БЛОК БЫСТРОЙ ОПЛАТЫ ================= -->
-        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <!-- Уникальный комментарий заказа для блокчейна -->
+        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 12px 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold;">Уникальный код заказа:</div>
+            <div id="orderCodeDisplay" class="font-mono" style="font-size: 16px; font-weight: 900; color: #4ade80; margin-top: 2px;">UJ-000000</div>
+          </div>
+          <span class="badge" style="background: #142818; color: #4ade80; border: 1px solid #285430;">Блокчейн-проверка</span>
+        </div>
+
+        <!-- БЛОК ПРЯМОЙ ОПЛАТЫ (TON Connect) -->
+        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 16px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Быстрая оплата:</span>
+            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Прямая оплата:</span>
             <span class="badge" style="background: #0088cc; color: #fff;">TON Connect</span>
           </div>
 
-          <!-- Контейнер переключения кнопок -->
           <div id="walletActionsContainer">
-            <!-- 1. Кнопка привязки (отображается ДО подключения) -->
-            <button id="btnConnectWallet" onclick="connectTonWallet()" class="btn-grow" style="width: 100%; padding: 13px; background: #1a1a1a; border: 1px solid #3a3a3a; color: #ffffff; border-radius: 12px; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-              <span>🔗</span> Привязать кошелек
+            <!-- 1. Кнопка привязки кошелька -->
+            <button id="btnConnectWallet" onclick="connectTonWallet()" class="btn-grow" style="width: 100%; padding: 15px; background: #1f1f1f; border: 1px solid #3a3a3a; color: #ffffff; border-radius: 14px; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span>🔗</span> Привязать кошелек (Tonkeeper)
             </button>
 
-            <!-- 2. Блок оплаты (появляется ТОЛЬКО после привязки на том же месте) -->
-            <div id="walletConnectedBlock" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; background: #0a0a0a; padding: 6px 10px; border-radius: 8px; border: 1px solid #262626;">
-                <span>Ваш адрес: <b id="connectedWalletAddr" class="font-mono" style="color: #4ade80;"></b></span>
+            <!-- 2. Кнопка оплаты (появляется только после привязки) -->
+            <div id="walletConnectedBlock" class="hidden" style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; background: #0a0a0a; padding: 8px 12px; border-radius: 10px; border: 1px solid #262626;">
+                <span>Кошелек: <b id="connectedWalletAddr" class="font-mono" style="color: #4ade80;"></b></span>
                 <button onclick="disconnectTonWallet()" style="background: none; border: none; color: #f87171; cursor: pointer; text-decoration: underline; font-size: 11px;">Сменить</button>
               </div>
 
-              <!-- Кнопка оплаты: мгновенно открывает окно подтверждения в кошельке -->
-              <button onclick="payViaConnectedWallet()" class="btn-grow" style="width: 100%; padding: 14px; background: #0088cc; color: #ffffff; border: none; border-radius: 12px; font-weight: 900; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 16px rgba(0,136,204,0.35);">
-                <span>💎</span> Оплатить
+              <button onclick="payViaConnectedWallet()" class="btn-grow" style="width: 100%; padding: 16px; background: #0088cc; color: #ffffff; border: none; border-radius: 14px; font-weight: 900; font-size: 14px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 20px rgba(0,136,204,0.35);">
+                <span>💎</span> Оплатить через кошелек
               </button>
             </div>
           </div>
+
+          <p style="font-size: 11px; color: #666; text-align: center; line-height: 1.4;">
+            Код заказа будет автоматически внесён в комментарий к переводу. Бот сразу проверит транзакцию в сети TON.
+          </p>
         </div>
 
         <!-- Промокод -->
@@ -341,37 +342,6 @@
           </div>
           <div id="promoMessage" class="hidden" style="font-size: 12px;"></div>
         </div>
-
-        <!-- Ручной перевод по реквизитам магазина -->
-        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Реквизиты магазина:</span>
-            <span style="font-size: 10px; background: #1a1a1a; padding: 2px 6px; border-radius: 6px; color: #888; border: 1px solid #282828;">Сеть TON</span>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 8px; background: #0a0a0a; border: 1px solid #333; padding: 8px 10px; border-radius: 12px;">
-            <div id="walletAddressText" class="font-mono" style="flex: 1; font-size: 11px; color: #eee; word-break: break-all; line-height: 1.3;">
-              UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y
-            </div>
-            <button onclick="copyWallet()" class="btn-grow" id="copyBtn" style="background: #ffffff; color: #000000; border: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; justify-content: center;" title="Скопировать">
-              📋
-            </button>
-          </div>
-
-          <div style="display: flex; justify-content: center; padding: 6px 0;">
-            <div style="background: #fff; padding: 8px; border-radius: 12px; line-height: 0;">
-              <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=ton://transfer/UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y" alt="QR" width="130" height="130" style="display: block;">
-            </div>
-          </div>
-          <p style="font-size: 11px; text-align: center; color: #777;">
-            Подтвердите перевод после завершения
-          </p>
-        </div>
-
-        <!-- Кнопка «Я ОПЛАТИЛ» -->
-        <button onclick="confirmPayment()" class="btn-grow" style="width: 100%; padding: 16px; background: #ffffff; color: #000000; border: none; border-radius: 16px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,255,255,0.2);">
-          ✓ Я ОПЛАТИЛ
-        </button>
       </section>
 
       <!-- ================= 4. УСПЕХ ================= -->
@@ -380,23 +350,20 @@
           ✓
         </div>
         <div>
-          <h2 style="font-size: 18px; font-weight: 800;">Заявка сформирована</h2>
+          <h2 style="font-size: 18px; font-weight: 800;">Заявка отправлена</h2>
           <p style="font-size: 12px; color: #888; margin-top: 4px;">
-            Данные отправлены боту. Также напишите администратору напрямую для получения номера:
+            Бот проверяет транзакцию в блокчейне TON. Вы можете вернуться в чат.
           </p>
         </div>
 
         <div class="font-mono" style="background: rgba(16,16,16,0.9); border: 1px solid #2a2a2a; border-radius: 14px; padding: 12px; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Код заказа:</span><span id="resCode" style="color: #4ade80; font-weight: bold;"></span></div>
           <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Товар:</span><span id="resCountry"></span></div>
           <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Юзернейм:</span><span id="resUser"></span></div>
           <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Сумма:</span><span id="resAmount" style="font-weight: bold; color: #fff;"></span></div>
-          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Промокод:</span><span id="resPromo"></span></div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <a id="directAdminLink" href="https://t.me/uj_92" target="_blank" class="btn-grow" style="text-decoration: none; padding: 14px; background: #fff; color: #000; border-radius: 12px; font-weight: 800; font-size: 12px; text-transform: uppercase;">
-            Написать админу @uj_92 в ЛС
-          </a>
           <button onclick="resetShop()" class="btn-grow" style="padding: 12px; background: #111; border: 1px solid #333; color: #888; border-radius: 12px; font-size: 12px;">
             Вернуться в каталог
           </button>
@@ -405,7 +372,6 @@
 
     </main>
 
-    <!-- Подвал -->
     <footer style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; text-align: center; font-size: 11px; color: #666;">
       UJ92_shop &bull; Администратор: <a href="https://t.me/uj_92" target="_blank" style="color: #888; text-decoration: underline;">@uj_92</a>
     </footer>
@@ -420,7 +386,6 @@
         <button onclick="toggleAdminModal(false)" style="background: none; border: none; color: #888; font-size: 18px; cursor: pointer;">✕</button>
       </div>
 
-      <!-- Курс GRAM с Bybit -->
       <div>
         <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курс GRAM (Bybit):</label>
         <button onclick="fetchGramFromBybit()" class="btn-grow" style="width: 100%; padding: 8px; background: #1f1f1f; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 11px; font-weight: bold; margin-bottom: 8px;">
@@ -435,7 +400,6 @@
         </div>
       </div>
 
-      <!-- Промокоды -->
       <div style="border-top: 1px solid #222; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
         <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold;">Добавить промокод:</label>
         <input type="text" id="newPromoCode" placeholder="КОД (например: SALE20)" class="font-mono" style="text-transform: uppercase;">
@@ -451,11 +415,7 @@
         <button onclick="createPromo()" class="btn-grow" style="padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 10px; font-weight: bold; font-size: 12px;">
           + Сохранить
         </button>
-
-        <div style="margin-top: 4px;">
-          <span style="font-size: 10px; color: #666; text-transform: uppercase;">Список промокодов:</span>
-          <div id="promoListContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px; max-height: 110px; overflow-y: auto;"></div>
-        </div>
+        <div id="promoListContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px; max-height: 110px; overflow-y: auto;"></div>
       </div>
 
       <button onclick="toggleAdminModal(false)" class="btn-grow" style="padding: 10px; background: #141414; border: 1px solid #333; color: #aaa; border-radius: 10px; font-size: 12px;">
@@ -495,10 +455,16 @@
       username: '',
       currency: 'USDT',
       appliedPromo: null,
-      appliedDiscountPercent: 0
+      appliedDiscountPercent: 0,
+      currentOrderCode: ''
     };
 
-    // ================= TON CONNECT UI ЛОГИКА =================
+    // Создание уникального комментария для каждого заказа
+    function generateOrderCode() {
+      const rand = Math.floor(100000 + Math.random() * 900000);
+      return `UJ-${rand}`;
+    }
+
     let tonConnectUI = null;
     try {
       tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -515,7 +481,6 @@
       console.warn("TON Connect init error:", e);
     }
 
-    // Отображение человекочитаемого адреса (UQ...)
     function updateWalletButtonState(wallet) {
       const btnConnect = document.getElementById('btnConnectWallet');
       const blockConnected = document.getElementById('walletConnectedBlock');
@@ -527,8 +492,6 @@
 
         let raw = wallet.account.address;
         let formatted = raw;
-
-        // Преобразуем сырой hex (0:...) в пользовательский формат UQ...
         try {
           if (TON_CONNECT_UI && TON_CONNECT_UI.toUserFriendlyAddress) {
             formatted = TON_CONNECT_UI.toUserFriendlyAddress(raw);
@@ -561,20 +524,82 @@
       }
     }
 
-    // Оплата: открывает приложение кошелька с заполненным окном перевода
-    function payViaConnectedWallet() {
-      const finalAmountStr = document.getElementById('payFinalAmount').textContent;
-      const comment = encodeURIComponent(`Buy_${state.selectedCountry}_@${state.username}`);
-
-      // Формируем прямую ссылку на перевод в приложении Tonkeeper
-      const deepLink = `https://app.tonkeeper.com/transfer/${TON_WALLET}?text=${comment}`;
-
-      // В Telegram WebApp внешние ссылки открываются строго через tg.openLink
-      if (tg && typeof tg.openLink === 'function') {
-        tg.openLink(deepLink);
-      } else {
-        window.location.href = deepLink;
+    // Создание текстового payload с кодом заказа для блокчейна TON
+    function createCommentPayload(text) {
+      const encoder = new TextEncoder();
+      const textBytes = encoder.encode(text);
+      const payload = new Uint8Array(4 + textBytes.length);
+      payload.set(textBytes, 4); // первые 4 байта = 0x00000000 (текстовый опкод)
+      let binary = '';
+      for (let i = 0; i < payload.byteLength; i++) {
+        binary += String.fromCharCode(payload[i]);
       }
+      return btoa(binary);
+    }
+
+    // Прямой перевод через привязанный кошелёк
+    async function payViaConnectedWallet() {
+      if (!tonConnectUI || !tonConnectUI.connected) {
+        connectTonWallet();
+        return;
+      }
+
+      const orderCode = state.currentOrderCode;
+      const payloadBase64 = createCommentPayload(orderCode);
+
+      try {
+        const tx = {
+          validUntil: Math.floor(Date.now() / 1000) + 600,
+          messages: [
+            {
+              address: TON_WALLET,
+              amount: "10000000", // 0.01 TON
+              payload: payloadBase64
+            }
+          ]
+        };
+
+        await tonConnectUI.sendTransaction(tx);
+        finishOrder(orderCode);
+      } catch (e) {
+        console.warn("TON Connect direct send error, falling back to deep link:", e);
+        // Резервный переход в приложение Tonkeeper с предзаполненным кодом
+        const deepLink = `https://app.tonkeeper.com/transfer/${TON_WALLET}?text=${encodeURIComponent(orderCode)}`;
+        if (tg && typeof tg.openLink === 'function') {
+          tg.openLink(deepLink);
+        } else {
+          window.location.href = deepLink;
+        }
+        finishOrder(orderCode);
+      }
+    }
+
+    function finishOrder(orderCode) {
+      const finalAmountStr = document.getElementById('payFinalAmount').textContent;
+      const orderData = {
+        order_code: orderCode,
+        country: state.selectedCountry,
+        code: state.selectedCode,
+        buyer_username: '@' + state.username,
+        price_usd: state.selectedPriceUsd.toFixed(2),
+        currency: state.currency,
+        price_val: finalAmountStr,
+        promo: state.appliedPromo ? state.appliedPromo + ' (-' + state.appliedDiscountPercent + '%)' : 'Не применялся',
+        wallet: TON_WALLET
+      };
+
+      if (tg) {
+        try {
+          tg.sendData(JSON.stringify(orderData));
+        } catch(e) {}
+      }
+
+      document.getElementById('resCode').textContent = orderCode;
+      document.getElementById('resCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
+      document.getElementById('resUser').textContent = '@' + state.username;
+      document.getElementById('resAmount').textContent = finalAmountStr;
+
+      goToScreen('screenSuccess');
     }
 
     function verifyAdminAccess() {
@@ -687,6 +712,10 @@
       if (u.startsWith('@')) u = u.substring(1);
       state.username = u;
 
+      // При каждом переходе к оплате генерируется свежий код
+      state.currentOrderCode = generateOrderCode();
+      document.getElementById('orderCodeDisplay').textContent = state.currentOrderCode;
+
       document.getElementById('paySummaryUser').textContent = '@' + state.username;
       document.getElementById('paySummaryCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
 
@@ -744,7 +773,7 @@
       const promo = promoDatabase.find(p => p.code === code);
       const userKey = (state.username || 'user').toLowerCase();
 
-      if (!promo) {
+      if (!promo || promo.status === 'no_longer_exists') {
         msg.style.color = '#888';
         msg.textContent = 'Такого промокода больше нет';
         state.appliedPromo = null;
@@ -756,15 +785,6 @@
       if (promo.status === 'ended') {
         msg.style.color = '#f87171';
         msg.textContent = 'Промокод закончился';
-        state.appliedPromo = null;
-        state.appliedDiscountPercent = 0;
-        updatePaymentDisplay();
-        return;
-      }
-
-      if (promo.status === 'no_longer_exists') {
-        msg.style.color = '#888';
-        msg.textContent = 'Такого промокода больше нет';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
         updatePaymentDisplay();
@@ -786,61 +806,6 @@
       msg.style.color = '#34d399';
       msg.textContent = '✓ Скидка ' + promo.discount + '% применена!';
       updatePaymentDisplay();
-    }
-
-    function copyWallet() {
-      navigator.clipboard.writeText(TON_WALLET).then(() => {
-        const btn = document.getElementById('copyBtn');
-        btn.textContent = '✓';
-        setTimeout(() => { btn.textContent = '📋'; }, 1800);
-      }).catch(() => {
-        alert(TON_WALLET);
-      });
-    }
-
-    function confirmPayment() {
-      if (state.appliedPromo) {
-        const promo = promoDatabase.find(p => p.code === state.appliedPromo);
-        if (promo) {
-          const userKey = (state.username || 'user').toLowerCase();
-          if (!promo.usedUsers) promo.usedUsers = {};
-          promo.usedUsers[userKey] = (promo.usedUsers[userKey] || 0) + 1;
-          savePromos();
-        }
-      }
-
-      const finalAmountStr = document.getElementById('payFinalAmount').textContent;
-      const orderData = {
-        country: state.selectedCountry,
-        code: state.selectedCode,
-        buyer_username: '@' + state.username,
-        price_usd: state.selectedPriceUsd.toFixed(2),
-        currency: state.currency,
-        price_val: finalAmountStr,
-        promo: state.appliedPromo ? state.appliedPromo + ' (-' + state.appliedDiscountPercent + '%)' : 'Не применялся',
-        wallet: TON_WALLET
-      };
-
-      if (tg) {
-        try { tg.sendData(JSON.stringify(orderData)); } catch(e) {}
-      }
-
-      const text = encodeURIComponent(
-        'Покупка номера UJ92_shop:\n' +
-        '• Товар: ' + state.selectedCountry + ' (' + state.selectedCode + ')\n' +
-        '• Юзернейм: @' + state.username + '\n' +
-        '• Сумма: ' + finalAmountStr + '\n' +
-        '• Промокод: ' + orderData.promo + '\n' +
-        '• Кошелек: ' + TON_WALLET
-      );
-      document.getElementById('directAdminLink').href = 'https://t.me/' + ADMIN_USERNAME + '?text=' + text;
-
-      document.getElementById('resCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
-      document.getElementById('resUser').textContent = '@' + state.username;
-      document.getElementById('resAmount').textContent = finalAmountStr;
-      document.getElementById('resPromo').textContent = orderData.promo;
-
-      goToScreen('screenSuccess');
     }
 
     function resetShop() {
@@ -931,7 +896,7 @@
       });
     }
 
-    // ================= ВОЛНЫ НА CANVAS =================
+    // Фоновые волны
     const canvas = document.getElementById('waveCanvas');
     const ctx = canvas.getContext('2d');
     let width, height, step = 0;
