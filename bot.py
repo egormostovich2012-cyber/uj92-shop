@@ -16,7 +16,7 @@ from aiohttp import web
 
 BOT_TOKEN = "8960664106:AAEZKPLMdPSE_hp044AR5baQrwT0RQo_wtQ"
 ADMIN_ID = 6189216877
-WEB_APP_URL = "https://uj-92-shop.io/uj92-shop/"
+WEB_APP_URL = "https://uj-92-shop.github.io/uj92-shop/"
 ADMIN_USERNAME = "uj_92"
 
 logging.basicConfig(level=logging.INFO)
