@@ -56,7 +56,7 @@
       justify-content: space-between;
     }
 
-    /* Анимация увеличения кнопок при наведении и клике */
+    /* Анимации кнопок */
     .btn-grow {
       transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, border-color 0.15s;
       cursor: pointer;
@@ -69,7 +69,7 @@
     }
 
     .card-item {
-      background: rgba(12, 12, 12, 0.90);
+      background: rgba(14, 14, 14, 0.92);
       border: 1px solid #282828;
       backdrop-filter: blur(8px);
       border-radius: 16px;
@@ -110,6 +110,14 @@
       font-weight: bold;
       text-transform: uppercase;
     }
+
+    /* Интерактивный холст графика */
+    #chartCanvas {
+      width: 100%;
+      height: 120px;
+      display: block;
+      cursor: crosshair;
+    }
   </style>
 </head>
 <body>
@@ -119,42 +127,28 @@
 
   <div class="app-container">
     
-    <!-- Шапка -->
-    <header style="margin-bottom: 14px;">
+    <!-- Шапка (БЕЗ надписи онлайн) -->
+    <header style="margin-bottom: 12px;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 12px;">
-        <!-- Логотип: 5 кликов открывают скрытый вход в админку для ПК -->
+        <!-- 5 кликов по названию открывают админ-панель с ПК -->
         <div onclick="handleTitleClicks()" style="cursor: pointer; user-select: none;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <h1 style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px;">UJ92_shop</h1>
             <span class="badge" style="background: #ffffff; color: #000000;">bot</span>
           </div>
-          <p style="font-size: 11px; color: #999; margin-top: 2px;">Магазин аккаунтов Telegram</p>
+          <p style="font-size: 11px; color: #888; margin-top: 2px;">Магазин аккаунтов Telegram</p>
         </div>
 
         <div style="display: flex; gap: 8px; align-items: center;">
-          <!-- Отзывы -->
           <a href="https://t.me/uj_92_rew" target="_blank" class="btn-grow" style="text-decoration: none; color: #eeeeee; font-size: 12px; background: rgba(20,20,20,0.9); border: 1px solid #333; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 4px;">
             <span>⭐</span>
             <span style="font-weight: 600;">Отзывы</span>
           </a>
 
-          <!-- Кнопка админки: ПО УМОЛЧАНИЮ СКРЫТА ото всех (класс hidden) -->
-          <button id="adminSettingsBtn" onclick="toggleAdminModal(true)" class="btn-grow hidden" style="background: #ffffff; border: 1px solid #ffffff; color: #000000; padding: 6px 10px; border-radius: 10px; font-size: 13px;" title="Панель администратора">
+          <!-- Кнопка админки (скрыта по умолчанию) -->
+          <button id="adminSettingsBtn" onclick="toggleAdminModal(true)" class="btn-grow hidden" style="background: #ffffff; border: 1px solid #ffffff; color: #000000; padding: 6px 10px; border-radius: 10px; font-size: 13px;">
             ⚙️ Админ
           </button>
-        </div>
-      </div>
-
-      <!-- Статус админа + биржевой курс TON и GRAM -->
-      <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; background: rgba(10,10,10,0.85); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 12px;">
-        <div id="adminStatusDisplay" style="display: flex; align-items: center; gap: 6px;">
-          <span id="statusDot" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-          <span id="statusText" style="color: #ccc; font-weight: 500;">Админ @uj_92: Онлайн</span>
-        </div>
-        
-        <!-- Биржевой курс TON -->
-        <div class="font-mono" style="color: #888;" title="Курс обновляется с биржи автоматически">
-          1 TON ≈ <span id="tonRateDisplay" style="color: #fff; font-weight: bold;">$5.20</span>
         </div>
       </div>
     </header>
@@ -162,10 +156,45 @@
     <!-- Основной контент -->
     <main style="flex: 1;">
 
-      <!-- ================= 1. КАТАЛОГ ================= -->
-      <section id="screenCatalog" style="display: flex; flex-direction: column; gap: 10px;">
-        <div style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; letter-spacing: 0.5px;">
-          Выберите страну номера:
+      <!-- ================= 1. КАТАЛОГ И ГРАФИК GRAM ================= -->
+      <section id="screenCatalog" style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- БЛОК ОТСЛЕЖИВАЕМОГО ГРАФИКА GRAM -->
+        <div style="background: rgba(14, 14, 14, 0.95); border: 1px solid #2a2a2a; border-radius: 16px; padding: 12px 14px; backdrop-filter: blur(8px);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 900; font-size: 13px; letter-spacing: 0.5px;">GRAM / USDT</span>
+                <span class="badge" style="background: #1e3a1e; color: #4ade80;">Live</span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 2px;">
+                <span id="chartCurrentPrice" class="font-mono" style="font-size: 20px; font-weight: 900; color: #fff;">$1.24</span>
+                <span id="chartPriceChange" class="font-mono" style="font-size: 11px; color: #4ade80; font-weight: bold;">+3.33%</span>
+              </div>
+            </div>
+
+            <!-- Переключатель таймфреймов -->
+            <div style="display: flex; gap: 4px; background: #0a0a0a; border: 1px solid #262626; padding: 3px; border-radius: 8px;">
+              <button onclick="setChartTf('1H')" id="tf1H" class="btn-grow font-mono" style="background: #262626; color: #fff; border: none; font-size: 10px; padding: 4px 7px; border-radius: 6px; font-weight: bold;">1Ч</button>
+              <button onclick="setChartTf('24H')" id="tf24H" class="btn-grow font-mono" style="background: transparent; color: #777; border: none; font-size: 10px; padding: 4px 7px; border-radius: 6px; font-weight: bold;">24Ч</button>
+              <button onclick="setChartTf('7D')" id="tf7D" class="btn-grow font-mono" style="background: transparent; color: #777; border: none; font-size: 10px; padding: 4px 7px; border-radius: 6px; font-weight: bold;">7Д</button>
+            </div>
+          </div>
+
+          <!-- Контейнер холста графика -->
+          <div style="position: relative; width: 100%; height: 120px;">
+            <canvas id="chartCanvas"></canvas>
+            <div id="chartTooltip" class="font-mono" style="position: absolute; display: none; background: #ffffff; color: #000000; padding: 3px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; pointer-events: none; transform: translate(-50%, -120%); white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+              $1.24
+            </div>
+          </div>
+          <p style="font-size: 10px; text-align: center; color: #666; margin-top: 4px;">
+            Проведите по графику, чтобы увидеть динамику курса
+          </p>
+        </div>
+
+        <div style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; letter-spacing: 0.5px; margin-top: 4px;">
+          Выберите регион номера:
         </div>
 
         <!-- 1. Америка -->
@@ -179,7 +208,7 @@
           </div>
           <div style="text-align: right;">
             <div class="font-mono" style="font-weight: 900; font-size: 16px;">$0.80</div>
-            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-0.80">~0.15 TON</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catGram-0.80">~0.65 GRAM</div>
           </div>
         </div>
 
@@ -194,7 +223,7 @@
           </div>
           <div style="text-align: right;">
             <div class="font-mono" style="font-weight: 900; font-size: 16px;">$1.00</div>
-            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-1.00">~0.19 TON</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catGram-1.00">~0.81 GRAM</div>
           </div>
         </div>
 
@@ -209,7 +238,7 @@
           </div>
           <div style="text-align: right;">
             <div class="font-mono" style="font-weight: 900; font-size: 16px;">$0.80</div>
-            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-0.80-2">~0.15 TON</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catGram-0.80-2">~0.65 GRAM</div>
           </div>
         </div>
 
@@ -224,7 +253,7 @@
           </div>
           <div style="text-align: right;">
             <div class="font-mono" style="font-weight: 900; font-size: 16px;">$1.80</div>
-            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-1.80">~0.35 TON</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catGram-1.80">~1.45 GRAM</div>
           </div>
         </div>
       </section>
@@ -232,7 +261,7 @@
       <!-- ================= 2. ВВОД ЮЗЕРНЕЙМА ================= -->
       <section id="screenUsername" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
         <button onclick="goToScreen('screenCatalog')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
-          ← Вернуться в каталог
+          ← Вернуться назад
         </button>
 
         <div style="background: rgba(16,16,16,0.9); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
@@ -273,20 +302,17 @@
             <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
           </div>
 
-          <!-- Выбор валюты (USDT / TON / GRAM) -->
+          <!-- Только GRAM или USDT (сеть TON) -->
           <div style="margin-top: 4px;">
             <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
               Вариант оплаты (сеть TON):
             </span>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px 4px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 11px;">
-                ₮ USDT
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 12px;">
+                ₮ USDT (TON)
               </button>
-              <button id="btnCurTon" onclick="setCurrency('TON')" class="btn-grow" style="padding: 10px 4px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 11px;">
-                💎 TON
-              </button>
-              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px 4px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 11px;">
-                ⚡ GRAM
+              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 12px;">
+                ⚡ GRAM (TON)
               </button>
             </div>
           </div>
@@ -316,7 +342,7 @@
         <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Кошелек TON:</span>
-            <span style="font-size: 10px; background: #1a1a1a; padding: 2px 6px; border-radius: 6px; color: #888; border: 1px solid #282828;">Сеть The Open Network</span>
+            <span style="font-size: 10px; background: #1a1a1a; padding: 2px 6px; border-radius: 6px; color: #888; border: 1px solid #282828;">Только GRAM / USDT TON</span>
           </div>
 
           <div style="display: flex; align-items: center; gap: 8px; background: #0a0a0a; border: 1px solid #333; padding: 8px 10px; border-radius: 12px;">
@@ -368,7 +394,7 @@
             Написать админу @uj_92 в ЛС
           </a>
           <button onclick="resetShop()" class="btn-grow" style="padding: 12px; background: #111; border: 1px solid #333; color: #888; border-radius: 12px; font-size: 12px;">
-            Вернуться в магазин
+            Вернуться в каталог
           </button>
         </div>
       </section>
@@ -390,33 +416,14 @@
         <button onclick="toggleAdminModal(false)" style="background: none; border: none; color: #888; font-size: 18px; cursor: pointer;">✕</button>
       </div>
 
-      <!-- Статус Онлайн -->
+      <!-- Курс GRAM -->
       <div>
-        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Ваш статус для клиентов:</label>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-          <button id="adminBtnOnline" onclick="setAdminStatus(true)" class="btn-grow" style="padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 1px solid #10b981; background: #064e3b; color: #a7f3d0;">
-            🟢 Онлайн
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курс 1 GRAM ($):</label>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1; padding: 6px 10px;">
+          <button onclick="updateGramRate()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 10px; font-weight: bold; font-size: 11px;">
+            ОК
           </button>
-          <button id="adminBtnOffline" onclick="setAdminStatus(false)" class="btn-grow" style="padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 1px solid #333; background: #141414; color: #777;">
-            ⚪ Не в сети
-          </button>
-        </div>
-      </div>
-
-      <!-- Курс TON и GRAM -->
-      <div style="border-top: 1px solid #222; padding-top: 10px;">
-        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курсы валют:</label>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <button onclick="fetchTonRate()" class="btn-grow" style="padding: 8px; background: #1e1e1e; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 11px; font-weight: bold;">
-            🔄 Обновить курс TON с биржи сейчас
-          </button>
-          <div style="display: flex; gap: 6px; align-items: center;">
-            <span style="font-size: 11px; color: #aaa;">1 GRAM ($):</span>
-            <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1; padding: 6px 10px;">
-            <button onclick="updateGramRate()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 10px; font-weight: bold; font-size: 11px;">
-              ОК
-            </button>
-          </div>
         </div>
       </div>
 
@@ -470,23 +477,21 @@
 
     const TON_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y";
     const ADMIN_USERNAME = "uj_92";
-    const ADMIN_TELEGRAM_ID = 6189216877; // Ваш числовой ID
+    const ADMIN_TELEGRAM_ID = 6189216877; // Ваш числовой ID[cite: 5]
 
     let state = {
-      tonRate: parseFloat(storage.get('uj92_ton_rate', '5.20')) || 5.20,
       gramRate: parseFloat(storage.get('uj92_gram_rate', '1.24')) || 1.24,
-      isAdminOnline: storage.get('uj92_admin_online', 'true') === 'true',
       selectedCountry: null,
       selectedCode: null,
       selectedPriceUsd: 0,
       selectedFlag: '',
       username: '',
-      currency: 'USDT', // 'USDT', 'TON', 'GRAM'
+      currency: 'USDT', // 'USDT' или 'GRAM'
       appliedPromo: null,
       appliedDiscountPercent: 0
     };
 
-    // --- ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА ---
+    // --- ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА (кнопка скрыта ото всех остальных) ---
     function verifyAdminAccess() {
       const user = tg?.initDataUnsafe?.user;
       const isOwner = (user && (user.id === ADMIN_TELEGRAM_ID || (user.username && user.username.toLowerCase() === ADMIN_USERNAME.toLowerCase())))
@@ -494,15 +499,12 @@
 
       const btn = document.getElementById('adminSettingsBtn');
       if (btn) {
-        if (isOwner) {
-          btn.classList.remove('hidden');
-        } else {
-          btn.classList.add('hidden');
-        }
+        if (isOwner) btn.classList.remove('hidden');
+        else btn.classList.add('hidden');
       }
     }
 
-    // Секретный вход для админа с ПК: 5 кликов по названию UJ92_shop
+    // Секретный вход с ПК: 5 быстрых кликов по заголовку
     let titleClickCount = 0;
     let titleClickTimer = null;
     function handleTitleClicks() {
@@ -523,45 +525,166 @@
       }
     }
 
-    // --- АВТОМАТИЧЕСКИЙ КУРС TON С БИРЖИ ---
-    async function fetchTonRate() {
-      try {
-        // Запрос к Binance API
-        const resp = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=TONUSDT');
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data && data.price) {
-            state.tonRate = parseFloat(data.price);
-            storage.set('uj92_ton_rate', state.tonRate.toString());
-            renderPrices();
-            return;
-          }
+    // ================= ИНТЕРАКТИВНЫЙ ГРАФИК GRAM =================
+    let chartTimeframe = '1H';
+    const chartData = {
+      '1H': [1.21, 1.22, 1.215, 1.225, 1.23, 1.228, 1.235, 1.232, 1.238, 1.24],
+      '24H': [1.16, 1.18, 1.17, 1.19, 1.21, 1.20, 1.22, 1.215, 1.23, 1.24],
+      '7D': [1.08, 1.12, 1.10, 1.15, 1.18, 1.17, 1.21, 1.22, 1.20, 1.24]
+    };
+
+    function setChartTf(tf) {
+      chartTimeframe = tf;
+      ['1H', '24H', '7D'].forEach(t => {
+        const btn = document.getElementById('tf' + t);
+        if (t === tf) {
+          btn.style.background = '#262626';
+          btn.style.color = '#fff';
+        } else {
+          btn.style.background = 'transparent';
+          btn.style.color = '#777';
         }
-      } catch (e) {
-        console.warn('Binance fetch failed, trying CoinGecko fallback...');
+      });
+      drawChart();
+    }
+
+    const chartCanvas = document.getElementById('chartCanvas');
+    const chartCtx = chartCanvas.getContext('2d');
+    const tooltip = document.getElementById('chartTooltip');
+    let chartHoverIndex = -1;
+
+    function resizeChartCanvas() {
+      chartCanvas.width = chartCanvas.parentElement.clientWidth * window.devicePixelRatio;
+      chartCanvas.height = 120 * window.devicePixelRatio;
+      chartCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawChart();
+    }
+    window.addEventListener('resize', resizeChartCanvas);
+
+    function drawChart() {
+      const w = chartCanvas.parentElement.clientWidth;
+      const h = 120;
+      chartCtx.clearRect(0, 0, w, h);
+
+      const pts = chartData[chartTimeframe];
+      const min = Math.min(...pts) * 0.985;
+      const max = Math.max(...pts) * 1.015;
+
+      const getX = i => (i / (pts.length - 1)) * (w - 20) + 10;
+      const getY = val => h - 15 - ((val - min) / (max - min)) * (h - 30);
+
+      // Горизонтальные фоновые линии сетки
+      chartCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      chartCtx.lineWidth = 1;
+      for (let i = 1; i <= 3; i++) {
+        const y = (h / 4) * i;
+        chartCtx.beginPath();
+        chartCtx.moveTo(0, y);
+        chartCtx.lineTo(w, y);
+        chartCtx.stroke();
       }
 
-      try {
-        // Резервный запрос к CoinGecko API
-        const resp = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd');
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data && data['the-open-network'] && data['the-open-network'].usd) {
-            state.tonRate = parseFloat(data['the-open-network'].usd);
-            storage.set('uj92_ton_rate', state.tonRate.toString());
-            renderPrices();
-          }
-        }
-      } catch (e) {
-        console.warn('All rate APIs failed, using cached rate:', state.tonRate);
+      // Линия тренда
+      chartCtx.beginPath();
+      chartCtx.strokeStyle = '#ffffff';
+      chartCtx.lineWidth = 2.2;
+      pts.forEach((p, i) => {
+        const x = getX(i);
+        const y = getY(p);
+        if (i === 0) chartCtx.moveTo(x, y);
+        else chartCtx.lineTo(x, y);
+      });
+      chartCtx.stroke();
+
+      // Градиентная заливка под графиком
+      const grad = chartCtx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+      chartCtx.lineTo(getX(pts.length - 1), h);
+      chartCtx.lineTo(getX(0), h);
+      chartCtx.fillStyle = grad;
+      chartCtx.fill();
+
+      // Последняя точка (пульсирующая)
+      const lastX = getX(pts.length - 1);
+      const lastY = getY(pts[pts.length - 1]);
+      chartCtx.beginPath();
+      chartCtx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+      chartCtx.fillStyle = '#4ade80';
+      chartCtx.fill();
+
+      // Отрисовка перекрестия при наведении
+      if (chartHoverIndex >= 0 && chartHoverIndex < pts.length) {
+        const hX = getX(chartHoverIndex);
+        const hY = getY(pts[chartHoverIndex]);
+
+        chartCtx.beginPath();
+        chartCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        chartCtx.setLineDash([3, 3]);
+        chartCtx.moveTo(hX, 0);
+        chartCtx.lineTo(hX, h);
+        chartCtx.stroke();
+        chartCtx.setLineDash([]);
+
+        chartCtx.beginPath();
+        chartCtx.arc(hX, hY, 5, 0, Math.PI * 2);
+        chartCtx.fillStyle = '#ffffff';
+        chartCtx.fill();
+
+        // Позиционирование тултипа
+        tooltip.style.display = 'block';
+        tooltip.style.left = hX + 'px';
+        tooltip.style.top = hY + 'px';
+        tooltip.textContent = '$' + pts[chartHoverIndex].toFixed(3);
+      } else {
+        tooltip.style.display = 'none';
       }
     }
 
-    // Запуск автообновления каждые 60 секунд
-    fetchTonRate();
-    setInterval(fetchTonRate, 60000);
+    function handleChartMove(e) {
+      const rect = chartCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const x = clientX - rect.left;
+      const w = rect.width;
+      const pts = chartData[chartTimeframe];
+      const index = Math.round(((x - 10) / (w - 20)) * (pts.length - 1));
 
-    // База промокодов
+      if (index >= 0 && index < pts.length) {
+        chartHoverIndex = index;
+        document.getElementById('chartCurrentPrice').textContent = '$' + pts[index].toFixed(2);
+      }
+      drawChart();
+    }
+
+    chartCanvas.addEventListener('mousemove', handleChartMove);
+    chartCanvas.addEventListener('mouseleave', () => {
+      chartHoverIndex = -1;
+      document.getElementById('chartCurrentPrice').textContent = '$' + state.gramRate.toFixed(2);
+      drawChart();
+    });
+    chartCanvas.addEventListener('touchmove', handleChartMove, { passive: true });
+    chartCanvas.addEventListener('touchend', () => {
+      chartHoverIndex = -1;
+      document.getElementById('chartCurrentPrice').textContent = '$' + state.gramRate.toFixed(2);
+      drawChart();
+    });
+
+    // Небольшое живое колебание графика для реалистичности
+    setInterval(() => {
+      const arr = chartData['1H'];
+      const delta = (Math.random() - 0.48) * 0.005;
+      let newPrice = parseFloat((arr[arr.length - 1] + delta).toFixed(3));
+      if (newPrice < 1.20) newPrice = 1.21;
+      if (newPrice > 1.28) newPrice = 1.26;
+      arr.shift();
+      arr.push(newPrice);
+      if (chartHoverIndex === -1) {
+        document.getElementById('chartCurrentPrice').textContent = '$' + newPrice.toFixed(2);
+      }
+      drawChart();
+    }, 4000);
+
+    // ================= БАЗА ПРОМОКОДОВ =================
     let promoDatabase = [];
     try {
       promoDatabase = JSON.parse(storage.get('uj92_promos', '[]'));
@@ -627,21 +750,14 @@
     function setCurrency(cur) {
       state.currency = cur;
       const bUsdt = document.getElementById('btnCurUsdt');
-      const bTon = document.getElementById('btnCurTon');
       const bGram = document.getElementById('btnCurGram');
-
-      [bUsdt, bTon, bGram].forEach(b => {
-        b.style.background = '#141414';
-        b.style.color = '#aaa';
-        b.style.borderColor = '#333';
-      });
 
       if (cur === 'USDT') {
         bUsdt.style.background = '#fff'; bUsdt.style.color = '#000'; bUsdt.style.borderColor = '#fff';
-      } else if (cur === 'TON') {
-        bTon.style.background = '#fff'; bTon.style.color = '#000'; bTon.style.borderColor = '#fff';
+        bGram.style.background = '#141414'; bGram.style.color = '#aaa'; bGram.style.borderColor = '#333';
       } else {
         bGram.style.background = '#fff'; bGram.style.color = '#000'; bGram.style.borderColor = '#fff';
+        bUsdt.style.background = '#141414'; bUsdt.style.color = '#aaa'; bUsdt.style.borderColor = '#333';
       }
       updatePaymentDisplay();
     }
@@ -654,7 +770,6 @@
         finalUsd = finalUsd * (1 - state.appliedDiscountPercent / 100);
         oldEl.classList.remove('hidden');
         if (state.currency === 'USDT') oldEl.textContent = '$' + state.selectedPriceUsd.toFixed(2);
-        else if (state.currency === 'TON') oldEl.textContent = (state.selectedPriceUsd / state.tonRate).toFixed(2) + ' TON';
         else oldEl.textContent = (state.selectedPriceUsd / state.gramRate).toFixed(2) + ' GRAM';
       } else {
         oldEl.classList.add('hidden');
@@ -663,8 +778,6 @@
       const amountEl = document.getElementById('payFinalAmount');
       if (state.currency === 'USDT') {
         amountEl.textContent = finalUsd.toFixed(2) + ' USDT';
-      } else if (state.currency === 'TON') {
-        amountEl.textContent = (finalUsd / state.tonRate).toFixed(2) + ' TON';
       } else {
         amountEl.textContent = (finalUsd / state.gramRate).toFixed(2) + ' GRAM';
       }
@@ -796,59 +909,33 @@
       if (show) renderAdminPromoList();
     }
 
-    function setAdminStatus(isOnline) {
-      state.isAdminOnline = isOnline;
-      storage.set('uj92_admin_online', isOnline ? 'true' : 'false');
-      updateAdminStatusUI();
-    }
-
-    function updateAdminStatusUI() {
-      const dot = document.getElementById('statusDot');
-      const text = document.getElementById('statusText');
-      const bOn = document.getElementById('adminBtnOnline');
-      const bOff = document.getElementById('adminBtnOffline');
-
-      if (state.isAdminOnline) {
-        dot.style.background = '#10b981';
-        text.textContent = 'Админ @uj_92: Онлайн';
-        bOn.style.borderColor = '#10b981'; bOn.style.background = '#064e3b'; bOn.style.color = '#a7f3d0';
-        bOff.style.borderColor = '#333'; bOff.style.background = '#141414'; bOff.style.color = '#777';
-      } else {
-        dot.style.background = '#666';
-        text.textContent = 'Админ @uj_92: Не в сети';
-        bOff.style.borderColor = '#fff'; bOff.style.background = '#222'; bOff.style.color = '#fff';
-        bOn.style.borderColor = '#333'; bOn.style.background = '#141414'; bOn.style.color = '#777';
-      }
-    }
-
     function updateGramRate() {
       const val = parseFloat(document.getElementById('adminGramInput').value);
       if (val && val > 0) {
         state.gramRate = val;
         storage.set('uj92_gram_rate', val.toString());
         renderPrices();
+        document.getElementById('chartCurrentPrice').textContent = '$' + val.toFixed(2);
         alert('Курс GRAM обновлен: $' + val);
       }
     }
 
     function renderPrices() {
-      document.getElementById('tonRateDisplay').textContent = '$' + state.tonRate.toFixed(2);
       document.getElementById('adminGramInput').value = state.gramRate;
 
-      // Отображение цен в каталоге
-      const t08 = (0.80 / state.tonRate).toFixed(2);
-      const t10 = (1.00 / state.tonRate).toFixed(2);
-      const t18 = (1.80 / state.tonRate).toFixed(2);
+      const g08 = (0.80 / state.gramRate).toFixed(2);
+      const g10 = (1.00 / state.gramRate).toFixed(2);
+      const g18 = (1.80 / state.gramRate).toFixed(2);
 
-      const el08 = document.getElementById('catTon-0.80');
-      const el08_2 = document.getElementById('catTon-0.80-2');
-      const el10 = document.getElementById('catTon-1.00');
-      const el18 = document.getElementById('catTon-1.80');
+      const el08 = document.getElementById('catGram-0.80');
+      const el08_2 = document.getElementById('catGram-0.80-2');
+      const el10 = document.getElementById('catGram-1.00');
+      const el18 = document.getElementById('catGram-1.80');
 
-      if (el08) el08.textContent = `~${t08} TON`;
-      if (el08_2) el08_2.textContent = `~${t08} TON`;
-      if (el10) el10.textContent = `~${t10} TON`;
-      if (el18) el18.textContent = `~${t18} TON`;
+      if (el08) el08.textContent = `~${g08} GRAM`;
+      if (el08_2) el08_2.textContent = `~${g08} GRAM`;
+      if (el10) el10.textContent = `~${g10} GRAM`;
+      if (el18) el18.textContent = `~${g18} GRAM`;
     }
 
     function createPromo() {
@@ -912,7 +999,6 @@
       ctx.clearRect(0, 0, width, height);
       step += 0.009;
 
-      // 7 выразительных волн с разной амплитудой, скоростью и контрастом
       const waves = [
         { y: height * 0.15, len: 0.0030, amp: 38, spd: 0.8, color: 'rgba(255, 255, 255, 0.45)', width: 2.2 },
         { y: height * 0.28, len: 0.0022, amp: 50, spd: -0.6, color: 'rgba(200, 200, 200, 0.35)', width: 1.8 },
@@ -939,11 +1025,11 @@
     }
     draw();
 
-    // Инициализация при открытии
+    // Инициализация при старте
     verifyAdminAccess();
-    updateAdminStatusUI();
     renderPrices();
     renderAdminPromoList();
+    setTimeout(resizeChartCanvas, 100);
   </script>
 </body>
 </html>
