@@ -117,7 +117,7 @@
 </head>
 <body>
 
-  <!-- Анимированный Canvas с контрастными волнами -->
+  <!-- Анимированный Canvas с волнами -->
   <canvas id="waveCanvas"></canvas>
 
   <div class="app-container">
@@ -277,7 +277,7 @@
             <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
           </div>
 
-          <!-- Валюта перевода -->
+          <!-- Выбор валюты -->
           <div style="margin-top: 4px;">
             <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
               Вариант оплаты (сеть TON):
@@ -301,20 +301,32 @@
           </div>
         </div>
 
-        <!-- ================= БЛОК TON CONNECT (ПОДКЛЮЧЕНИЕ TONKEEPER) ================= -->
-        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <!-- ================= БЛОК БЫСТРОЙ ОПЛАТЫ (TON CONNECT) ================= -->
+        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Быстрая оплата (Tonkeeper):</span>
+            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Быстрая оплата:</span>
             <span class="badge" style="background: #0088cc; color: #fff;">TON Connect</span>
           </div>
 
-          <!-- Кнопка подключения TON Connect -->
-          <div id="ton-connect-root" style="display: flex; justify-content: center; margin: 4px 0;"></div>
+          <!-- Место для кнопок: сначала «Привязать кошелек», затем «Оплатить» на том же месте -->
+          <div id="walletActionsContainer">
+            <!-- 1. Кнопка привязки (отображается сначала) -->
+            <button id="btnConnectWallet" onclick="connectTonWallet()" class="btn-grow" style="width: 100%; padding: 13px; background: #1a1a1a; border: 1px solid #3a3a3a; color: #ffffff; border-radius: 12px; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>🔗</span> Привязать кошелек
+            </button>
 
-          <!-- Кнопка «Открыть в Tonkeeper» (в 1 клик) -->
-          <button onclick="payViaTonkeeperApp()" class="btn-grow" style="width: 100%; padding: 12px; background: #0088cc; color: #ffffff; border: none; border-radius: 12px; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <span>💎</span> Оплатить в приложении Tonkeeper
-          </button>
+            <!-- 2. Блок оплаты (появляется на том же месте ТОЛЬКО после привязки) -->
+            <div id="walletConnectedBlock" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #aaa; background: #0a0a0a; padding: 6px 10px; border-radius: 8px; border: 1px solid #262626;">
+                <span>Кошелек: <b id="connectedWalletAddr" class="font-mono" style="color: #4ade80;"></b></span>
+                <button onclick="disconnectTonWallet()" style="background: none; border: none; color: #f87171; cursor: pointer; text-decoration: underline; font-size: 11px;">Отвязать</button>
+              </div>
+
+              <button onclick="payViaConnectedWallet()" class="btn-grow" style="width: 100%; padding: 14px; background: #0088cc; color: #ffffff; border: none; border-radius: 12px; font-weight: 900; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 16px rgba(0,136,204,0.35);">
+                <span>💎</span> Оплатить
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Промокод -->
@@ -485,32 +497,92 @@
       appliedDiscountPercent: 0
     };
 
-    // ================= ИНИЦИАЛИЗАЦИЯ TON CONNECT UI =================
+    // ================= TON CONNECT UI ЛОГИКА =================
     let tonConnectUI = null;
     try {
       tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://egormostovich2012-cyber.github.io/uj92-shop/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect-root',
+        manifestUrl: 'https://uj-92-shop.github.io/uj92-shop/tonconnect-manifest.json',
         uiPreferences: {
           theme: TON_CONNECT_UI.THEME.DARK
         }
+      });
+
+      // Отслеживаем изменение подключения кошелька
+      tonConnectUI.onStatusChange(wallet => {
+        updateWalletButtonState(wallet);
       });
     } catch (e) {
       console.warn("TON Connect init error:", e);
     }
 
-    // Быстрый запуск платежа в приложении Tonkeeper (в 1 клик)
-    function payViaTonkeeperApp() {
-      const finalAmountStr = document.getElementById('payFinalAmount').textContent;
-      const comment = encodeURIComponent(`Buy_${state.selectedCountry}_@${state.username}`);
-      
-      // Формируем Deep Link для приложения Tonkeeper
-      const deepLink = `https://app.tonkeeper.com/transfer/${TON_WALLET}?text=${comment}`;
-      
-      if (tg) {
-        tg.openTelegramLink ? tg.openTelegramLink(deepLink) : window.open(deepLink, '_blank');
+    // Переключение кнопок «Привязать» и «Оплатить»
+    function updateWalletButtonState(wallet) {
+      const btnConnect = document.getElementById('btnConnectWallet');
+      const blockConnected = document.getElementById('walletConnectedBlock');
+      const addrEl = document.getElementById('connectedWalletAddr');
+
+      if (wallet && wallet.account) {
+        // Кошелек подключен: скрываем кнопку привязки, показываем кнопку оплаты
+        btnConnect.classList.add('hidden');
+        blockConnected.classList.remove('hidden');
+        const rawAddr = wallet.account.address;
+        addrEl.textContent = rawAddr.slice(0, 4) + '...' + rawAddr.slice(-4);
       } else {
-        window.location.href = deepLink;
+        // Кошелек отключен: показываем кнопку привязки
+        btnConnect.classList.remove('hidden');
+        blockConnected.classList.add('hidden');
+      }
+    }
+
+    async function connectTonWallet() {
+      if (tonConnectUI) {
+        try {
+          await tonConnectUI.openModal();
+        } catch (e) {
+          console.error("TON Connect modal error:", e);
+        }
+      }
+    }
+
+    async function disconnectTonWallet() {
+      if (tonConnectUI && tonConnectUI.connected) {
+        await tonConnectUI.disconnect();
+      }
+    }
+
+    async function payViaConnectedWallet() {
+      if (!tonConnectUI || !tonConnectUI.connected) {
+        connectTonWallet();
+        return;
+      }
+
+      const comment = `Buy_${state.selectedCountry}_@${state.username}`;
+
+      try {
+        // Формируем payload с текстовым комментарием для TON
+        const textBytes = new TextEncoder().encode(comment);
+        const payloadBytes = new Uint8Array(4 + textBytes.length);
+        payloadBytes.set(textBytes, 4);
+        const payloadBase64 = btoa(String.fromCharCode(...payloadBytes));
+
+        const tx = {
+          validUntil: Math.floor(Date.now() / 1000) + 600,
+          messages: [
+            {
+              address: TON_WALLET,
+              amount: "10000000", // 0.01 TON в нанотонах
+              payload: payloadBase64
+            }
+          ]
+        };
+
+        await tonConnectUI.sendTransaction(tx);
+        confirmPayment();
+      } catch (e) {
+        console.warn("TON Connect tx canceled or fallback:", e);
+        const deepLink = `https://app.tonkeeper.com/transfer/${TON_WALLET}?text=${encodeURIComponent(comment)}`;
+        if (tg?.openTelegramLink) tg.openTelegramLink(deepLink);
+        else window.open(deepLink, '_blank');
       }
     }
 
