@@ -7,33 +7,31 @@
   
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- QR Code Generator -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <!-- Шрифты -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #000000;
-      color: #ffffff;
-      overflow-x: hidden;
-      touch-action: pan-y;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       -webkit-tap-highlight-color: transparent;
     }
     
-    .font-mono-num {
-      font-family: 'JetBrains Mono', monospace;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #000000;
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    /* Фоновые волны на Canvas */
+    .font-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* Фоновые волны */
     #waveCanvas {
       position: fixed;
       top: 0;
@@ -42,316 +40,325 @@
       height: 100vh;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.28;
+      opacity: 0.25;
     }
 
-    /* Увеличение кнопок при наведении и нажатии */
+    .app-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Анимации кнопок */
     .btn-grow {
-      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, border-color 0.15s;
       cursor: pointer;
     }
     .btn-grow:hover {
-      transform: scale(1.04);
+      transform: scale(1.03);
     }
     .btn-grow:active {
       transform: scale(0.97);
     }
 
-    .card-grow {
-      transition: transform 0.2s ease, border-color 0.2s ease;
+    .card-item {
+      background: rgba(15, 15, 15, 0.92);
+      border: 1px solid #262626;
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.18s ease, border-color 0.18s ease;
     }
-    .card-grow:hover {
-      transform: translateY(-2px) scale(1.02);
+    .card-item:hover {
+      transform: translateY(-2px) scale(1.01);
+      border-color: #555555;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    input, select {
+      background: #141414;
+      border: 1px solid #333333;
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
       border-color: #ffffff;
     }
 
-    /* Стилизация скроллбара */
-    ::-webkit-scrollbar {
-      width: 4px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #333333;
-      border-radius: 4px;
+    .badge {
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-transform: uppercase;
     }
   </style>
 </head>
-<body class="min-h-screen relative flex flex-col justify-between selection:bg-white selection:text-black">
+<body>
 
-  <!-- Анимированный Canvas с плавными монохромными волнами -->
+  <!-- Анимированный фон -->
   <canvas id="waveCanvas"></canvas>
 
-  <div class="relative z-10 w-full max-w-md mx-auto px-4 py-5 flex-1 flex flex-col justify-between">
+  <div class="app-container">
     
-    <!-- Шапка магазина -->
-    <header class="mb-5">
-      <div class="flex items-center justify-between border-b border-neutral-800 pb-3">
+    <!-- Шапка -->
+    <header style="margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 12px;">
         <div>
-          <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <span>UJ92_shop</span>
-            <span class="text-xs bg-white text-black px-1.5 py-0.5 rounded font-mono-num uppercase tracking-widest font-bold">bot</span>
-          </h1>
-          <p class="text-xs text-neutral-400 mt-0.5">Магазин аккаунтов Telegram</p>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">UJ92_shop</h1>
+            <span class="badge" style="background: #fff; color: #000;">bot</span>
+          </div>
+          <p style="font-size: 11px; color: #888; margin-top: 2px;">Магазин аккаунтов Telegram</p>
         </div>
 
-        <div class="flex items-center gap-2">
-          <!-- Ссылка на отзывы -->
-          <a href="https://t.me/uj_92_rew" target="_blank" class="btn-grow flex items-center gap-1.5 text-xs bg-neutral-900 border border-neutral-700 hover:border-white px-2.5 py-1.5 rounded-lg text-neutral-200">
+        <div style="display: flex; gap: 8px;">
+          <a href="https://t.me/uj_92_rew" target="_blank" class="btn-grow" style="text-decoration: none; color: #eee; font-size: 12px; background: #141414; border: 1px solid #333; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 4px;">
             <span>⭐</span>
-            <span class="font-semibold">Отзывы</span>
+            <span style="font-weight: 600;">Отзывы</span>
           </a>
-
-          <!-- Кнопка админ-панели -->
-          <button onclick="toggleAdminModal(true)" class="btn-grow p-1.5 bg-neutral-900 border border-neutral-700 hover:border-white rounded-lg text-neutral-300" title="Настройки админа">
+          <button onclick="toggleAdminModal(true)" class="btn-grow" style="background: #141414; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 10px; font-size: 13px;">
             ⚙️
           </button>
         </div>
       </div>
 
-      <!-- Статус админа + текущий курс GRAM -->
-      <div class="mt-3 flex items-center justify-between text-xs bg-neutral-950/80 backdrop-blur border border-neutral-850 px-3 py-2 rounded-xl">
-        <div id="adminStatusDisplay" class="flex items-center gap-2">
-          <span class="relative flex h-2 w-2">
-            <span id="statusPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span id="statusDot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span id="statusText" class="text-neutral-300 font-medium">Админ @uj_92: Онлайн</span>
+      <!-- Статус админа и курс GRAM -->
+      <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: #0a0a0a; border: 1px solid #222; padding: 8px 12px; border-radius: 12px;">
+        <div id="adminStatusDisplay" style="display: flex; align-items: center; gap: 6px;">
+          <span id="statusDot" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+          <span id="statusText" style="color: #ccc; font-weight: 500;">Админ @uj_92: Онлайн</span>
         </div>
-        <div class="text-neutral-400 font-mono-num" title="Автоматическое обновление каждый час">
-          1 GRAM ≈ <span id="gramRateDisplay" class="text-white font-bold">$1.24</span>
+        <div class="font-mono" style="color: #888;">
+          1 GRAM ≈ <span id="gramRateDisplay" style="color: #fff; font-weight: bold;">$1.24</span>
         </div>
       </div>
     </header>
 
-    <!-- ОСНОВНОЙ КОНТЕНТ (ЭКРАНЫ) -->
-    <main class="flex-1">
+    <!-- Основной контент -->
+    <main style="flex: 1;">
 
-      <!-- ================= ЭКРАН 1: КАТАЛОГ НОМЕРОВ ================= -->
-      <section id="screenCatalog" class="space-y-4">
-        <div class="flex items-center justify-between">
-          <span class="text-xs uppercase tracking-wider text-neutral-400 font-semibold">Выберите регион номера:</span>
+      <!-- ================= 1. КАТАЛОГ ================= -->
+      <section id="screenCatalog" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; letter-spacing: 0.5px;">
+          Выберите страну номера:
         </div>
 
-        <div class="grid grid-cols-1 gap-2.5">
-          <!-- 1. Америка (+1) -->
-          <div onclick="selectProduct('Америка', '+1', 0.80, '🇺🇸')" class="card-grow cursor-pointer bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-3.5">
-              <span class="text-3xl">🇺🇸</span>
-              <div>
-                <div class="text-base font-bold text-white group-hover:text-neutral-200">Америка</div>
-                <div class="text-xs text-neutral-400 font-mono-num">+1 код региона</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-base font-extrabold text-white font-mono-num">$0.80</div>
-              <div class="text-xs text-neutral-400 font-mono-num" id="gramPrice-0.80">~0.65 GRAM</div>
+        <!-- 1. Америка -->
+        <div onclick="selectProduct('Америка', '+1', 0.80, '🇺🇸')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇺🇸</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Америка</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+1 код региона</div>
             </div>
           </div>
-
-          <!-- 2. Бангладеш (+880) -->
-          <div onclick="selectProduct('Бангладеш', '+880', 1.00, '🇧🇩')" class="card-grow cursor-pointer bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-3.5">
-              <span class="text-3xl">🇧🇩</span>
-              <div>
-                <div class="text-base font-bold text-white group-hover:text-neutral-200">Бангладеш</div>
-                <div class="text-xs text-neutral-400 font-mono-num">+880 код региона</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-base font-extrabold text-white font-mono-num">$1.00</div>
-              <div class="text-xs text-neutral-400 font-mono-num" id="gramPrice-1.00">~0.81 GRAM</div>
-            </div>
-          </div>
-
-          <!-- 3. Индия (+91) -->
-          <div onclick="selectProduct('Индия', '+91', 0.80, '🇮🇳')" class="card-grow cursor-pointer bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-3.5">
-              <span class="text-3xl">🇮🇳</span>
-              <div>
-                <div class="text-base font-bold text-white group-hover:text-neutral-200">Индия</div>
-                <div class="text-xs text-neutral-400 font-mono-num">+91 код региона</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-base font-extrabold text-white font-mono-num">$0.80</div>
-              <div class="text-xs text-neutral-400 font-mono-num" id="gramPrice-0.80-2">~0.65 GRAM</div>
-            </div>
-          </div>
-
-          <!-- 4. Британия (+44) -->
-          <div onclick="selectProduct('Британия', '+44', 1.80, '🇬🇧')" class="card-grow cursor-pointer bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-3.5">
-              <span class="text-3xl">🇬🇧</span>
-              <div>
-                <div class="text-base font-bold text-white group-hover:text-neutral-200">Британия</div>
-                <div class="text-xs text-neutral-400 font-mono-num">+44 код региона</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-base font-extrabold text-white font-mono-num">$1.80</div>
-              <div class="text-xs text-neutral-400 font-mono-num" id="gramPrice-1.80">~1.45 GRAM</div>
-            </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-0.80">~0.65 GRAM</div>
           </div>
         </div>
 
-        <div class="pt-2 text-center text-xs text-neutral-500">
-          Нажмите на нужную страну для перехода к оформлению
+        <!-- 2. Бангладеш -->
+        <div onclick="selectProduct('Бангладеш', '+880', 1.00, '🇧🇩')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇧🇩</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Бангладеш</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+880 код региона</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$1.00</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-1.00">~0.81 GRAM</div>
+          </div>
+        </div>
+
+        <!-- 3. Индия -->
+        <div onclick="selectProduct('Индия', '+91', 0.80, '🇮🇳')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇮🇳</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Индия</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+91 код региона</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-0.80-2">~0.65 GRAM</div>
+          </div>
+        </div>
+
+        <!-- 4. Британия -->
+        <div onclick="selectProduct('Британия', '+44', 1.80, '🇬🇧')" class="card-item btn-grow">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🇬🇧</span>
+            <div>
+              <div style="font-weight: bold; font-size: 15px;">Британия</div>
+              <div class="font-mono" style="font-size: 12px; color: #777;">+44 код региона</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$1.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-1.80">~1.45 GRAM</div>
+          </div>
         </div>
       </section>
 
-      <!-- ================= ЭКРАН 2: ВВОД ЮЗЕРНЕЙМА ================= -->
-      <section id="screenUsername" class="hidden space-y-4">
-        <button onclick="goToScreen('screenCatalog')" class="btn-grow text-xs text-neutral-400 hover:text-white flex items-center gap-1">
-          ← Вернуться назад
+      <!-- ================= 2. ВВОД ЮЗЕРНЕЙМА ================= -->
+      <section id="screenUsername" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+        <button onclick="goToScreen('screenCatalog')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
+          ← Вернуться в каталог
         </button>
 
-        <div class="bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl">
-          <div class="text-xs text-neutral-400 uppercase">Выбранный товар</div>
-          <div class="mt-1 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span id="selectedFlag" class="text-2xl">🇺🇸</span>
-              <span id="selectedTitle" class="font-bold text-lg">Америка (+1)</span>
-            </div>
-            <span id="selectedPriceUsd" class="font-mono-num font-bold text-lg">$0.80</span>
+        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="selectedFlag" style="font-size: 24px;">🇺🇸</span>
+            <span id="selectedTitle" style="font-weight: bold; font-size: 15px;">Америка (+1)</span>
           </div>
+          <span id="selectedPriceUsd" class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</span>
         </div>
 
-        <div class="bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl space-y-3">
-          <label class="block text-xs uppercase tracking-wider text-neutral-300 font-semibold">
+        <div style="background: #111; border: 1px solid #222; padding: 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+          <label style="font-size: 12px; text-transform: uppercase; color: #ccc; font-weight: 600;">
             Ваш юзернейм в Telegram:
           </label>
-          <div class="relative">
-            <span class="absolute left-3.5 top-3 text-neutral-400 font-mono-num text-sm">@</span>
-            <input 
-              type="text" 
-              id="inputUsername" 
-              placeholder="username"
-              class="w-full bg-neutral-900 border border-neutral-700 focus:border-white focus:outline-none rounded-xl pl-8 pr-4 py-2.5 text-white placeholder-neutral-500 font-mono-num text-sm transition"
-            >
+          <div style="position: relative;">
+            <span class="font-mono" style="position: absolute; left: 12px; top: 10px; color: #666;">@</span>
+            <input type="text" id="inputUsername" placeholder="username" style="width: 100%; padding-left: 32px;" class="font-mono">
           </div>
-          <p class="text-xs text-neutral-500">
-            На этот юзернейм администратор отправит код авторизации после подтверждения оплаты.
+          <p style="font-size: 11px; color: #777;">
+            На этот юзернейм админ отправит код для входа в аккаунт.
           </p>
         </div>
 
-        <button onclick="submitUsername()" class="btn-grow w-full py-3.5 bg-white text-black font-extrabold rounded-xl shadow-lg hover:bg-neutral-200 uppercase tracking-wider text-sm">
+        <button onclick="submitUsername()" class="btn-grow" style="width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 14px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
           Перейти к оплате →
         </button>
       </section>
 
-      <!-- ================= ЭКРАН 3: ОПЛАТА ================= -->
-      <section id="screenPayment" class="hidden space-y-4">
-        <button onclick="goToScreen('screenUsername')" class="btn-grow text-xs text-neutral-400 hover:text-white flex items-center gap-1">
+      <!-- ================= 3. ОПЛАТА ================= -->
+      <section id="screenPayment" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+        <button onclick="goToScreen('screenUsername')" class="btn-grow" style="background: none; border: none; color: #888; font-size: 12px; text-align: left; cursor: pointer;">
           ← Изменить юзернейм
         </button>
 
-        <!-- Карточка заказа -->
-        <div class="bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl space-y-2">
-          <div class="flex justify-between items-center text-xs text-neutral-400">
-            <span>Покупатель: <b id="paySummaryUser" class="text-white font-mono-num">@user</b></span>
-            <span id="paySummaryCountry" class="text-white font-medium">Америка (+1)</span>
+        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
+            <span>Покупатель: <b id="paySummaryUser" style="color: #fff;" class="font-mono">@user</b></span>
+            <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
           </div>
 
-          <!-- Выбор валюты оплаты: GRAM или USDT (TON) -->
-          <div class="pt-2">
-            <span class="text-xs uppercase tracking-wider text-neutral-400 font-semibold block mb-2">Способ оплаты (Сеть TON):</span>
-            <div class="grid grid-cols-2 gap-2">
-              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow py-2.5 px-3 rounded-xl border border-white bg-white text-black font-bold text-xs flex items-center justify-center gap-1.5">
-                <span>₮</span> USDT (TON)
+          <!-- Выбор валюты -->
+          <div style="margin-top: 4px;">
+            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
+              Валюта перевода (сеть TON):
+            </span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 12px;">
+                ₮ USDT (TON)
               </button>
-              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow py-2.5 px-3 rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-300 font-bold text-xs flex items-center justify-center gap-1.5">
-                <span>⚡</span> GRAM (TON)
+              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 12px;">
+                ⚡ GRAM (TON)
               </button>
             </div>
           </div>
 
-          <!-- Итоговая сумма -->
-          <div class="border-t border-neutral-850 pt-3 flex justify-between items-baseline">
-            <span class="text-xs text-neutral-400 uppercase">Сумма к переводу:</span>
-            <div class="text-right">
-              <span id="payOldPrice" class="text-xs text-neutral-500 line-through font-mono-num mr-1 hidden"></span>
-              <span id="payFinalAmount" class="text-2xl font-black font-mono-num text-white">0.80 USDT</span>
+          <div style="border-top: 1px solid #222; padding-top: 10px; display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 11px; text-transform: uppercase; color: #888;">Итого к оплате:</span>
+            <div style="text-align: right;">
+              <span id="payOldPrice" class="font-mono hidden" style="font-size: 12px; color: #666; text-decoration: line-through; margin-right: 6px;"></span>
+              <span id="payFinalAmount" class="font-mono" style="font-size: 22px; font-weight: 900; color: #fff;">0.80 USDT</span>
             </div>
           </div>
         </div>
 
-        <!-- Поле ввода промокода -->
-        <div class="bg-neutral-950/90 border border-neutral-800 p-3.5 rounded-2xl space-y-2">
-          <label class="block text-xs uppercase tracking-wider text-neutral-400 font-semibold">Промокод на скидку:</label>
-          <div class="flex gap-2">
-            <input 
-              type="text" 
-              id="inputPromo" 
-              placeholder="Введите промокод..." 
-              class="flex-1 bg-neutral-900 border border-neutral-700 focus:border-white focus:outline-none rounded-xl px-3 py-2 text-xs uppercase text-white font-mono-num placeholder-neutral-500"
-            >
-            <button onclick="applyPromoCode()" class="btn-grow px-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl text-xs">
-              Применить
+        <!-- Промокод -->
+        <div style="background: #111; border: 1px solid #222; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Промокод на скидку:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="inputPromo" placeholder="ВВЕДИТЕ ПРОМОКОД" style="flex: 1; text-transform: uppercase;" class="font-mono">
+            <button onclick="applyPromoCode()" class="btn-grow" style="padding: 0 16px; background: #262626; color: #fff; border: 1px solid #444; border-radius: 12px; font-weight: bold; font-size: 12px;">
+              Ввод
             </button>
           </div>
-          <div id="promoMessage" class="text-xs hidden"></div>
+          <div id="promoMessage" class="hidden" style="font-size: 12px;"></div>
         </div>
 
-        <!-- Реквизиты и кошелек -->
-        <div class="bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs uppercase tracking-wider text-neutral-400 font-semibold">Адрес кошелька TON:</span>
-            <span class="text-[10px] text-neutral-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800">Только GRAM / USDT TON</span>
+        <!-- Кошелек и QR-код -->
+        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Кошелек TON:</span>
+            <span style="font-size: 10px; background: #1a1a1a; padding: 2px 6px; border-radius: 6px; color: #888; border: 1px solid #282828;">Сеть The Open Network</span>
           </div>
 
-          <!-- Поле адреса + кнопка скопировать справа -->
-          <div class="flex items-center gap-2 bg-neutral-900 border border-neutral-700 rounded-xl p-2.5">
-            <div class="flex-1 font-mono-num text-xs text-neutral-200 break-all select-all leading-tight" id="walletAddressText">
+          <div style="display: flex; align-items: center; gap: 8px; background: #0a0a0a; border: 1px solid #262626; padding: 8px 10px; border-radius: 12px;">
+            <div id="walletAddressText" class="font-mono" style="flex: 1; font-size: 11px; color: #eee; word-break: break-all; line-height: 1.3;">
               UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y
             </div>
-            <button onclick="copyWallet()" class="btn-grow flex-shrink-0 bg-white text-black font-bold px-3 py-2 rounded-lg text-xs flex items-center gap-1 shadow" id="copyBtn">
-              <span id="copyIcon">📋</span>
-              <span id="copyText">Копия</span>
+            <button onclick="copyWallet()" class="btn-grow" id="copyBtn" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px;">
+              Копия
             </button>
           </div>
 
-          <!-- QR-код -->
-          <div class="flex items-center justify-center pt-2">
-            <div class="bg-white p-2.5 rounded-xl border border-neutral-700">
-              <div id="qrcode"></div>
+          <div style="display: flex; justify-content: center; padding: 8px 0;">
+            <div style="background: #fff; padding: 8px; border-radius: 12px; line-height: 0;">
+              <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=ton://transfer/UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y" alt="QR" width="130" height="130" style="display: block;">
             </div>
           </div>
-          <p class="text-[11px] text-center text-neutral-500">
-            Отсканируйте в Tonkeeper или Telegram Wallet
+          <p style="font-size: 11px; text-align: center; color: #666;">
+            Отсканируйте через Tonkeeper или Wallet в Telegram
           </p>
         </div>
 
         <!-- Кнопка «Я ОПЛАТИЛ» -->
-        <button onclick="confirmPayment()" class="btn-grow w-full py-4 bg-white text-black font-extrabold rounded-2xl shadow-xl hover:bg-neutral-200 uppercase tracking-widest text-sm flex items-center justify-center gap-2">
-          <span>✓</span>
-          <span>Я ОПЛАТИЛ</span>
+        <button onclick="confirmPayment()" class="btn-grow" style="width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 16px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,255,255,0.15);">
+          ✓ Я ОПЛАТИЛ
         </button>
       </section>
 
-      <!-- ================= ЭКРАН 4: УСПЕШНО ОТПРАВЛЕНО ================= -->
-      <section id="screenSuccess" class="hidden space-y-5 text-center py-6">
-        <div class="w-16 h-16 bg-neutral-900 border border-neutral-700 rounded-full flex items-center justify-center mx-auto text-2xl">
+      <!-- ================= 4. УСПЕХ ================= -->
+      <section id="screenSuccess" class="hidden" style="text-align: center; padding: 20px 0; display: flex; flex-direction: column; gap: 16px;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: #141414; border: 1px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 22px;">
           ✓
         </div>
         <div>
-          <h2 class="text-xl font-extrabold text-white">Заявка отправлена!</h2>
-          <p class="text-xs text-neutral-400 mt-1.5 max-w-xs mx-auto">
-            Данные об оплате переданы администратору. Номер и код будут отправлены на ваш юзернейм в Telegram.
+          <h2 style="font-size: 18px; font-weight: 800;">Заявка сформирована</h2>
+          <p style="font-size: 12px; color: #888; margin-top: 4px;">
+            Данные отправлены боту. Также вы можете написать администратору напрямую:
           </p>
         </div>
 
-        <div class="bg-neutral-950/90 border border-neutral-800 p-4 rounded-2xl text-left text-xs space-y-2 font-mono-num">
-          <div class="flex justify-between"><span class="text-neutral-500">Товар:</span><span id="resCountry" class="text-white"></span></div>
-          <div class="flex justify-between"><span class="text-neutral-500">Юзернейм:</span><span id="resUser" class="text-white"></span></div>
-          <div class="flex justify-between"><span class="text-neutral-500">Сумма:</span><span id="resAmount" class="text-white font-bold"></span></div>
-          <div class="flex justify-between"><span class="text-neutral-500">Промокод:</span><span id="resPromo" class="text-white">Не применялся</span></div>
+        <div class="font-mono" style="background: #111; border: 1px solid #222; border-radius: 14px; padding: 12px; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Товар:</span><span id="resCountry"></span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Юзернейм:</span><span id="resUser"></span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Сумма:</span><span id="resAmount" style="font-weight: bold; color: #fff;"></span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Промокод:</span><span id="resPromo"></span></div>
         </div>
 
-        <div class="space-y-2 pt-2">
-          <a id="directAdminLink" href="https://t.me/uj_92" target="_blank" class="btn-grow block w-full py-3.5 bg-white text-black font-bold rounded-xl text-xs uppercase tracking-wider">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <a id="directAdminLink" href="https://t.me/uj_92" target="_blank" class="btn-grow" style="text-decoration: none; padding: 14px; background: #fff; color: #000; border-radius: 12px; font-weight: 800; font-size: 12px; text-transform: uppercase;">
             Написать админу @uj_92 в ЛС
           </a>
-          <button onclick="resetShop()" class="btn-grow block w-full py-3 bg-neutral-900 border border-neutral-700 text-neutral-300 font-semibold rounded-xl text-xs">
-            Вернуться в каталог
+          <button onclick="resetShop()" class="btn-grow" style="padding: 12px; background: #111; border: 1px solid #333; color: #888; border-radius: 12px; font-size: 12px;">
+            Вернуться в магазин
           </button>
         </div>
       </section>
@@ -359,133 +366,144 @@
     </main>
 
     <!-- Подвал -->
-    <footer class="mt-6 pt-3 border-t border-neutral-900 text-center text-[11px] text-neutral-500">
-      UJ92_shop &bull; Администратор: <a href="https://t.me/uj_92" target="_blank" class="text-neutral-400 hover:text-white underline">@uj_92</a>
+    <footer style="margin-top: 20px; border-top: 1px solid #1a1a1a; padding-top: 10px; text-align: center; font-size: 11px; color: #555;">
+      UJ92_shop &bull; Администратор: <a href="https://t.me/uj_92" target="_blank" style="color: #777; text-decoration: underline;">@uj_92</a>
     </footer>
 
   </div>
 
-  <!-- ================= МОДАЛЬНОЕ ОКНО АДМИНИСТРАТОРА (⚙️) ================= -->
-  <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-neutral-950 border border-neutral-800 w-full max-w-sm rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b border-neutral-850 pb-3">
-        <h3 class="font-bold text-white text-sm uppercase tracking-wider flex items-center gap-1.5">
-          <span>⚙️</span> Панель администратора
-        </h3>
-        <button onclick="toggleAdminModal(false)" class="text-neutral-400 hover:text-white text-lg font-mono">✕</button>
+  <!-- Модальное окно настроек админа -->
+  <div id="adminModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #0d0d0d; border: 1px solid #262626; width: 100%; max-width: 360px; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 8px;">
+        <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase;">Панель администратора</h3>
+        <button onclick="toggleAdminModal(false)" style="background: none; border: none; color: #888; font-size: 18px; cursor: pointer;">✕</button>
       </div>
 
-      <!-- Переключатель статуса Онлайн/Офлайн -->
-      <div class="space-y-2">
-        <label class="block text-xs uppercase text-neutral-400 font-semibold">Ваш статус для клиентов:</label>
-        <div class="grid grid-cols-2 gap-2">
-          <button id="adminBtnOnline" onclick="setAdminStatus(true)" class="btn-grow py-2 rounded-xl text-xs font-bold border border-emerald-500 bg-emerald-950/40 text-emerald-300">
+      <!-- Статус Онлайн -->
+      <div>
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Ваш статус:</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <button id="adminBtnOnline" onclick="setAdminStatus(true)" class="btn-grow" style="padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 1px solid #10b981; background: #064e3b; color: #a7f3d0;">
             🟢 Онлайн
           </button>
-          <button id="adminBtnOffline" onclick="setAdminStatus(false)" class="btn-grow py-2 rounded-xl text-xs font-bold border border-neutral-800 bg-neutral-900 text-neutral-400">
+          <button id="adminBtnOffline" onclick="setAdminStatus(false)" class="btn-grow" style="padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 1px solid #333; background: #141414; color: #777;">
             ⚪ Не в сети
           </button>
         </div>
       </div>
 
-      <!-- Курс монеты GRAM -->
-      <div class="space-y-2 border-t border-neutral-850 pt-3">
-        <label class="block text-xs uppercase text-neutral-400 font-semibold">Курс 1 GRAM (в долларах $):</label>
-        <div class="flex gap-2">
-          <input type="number" step="0.01" id="adminGramInput" value="1.24" class="flex-1 bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-xs font-mono-num text-white">
-          <button onclick="updateGramRate()" class="btn-grow px-3 bg-white text-black font-bold rounded-xl text-xs">
-            Сохранить
+      <!-- Курс GRAM -->
+      <div style="border-top: 1px solid #222; padding-top: 10px;">
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курс 1 GRAM ($):</label>
+        <div style="display: flex; gap: 6px;">
+          <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1;">
+          <button onclick="updateGramRate()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 0 12px; border-radius: 10px; font-weight: bold; font-size: 12px;">
+            ОК
           </button>
         </div>
       </div>
 
       <!-- Управление промокодами -->
-      <div class="space-y-3 border-t border-neutral-850 pt-3">
-        <div class="flex justify-between items-center">
-          <label class="block text-xs uppercase text-neutral-400 font-semibold">Создать промокод:</label>
+      <div style="border-top: 1px solid #222; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold;">Добавить промокод:</label>
+        <input type="text" id="newPromoCode" placeholder="КОД (например: SALE20)" class="font-mono" style="text-transform: uppercase;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <input type="number" id="newPromoDiscount" placeholder="Скидка %" value="15" class="font-mono">
+          <input type="number" id="newPromoLimit" placeholder="Лимит/чел." value="1" class="font-mono">
         </div>
-
-        <input type="text" id="newPromoCode" placeholder="КОД (например: SALE20)" class="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-xs uppercase font-mono-num text-white">
-        
-        <div class="grid grid-cols-2 gap-2">
-          <input type="number" id="newPromoDiscount" placeholder="Скидка %" value="15" class="bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-xs font-mono-num text-white">
-          <input type="number" id="newPromoLimit" placeholder="Лимит на 1 чел." value="1" class="bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-xs font-mono-num text-white">
-        </div>
-
-        <div class="space-y-1">
-          <label class="block text-[11px] text-neutral-400">Причина/Статус промокода:</label>
-          <select id="newPromoStatus" class="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-xs text-white">
-            <option value="active">🟢 Активен (работает)</option>
-            <option value="ended">🔴 Промокод закончился</option>
-            <option value="no_longer_exists">⚪ Такого промокода больше нет</option>
-          </select>
-        </div>
-
-        <button onclick="createPromo()" class="btn-grow w-full py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl text-xs">
-          + Сохранить промокод
+        <select id="newPromoStatus">
+          <option value="active">🟢 Активен</option>
+          <option value="ended">🔴 Промокод закончился</option>
+          <option value="no_longer_exists">⚪ Такого промокода больше нет</option>
+        </select>
+        <button onclick="createPromo()" class="btn-grow" style="padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 10px; font-weight: bold; font-size: 12px;">
+          + Сохранить
         </button>
 
-        <!-- Список существующих промокодов -->
-        <div class="pt-2">
-          <span class="text-[11px] uppercase text-neutral-500 font-semibold block mb-1.5">Активные и настроенные коды:</span>
-          <div id="promoListContainer" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+        <div style="margin-top: 6px;">
+          <span style="font-size: 10px; color: #666; text-transform: uppercase;">Список промокодов:</span>
+          <div id="promoListContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px; max-height: 120px; overflow-y: auto;"></div>
         </div>
       </div>
 
-      <button onclick="toggleAdminModal(false)" class="btn-grow w-full py-2.5 bg-neutral-900 border border-neutral-700 text-neutral-300 font-semibold rounded-xl text-xs mt-2">
+      <button onclick="toggleAdminModal(false)" class="btn-grow" style="padding: 10px; background: #141414; border: 1px solid #333; color: #aaa; border-radius: 10px; font-size: 12px;">
         Закрыть
       </button>
     </div>
   </div>
 
-  <!-- ================= СЦЕНАРИИ И ЛОГИКА ================= -->
   <script>
-    // Инициализация Telegram WebApp
+    // Безопасное хранилище (защита от ошибок в Telegram Webview)
+    const storage = {
+      get: function(key, fallback) {
+        try {
+          const val = localStorage.getItem(key);
+          return val !== null ? val : fallback;
+        } catch(e) {
+          return fallback;
+        }
+      },
+      set: function(key, val) {
+        try {
+          localStorage.setItem(key, val);
+        } catch(e) {}
+      }
+    };
+
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      tg.expand();
-      tg.ready();
+      try {
+        tg.expand();
+        tg.ready();
+      } catch(e) {}
     }
 
     const TON_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y";
     const ADMIN_USERNAME = "uj_92";
 
-    // Состояние приложения
     let state = {
-      gramRate: parseFloat(localStorage.getItem('uj92_gram_rate')) || 1.24,
-      isAdminOnline: localStorage.getItem('uj92_admin_online') !== 'false',
+      gramRate: parseFloat(storage.get('uj92_gram_rate', '1.24')) || 1.24,
+      isAdminOnline: storage.get('uj92_admin_online', 'true') === 'true',
       selectedCountry: null,
       selectedCode: null,
       selectedPriceUsd: 0,
       selectedFlag: '',
       username: '',
-      currency: 'USDT', // 'USDT' или 'GRAM'
+      currency: 'USDT',
       appliedPromo: null,
       appliedDiscountPercent: 0
     };
 
-    // База промокодов в localStorage
-    let promoDatabase = JSON.parse(localStorage.getItem('uj92_promos')) || [
-      { code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} },
-      { code: 'OLD20', discount: 20, limitPerUser: 1, status: 'ended', usedUsers: {} },
-      { code: 'WINTER', discount: 10, limitPerUser: 1, status: 'no_longer_exists', usedUsers: {} }
-    ];
+    let promoDatabase = [];
+    try {
+      promoDatabase = JSON.parse(storage.get('uj92_promos', '[]'));
+      if (!promoDatabase || promoDatabase.length === 0) {
+        promoDatabase = [
+          { code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} },
+          { code: 'OLD20', discount: 20, limitPerUser: 1, status: 'ended', usedUsers: {} },
+          { code: 'WINTER', discount: 10, limitPerUser: 1, status: 'no_longer_exists', usedUsers: {} }
+        ];
+      }
+    } catch(e) {
+      promoDatabase = [{ code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} }];
+    }
 
     function savePromos() {
-      localStorage.setItem('uj92_promos', JSON.stringify(promoDatabase));
+      storage.set('uj92_promos', JSON.stringify(promoDatabase));
       renderAdminPromoList();
     }
 
-    // --- Переключение экранов ---
     function goToScreen(screenId) {
       ['screenCatalog', 'screenUsername', 'screenPayment', 'screenSuccess'].forEach(id => {
-        document.getElementById(id).classList.add('hidden');
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
       });
-      document.getElementById(screenId).classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+      window.scrollTo(0, 0);
     }
 
-    // --- Выбор товара ---
     function selectProduct(country, code, priceUsd, flag) {
       state.selectedCountry = country;
       state.selectedCode = code;
@@ -495,104 +513,95 @@
       state.appliedDiscountPercent = 0;
 
       document.getElementById('selectedFlag').textContent = flag;
-      document.getElementById('selectedTitle').textContent = `${country} (${code})`;
-      document.getElementById('selectedPriceUsd').textContent = `$${priceUsd.toFixed(2)}`;
+      document.getElementById('selectedTitle').textContent = country + ' (' + code + ')';
+      document.getElementById('selectedPriceUsd').textContent = '$' + priceUsd.toFixed(2);
 
-      // Предзаполнение Telegram-юзернейма, если запущено внутри Telegram
       const input = document.getElementById('inputUsername');
       if (tg?.initDataUnsafe?.user?.username && !input.value) {
         input.value = tg.initDataUnsafe.user.username;
       }
-
       goToScreen('screenUsername');
     }
 
-    // --- Подтверждение юзернейма ---
     function submitUsername() {
-      let rawUser = document.getElementById('inputUsername').value.trim();
-      if (!rawUser) {
-        alert('Пожалуйста, введите ваш юзернейм в Telegram!');
+      let u = document.getElementById('inputUsername').value.trim();
+      if (!u) {
+        alert('Пожалуйста, укажите ваш Telegram username!');
         return;
       }
-      if (rawUser.startsWith('@')) rawUser = rawUser.substring(1);
-      state.username = rawUser;
+      if (u.startsWith('@')) u = u.substring(1);
+      state.username = u;
 
-      document.getElementById('paySummaryUser').textContent = `@${state.username}`;
-      document.getElementById('paySummaryCountry').textContent = `${state.selectedCountry} (${state.selectedCode})`;
+      document.getElementById('paySummaryUser').textContent = '@' + state.username;
+      document.getElementById('paySummaryCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
 
       updatePaymentDisplay();
       goToScreen('screenPayment');
     }
 
-    // --- Переключение валюты оплаты (USDT / GRAM) ---
     function setCurrency(cur) {
       state.currency = cur;
-      const btnUsdt = document.getElementById('btnCurUsdt');
-      const btnGram = document.getElementById('btnCurGram');
+      const bUsdt = document.getElementById('btnCurUsdt');
+      const bGram = document.getElementById('btnCurGram');
 
       if (cur === 'USDT') {
-        btnUsdt.className = 'btn-grow py-2.5 px-3 rounded-xl border border-white bg-white text-black font-bold text-xs flex items-center justify-center gap-1.5';
-        btnGram.className = 'btn-grow py-2.5 px-3 rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-300 font-bold text-xs flex items-center justify-center gap-1.5';
+        bUsdt.style.background = '#fff'; bUsdt.style.color = '#000'; bUsdt.style.borderColor = '#fff';
+        bGram.style.background = '#141414'; bGram.style.color = '#aaa'; bGram.style.borderColor = '#333';
       } else {
-        btnGram.className = 'btn-grow py-2.5 px-3 rounded-xl border border-white bg-white text-black font-bold text-xs flex items-center justify-center gap-1.5';
-        btnUsdt.className = 'btn-grow py-2.5 px-3 rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-300 font-bold text-xs flex items-center justify-center gap-1.5';
+        bGram.style.background = '#fff'; bGram.style.color = '#000'; bGram.style.borderColor = '#fff';
+        bUsdt.style.background = '#141414'; bUsdt.style.color = '#aaa'; bUsdt.style.borderColor = '#333';
       }
       updatePaymentDisplay();
     }
 
-    // --- Расчет и отображение цен ---
     function updatePaymentDisplay() {
       let finalUsd = state.selectedPriceUsd;
-      const oldPriceEl = document.getElementById('payOldPrice');
+      const oldEl = document.getElementById('payOldPrice');
 
       if (state.appliedDiscountPercent > 0) {
         finalUsd = finalUsd * (1 - state.appliedDiscountPercent / 100);
-        oldPriceEl.classList.remove('hidden');
-        oldPriceEl.textContent = state.currency === 'USDT' 
-          ? `$${state.selectedPriceUsd.toFixed(2)}` 
-          : `${(state.selectedPriceUsd / state.gramRate).toFixed(2)} GRAM`;
+        oldEl.classList.remove('hidden');
+        oldEl.textContent = state.currency === 'USDT' 
+          ? '$' + state.selectedPriceUsd.toFixed(2) 
+          : (state.selectedPriceUsd / state.gramRate).toFixed(2) + ' GRAM';
       } else {
-        oldPriceEl.classList.add('hidden');
+        oldEl.classList.add('hidden');
       }
 
       const amountEl = document.getElementById('payFinalAmount');
       if (state.currency === 'USDT') {
-        amountEl.textContent = `${finalUsd.toFixed(2)} USDT`;
+        amountEl.textContent = finalUsd.toFixed(2) + ' USDT';
       } else {
-        const gramAmount = (finalUsd / state.gramRate).toFixed(2);
-        amountEl.textContent = `${gramAmount} GRAM`;
+        amountEl.textContent = (finalUsd / state.gramRate).toFixed(2) + ' GRAM';
       }
     }
 
-    // --- Применение промокода ---
     function applyPromoCode() {
-      const codeInput = document.getElementById('inputPromo').value.trim().toUpperCase();
-      const msgEl = document.getElementById('promoMessage');
-      msgEl.className = 'text-xs mt-1 block';
+      const code = document.getElementById('inputPromo').value.trim().toUpperCase();
+      const msg = document.getElementById('promoMessage');
+      msg.classList.remove('hidden');
 
-      if (!codeInput) {
-        msgEl.className = 'text-xs mt-1 block text-neutral-400';
-        msgEl.textContent = 'Введите код для применения';
+      if (!code) {
+        msg.style.color = '#888';
+        msg.textContent = 'Введите промокод';
         return;
       }
 
-      const promo = promoDatabase.find(p => p.code === codeInput);
-      const userKey = (state.username || 'guest').toLowerCase();
+      const promo = promoDatabase.find(p => p.code === code);
+      const userKey = (state.username || 'user').toLowerCase();
 
-      // Проверка 1: существует ли промокод
       if (!promo) {
-        msgEl.className = 'text-xs mt-1 block text-neutral-400';
-        msgEl.textContent = 'Такого промокода больше нет';
+        msg.style.color = '#888';
+        msg.textContent = 'Такого промокода больше нет';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
         updatePaymentDisplay();
         return;
       }
 
-      // Проверка 2: статус промокода
       if (promo.status === 'ended') {
-        msgEl.className = 'text-xs mt-1 block text-rose-400';
-        msgEl.textContent = 'Промокод закончился';
+        msg.style.color = '#f87171';
+        msg.textContent = 'Промокод закончился';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
         updatePaymentDisplay();
@@ -600,56 +609,47 @@
       }
 
       if (promo.status === 'no_longer_exists') {
-        msgEl.className = 'text-xs mt-1 block text-neutral-400';
-        msgEl.textContent = 'Такого промокода больше нет';
+        msg.style.color = '#888';
+        msg.textContent = 'Такого промокода больше нет';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
         updatePaymentDisplay();
         return;
       }
 
-      // Проверка 3: лимит использований на пользователя
-      const userUses = promo.usedUsers[userKey] || 0;
-      if (userUses >= promo.limitPerUser) {
-        msgEl.className = 'text-xs mt-1 block text-amber-400';
-        msgEl.textContent = 'Промокод уже недоступен';
+      const used = (promo.usedUsers && promo.usedUsers[userKey]) ? promo.usedUsers[userKey] : 0;
+      if (used >= promo.limitPerUser) {
+        msg.style.color = '#fbbf24';
+        msg.textContent = 'Промокод уже недоступен';
         state.appliedPromo = null;
         state.appliedDiscountPercent = 0;
         updatePaymentDisplay();
         return;
       }
 
-      // Успешное применение
       state.appliedPromo = promo.code;
       state.appliedDiscountPercent = promo.discount;
-      msgEl.className = 'text-xs mt-1 block text-emerald-400';
-      msgEl.textContent = `✓ Промокод применен: скидка ${promo.discount}%`;
+      msg.style.color = '#34d399';
+      msg.textContent = '✓ Скидка ' + promo.discount + '% применена!';
       updatePaymentDisplay();
     }
 
-    // --- Копирование кошелька ---
     function copyWallet() {
       navigator.clipboard.writeText(TON_WALLET).then(() => {
-        const copyText = document.getElementById('copyText');
-        const copyIcon = document.getElementById('copyIcon');
-        copyText.textContent = 'Готово!';
-        copyIcon.textContent = '✓';
-        setTimeout(() => {
-          copyText.textContent = 'Копия';
-          copyIcon.textContent = '📋';
-        }, 1800);
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = 'Копия'; }, 1800);
       }).catch(() => {
-        alert('Адрес кошелька: ' + TON_WALLET);
+        alert(TON_WALLET);
       });
     }
 
-    // --- Кнопка «Я ОПЛАТИЛ» ---
     function confirmPayment() {
-      // Засчитываем использование промокода
       if (state.appliedPromo) {
         const promo = promoDatabase.find(p => p.code === state.appliedPromo);
         if (promo) {
-          const userKey = (state.username || 'guest').toLowerCase();
+          const userKey = (state.username || 'user').toLowerCase();
+          if (!promo.usedUsers) promo.usedUsers = {};
           promo.usedUsers[userKey] = (promo.usedUsers[userKey] || 0) + 1;
           savePromos();
         }
@@ -659,37 +659,32 @@
       const orderData = {
         country: state.selectedCountry,
         code: state.selectedCode,
-        buyer_username: `@${state.username}`,
+        buyer_username: '@' + state.username,
         price_usd: state.selectedPriceUsd.toFixed(2),
         currency: state.currency,
         price_val: finalAmountStr,
-        promo: state.appliedPromo ? `${state.appliedPromo} (-${state.appliedDiscountPercent}%)` : "Не применялся",
+        promo: state.appliedPromo ? state.appliedPromo + ' (-' + state.appliedDiscountPercent + '%)' : 'Не применялся',
         wallet: TON_WALLET
       };
 
-      // 1. Отправляем данные боту через нативный WebApp SDK
       if (tg) {
         try {
           tg.sendData(JSON.stringify(orderData));
-        } catch (e) {
-          console.log("sendData error:", e);
-        }
+        } catch(e) {}
       }
 
-      // 2. Формируем ссылку на прямой диалог с админом
-      const messageText = encodeURIComponent(
-        `Здравствуйте! Оплатил покупку номера:\n` +
-        `• Страна: ${state.selectedCountry} (${state.selectedCode})\n` +
-        `• Мой юзернейм: @${state.username}\n` +
-        `• Сумма: ${finalAmountStr}\n` +
-        `• Промокод: ${orderData.promo}\n` +
-        `• Кошелек: ${TON_WALLET}`
+      const text = encodeURIComponent(
+        'Покупка номера UJ92_shop:\n' +
+        '• Товар: ' + state.selectedCountry + ' (' + state.selectedCode + ')\n' +
+        '• Юзернейм: @' + state.username + '\n' +
+        '• Сумма: ' + finalAmountStr + '\n' +
+        '• Промокод: ' + orderData.promo + '\n' +
+        '• Кошелек: ' + TON_WALLET
       );
-      document.getElementById('directAdminLink').href = `https://t.me/${ADMIN_USERNAME}?text=${messageText}`;
+      document.getElementById('directAdminLink').href = 'https://t.me/' + ADMIN_USERNAME + '?text=' + text;
 
-      // Заполняем экран успеха
-      document.getElementById('resCountry').textContent = `${state.selectedCountry} (${state.selectedCode})`;
-      document.getElementById('resUser').textContent = `@${state.username}`;
+      document.getElementById('resCountry').textContent = state.selectedCountry + ' (' + state.selectedCode + ')';
+      document.getElementById('resUser').textContent = '@' + state.username;
       document.getElementById('resAmount').textContent = finalAmountStr;
       document.getElementById('resPromo').textContent = orderData.promo;
 
@@ -698,59 +693,56 @@
 
     function resetShop() {
       document.getElementById('inputPromo').value = '';
-      document.getElementById('promoMessage').className = 'hidden';
+      document.getElementById('promoMessage').classList.add('hidden');
       state.appliedPromo = null;
       state.appliedDiscountPercent = 0;
       goToScreen('screenCatalog');
     }
 
-    // --- Настройки админа: Статус Онлайн/Офлайн ---
+    function toggleAdminModal(show) {
+      document.getElementById('adminModal').classList.toggle('hidden', !show);
+      if (show) renderAdminPromoList();
+    }
+
     function setAdminStatus(isOnline) {
       state.isAdminOnline = isOnline;
-      localStorage.setItem('uj92_admin_online', isOnline);
+      storage.set('uj92_admin_online', isOnline ? 'true' : 'false');
       updateAdminStatusUI();
     }
 
     function updateAdminStatusUI() {
-      const ping = document.getElementById('statusPing');
       const dot = document.getElementById('statusDot');
       const text = document.getElementById('statusText');
-      const btnOn = document.getElementById('adminBtnOnline');
-      const btnOff = document.getElementById('adminBtnOffline');
+      const bOn = document.getElementById('adminBtnOnline');
+      const bOff = document.getElementById('adminBtnOffline');
 
       if (state.isAdminOnline) {
-        ping.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75';
-        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-emerald-500';
+        dot.style.background = '#10b981';
         text.textContent = 'Админ @uj_92: Онлайн';
-        text.className = 'text-neutral-300 font-medium';
-        btnOn.className = 'btn-grow py-2 rounded-xl text-xs font-bold border border-emerald-500 bg-emerald-950/40 text-emerald-300';
-        btnOff.className = 'btn-grow py-2 rounded-xl text-xs font-bold border border-neutral-800 bg-neutral-900 text-neutral-400';
+        bOn.style.borderColor = '#10b981'; bOn.style.background = '#064e3b'; bOn.style.color = '#a7f3d0';
+        bOff.style.borderColor = '#333'; bOff.style.background = '#141414'; bOff.style.color = '#777';
       } else {
-        ping.className = 'hidden';
-        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-neutral-500';
+        dot.style.background = '#666';
         text.textContent = 'Админ @uj_92: Не в сети';
-        text.className = 'text-neutral-500 font-medium';
-        btnOff.className = 'btn-grow py-2 rounded-xl text-xs font-bold border border-neutral-400 bg-neutral-800 text-white';
-        btnOn.className = 'btn-grow py-2 rounded-xl text-xs font-bold border border-neutral-800 bg-neutral-900 text-neutral-400';
+        bOff.style.borderColor = '#fff'; bOff.style.background = '#222'; bOff.style.color = '#fff';
+        bOn.style.borderColor = '#333'; bOn.style.background = '#141414'; bOn.style.color = '#777';
       }
     }
 
-    // --- Курс GRAM и ежечасный пересчет ---
     function updateGramRate() {
       const val = parseFloat(document.getElementById('adminGramInput').value);
       if (val && val > 0) {
         state.gramRate = val;
-        localStorage.setItem('uj92_gram_rate', val);
+        storage.set('uj92_gram_rate', val.toString());
         renderGramPrices();
-        alert('Курс GRAM обновлен: $' + val);
+        alert('Курс обновлен: $' + val);
       }
     }
 
     function renderGramPrices() {
-      document.getElementById('gramRateDisplay').textContent = `$${state.gramRate.toFixed(2)}`;
+      document.getElementById('gramRateDisplay').textContent = '$' + state.gramRate.toFixed(2);
       document.getElementById('adminGramInput').value = state.gramRate;
 
-      // Пересчитываем цены в каталоге
       const p08 = (0.80 / state.gramRate).toFixed(2);
       const p10 = (1.00 / state.gramRate).toFixed(2);
       const p18 = (1.80 / state.gramRate).toFixed(2);
@@ -760,47 +752,30 @@
       const el10 = document.getElementById('gramPrice-1.00');
       const el18 = document.getElementById('gramPrice-1.80');
 
-      if (el08) el08.textContent = `~${p08} GRAM`;
-      if (el08_2) el08_2.textContent = `~${p08} GRAM`;
-      if (el10) el10.textContent = `~${p10} GRAM`;
-      if (el18) el18.textContent = `~${p18} GRAM`;
-    }
-
-    // Таймер ежечасной проверки/обновления
-    setInterval(() => {
-      renderGramPrices();
-    }, 3600000); // 1 час
-
-    // --- Управление промокодами в админке ---
-    function toggleAdminModal(show) {
-      document.getElementById('adminModal').classList.toggle('hidden', !show);
-      if (show) renderAdminPromoList();
+      if (el08) el08.textContent = '~' + p08 + ' GRAM';
+      if (el08_2) el08_2.textContent = '~' + p08 + ' GRAM';
+      if (el10) el10.textContent = '~' + p10 + ' GRAM';
+      if (el18) el18.textContent = '~' + p18 + ' GRAM';
     }
 
     function createPromo() {
       const code = document.getElementById('newPromoCode').value.trim().toUpperCase();
-      const discount = parseInt(document.getElementById('newPromoDiscount').value);
-      const limit = parseInt(document.getElementById('newPromoLimit').value) || 1;
+      const disc = parseInt(document.getElementById('newPromoDiscount').value);
+      const lim = parseInt(document.getElementById('newPromoLimit').value) || 1;
       const status = document.getElementById('newPromoStatus').value;
 
-      if (!code || isNaN(discount) || discount <= 0) {
-        alert('Укажите корректный промокод и % скидки!');
+      if (!code || isNaN(disc) || disc <= 0) {
+        alert('Введите корректный код и скидку');
         return;
       }
 
       const existing = promoDatabase.find(p => p.code === code);
       if (existing) {
-        existing.discount = discount;
-        existing.limitPerUser = limit;
+        existing.discount = disc;
+        existing.limitPerUser = lim;
         existing.status = status;
       } else {
-        promoDatabase.push({
-          code,
-          discount,
-          limitPerUser: limit,
-          status,
-          usedUsers: {}
-        });
+        promoDatabase.push({ code: code, discount: disc, limitPerUser: lim, status: status, usedUsers: {} });
       }
 
       savePromos();
@@ -814,84 +789,55 @@
     }
 
     function renderAdminPromoList() {
-      const container = document.getElementById('promoListContainer');
-      container.innerHTML = '';
-
+      const c = document.getElementById('promoListContainer');
+      c.innerHTML = '';
       if (promoDatabase.length === 0) {
-        container.innerHTML = '<div class="text-[11px] text-neutral-500">Нет сохраненных кодов</div>';
+        c.innerHTML = '<div style="font-size: 11px; color: #555;">Нет промокодов</div>';
         return;
       }
-
       promoDatabase.forEach(p => {
-        const item = document.createElement('div');
-        item.className = 'flex items-center justify-between bg-neutral-900 border border-neutral-800 px-2.5 py-1.5 rounded-lg text-xs';
-        
-        let statusBadge = '<span class="text-emerald-400">Активен</span>';
-        if (p.status === 'ended') statusBadge = '<span class="text-rose-400">Закончился</span>';
-        if (p.status === 'no_longer_exists') statusBadge = '<span class="text-neutral-500">Нет</span>';
-
-        item.innerHTML = `
-          <div>
-            <span class="font-mono-num font-bold text-white">${p.code}</span>
-            <span class="text-neutral-400 ml-1">-${p.discount}% (лимит: ${p.limitPerUser})</span>
-            <span class="ml-1 text-[10px]">${statusBadge}</span>
-          </div>
-          <button onclick="deletePromo('${p.code}')" class="text-neutral-500 hover:text-rose-400 text-xs px-1">✕</button>
-        `;
-        container.appendChild(item);
+        const d = document.createElement('div');
+        d.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: #141414; padding: 6px 8px; border-radius: 8px; font-size: 11px; border: 1px solid #222;';
+        d.innerHTML = '<div><b style="color: #fff;" class="font-mono">' + p.code + '</b> <span style="color: #777;">-' + p.discount + '%</span></div><button onclick="deletePromo(\'' + p.code + '\')" style="background: none; border: none; color: #f87171; cursor: pointer;">✕</button>';
+        c.appendChild(d);
       });
     }
 
-    // --- Генерация QR-кода ---
-    new QRCode(document.getElementById("qrcode"), {
-      text: TON_WALLET,
-      width: 130,
-      height: 130,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.M
-    });
-
-    // --- Отрисовка не хаотичных монохромных волн на Canvas ---
+    // Фоновая плавная анимация волн
     const canvas = document.getElementById('waveCanvas');
     const ctx = canvas.getContext('2d');
     let width, height, step = 0;
 
-    function resizeCanvas() {
+    function resize() {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    window.addEventListener('resize', resize);
+    resize();
 
-    function drawWaves() {
+    function draw() {
       ctx.clearRect(0, 0, width, height);
       step += 0.008;
-
       const lines = [
-        { y: height * 0.35, length: 0.0035, amplitude: 35, speed: 0.8, color: 'rgba(255, 255, 255, 0.25)' },
-        { y: height * 0.50, length: 0.0025, amplitude: 45, speed: -0.6, color: 'rgba(200, 200, 200, 0.20)' },
-        { y: height * 0.65, length: 0.0040, amplitude: 30, speed: 1.1, color: 'rgba(160, 160, 160, 0.18)' },
-        { y: height * 0.80, length: 0.0020, amplitude: 55, speed: -0.4, color: 'rgba(240, 240, 240, 0.15)' }
+        { y: height * 0.35, len: 0.0035, amp: 30, spd: 0.7, col: 'rgba(255,255,255,0.22)' },
+        { y: height * 0.55, len: 0.0025, amp: 40, spd: -0.5, col: 'rgba(180,180,180,0.18)' },
+        { y: height * 0.75, len: 0.0040, amp: 35, spd: 0.9, col: 'rgba(220,220,220,0.15)' }
       ];
-
-      lines.forEach(line => {
+      lines.forEach(l => {
         ctx.beginPath();
-        ctx.strokeStyle = line.color;
+        ctx.strokeStyle = l.col;
         ctx.lineWidth = 1.5;
-        for (let x = 0; x <= width; x += 10) {
-          const y = line.y + Math.sin(x * line.length + step * line.speed) * line.amplitude;
+        for (let x = 0; x <= width; x += 12) {
+          const y = l.y + Math.sin(x * l.len + step * l.spd) * l.amp;
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
       });
-
-      requestAnimationFrame(drawWaves);
+      requestAnimationFrame(draw);
     }
-    drawWaves();
+    draw();
 
-    // Инициализация при загрузке
     updateAdminStatusUI();
     renderGramPrices();
     renderAdminPromoList();
