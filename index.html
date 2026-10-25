@@ -110,14 +110,6 @@
       font-weight: bold;
       text-transform: uppercase;
     }
-
-    /* Интерактивный холст графика */
-    #chartCanvas {
-      width: 100%;
-      height: 120px;
-      display: block;
-      cursor: crosshair;
-    }
   </style>
 </head>
 <body>
@@ -127,10 +119,10 @@
 
   <div class="app-container">
     
-    <!-- Шапка (БЕЗ надписи онлайн) -->
+    <!-- Шапка -->
     <header style="margin-bottom: 12px;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 12px;">
-        <!-- 5 кликов по названию открывают админ-панель с ПК -->
+        <!-- 5 быстрых кликов по названию открывают админку с ПК -->
         <div onclick="handleTitleClicks()" style="cursor: pointer; user-select: none;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <h1 style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px;">UJ92_shop</h1>
@@ -145,7 +137,7 @@
             <span style="font-weight: 600;">Отзывы</span>
           </a>
 
-          <!-- Кнопка админки (скрыта по умолчанию) -->
+          <!-- Кнопка админки (скрыта для покупателей) -->
           <button id="adminSettingsBtn" onclick="toggleAdminModal(true)" class="btn-grow hidden" style="background: #ffffff; border: 1px solid #ffffff; color: #000000; padding: 6px 10px; border-radius: 10px; font-size: 13px;">
             ⚙️ Админ
           </button>
@@ -156,44 +148,25 @@
     <!-- Основной контент -->
     <main style="flex: 1;">
 
-      <!-- ================= 1. КАТАЛОГ И ГРАФИК GRAM ================= -->
+      <!-- ================= 1. КАТАЛОГ ================= -->
       <section id="screenCatalog" style="display: flex; flex-direction: column; gap: 12px;">
         
-        <!-- БЛОК ОТСЛЕЖИВАЕМОГО ГРАФИКА GRAM -->
-        <div style="background: rgba(14, 14, 14, 0.95); border: 1px solid #2a2a2a; border-radius: 16px; padding: 12px 14px; backdrop-filter: blur(8px);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-weight: 900; font-size: 13px; letter-spacing: 0.5px;">GRAM / USDT</span>
-                <span class="badge" style="background: #1e3a1e; color: #4ade80;">Live</span>
-              </div>
-              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 2px;">
-                <span id="chartCurrentPrice" class="font-mono" style="font-size: 20px; font-weight: 900; color: #fff;">$1.24</span>
-                <span id="chartPriceChange" class="font-mono" style="font-size: 11px; color: #4ade80; font-weight: bold;">+3.33%</span>
-              </div>
+        <!-- БЛОК РЕАЛЬНОГО КУРСА GRAM С BYBIT -->
+        <div style="background: rgba(14, 14, 14, 0.95); border: 1px solid #2a2a2a; border-radius: 16px; padding: 12px 16px; backdrop-filter: blur(8px); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-weight: 800; font-size: 13px; letter-spacing: 0.5px;">Курс GRAM (Bybit)</span>
+              <span class="badge" style="background: #1e3a1e; color: #4ade80;">1ч</span>
             </div>
-
-            <!-- Переключатель таймфреймов -->
-            <div style="display: flex; gap: 4px; background: #0a0a0a; border: 1px solid #262626; padding: 3px; border-radius: 8px;">
-              <button onclick="setChartTf('1H')" id="tf1H" class="btn-grow font-mono" style="background: #262626; color: #fff; border: none; font-size: 10px; padding: 4px 7px; border-radius: 6px; font-weight: bold;">1Ч</button>
-              <button onclick="setChartTf('24H')" id="tf24H" class="btn-grow font-mono" style="background: transparent; color: #777; border: none; font-size: 10px; padding: 4px 7px; border-radius: 6px; font-weight: bold;">24Ч</button>
-              <button onclick="setChartTf('7D')" id="tf7D" class="btn-grow font-mono" style="background: transparent; color: #777; border: none; font-size: 10px; padding: 4px 7px; border-radius: 6px; font-weight: bold;">7Д</button>
-            </div>
+            <div style="font-size: 10px; color: #777; margin-top: 2px;">Спот GRAM/USDT</div>
           </div>
-
-          <!-- Контейнер холста графика -->
-          <div style="position: relative; width: 100%; height: 120px;">
-            <canvas id="chartCanvas"></canvas>
-            <div id="chartTooltip" class="font-mono" style="position: absolute; display: none; background: #ffffff; color: #000000; padding: 3px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; pointer-events: none; transform: translate(-50%, -120%); white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-              $1.24
-            </div>
+          <div style="text-align: right;">
+            <div id="gramRateDisplay" class="font-mono" style="font-size: 18px; font-weight: 900; color: #ffffff;">$1.24</div>
+            <div id="gramRateTime" class="font-mono" style="font-size: 10px; color: #888;">Обновляется каждый час</div>
           </div>
-          <p style="font-size: 10px; text-align: center; color: #666; margin-top: 4px;">
-            Проведите по графику, чтобы увидеть динамику курса
-          </p>
         </div>
 
-        <div style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; letter-spacing: 0.5px; margin-top: 4px;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; letter-spacing: 0.5px;">
           Выберите регион номера:
         </div>
 
@@ -302,7 +275,7 @@
             <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
           </div>
 
-          <!-- Только GRAM или USDT (сеть TON) -->
+          <!-- Выбор валюты оплаты: USDT или GRAM (сеть TON) -->
           <div style="margin-top: 4px;">
             <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
               Вариант оплаты (сеть TON):
@@ -345,12 +318,13 @@
             <span style="font-size: 10px; background: #1a1a1a; padding: 2px 6px; border-radius: 6px; color: #888; border: 1px solid #282828;">Только GRAM / USDT TON</span>
           </div>
 
+          <!-- Адрес + кнопка ТОЛЬКО со значком (без текста) -->
           <div style="display: flex; align-items: center; gap: 8px; background: #0a0a0a; border: 1px solid #333; padding: 8px 10px; border-radius: 12px;">
             <div id="walletAddressText" class="font-mono" style="flex: 1; font-size: 11px; color: #eee; word-break: break-all; line-height: 1.3;">
               UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y
             </div>
-            <button onclick="copyWallet()" class="btn-grow" id="copyBtn" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px;">
-              Копия
+            <button onclick="copyWallet()" class="btn-grow" id="copyBtn" style="background: #ffffff; color: #000000; border: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; justify-content: center;" title="Скопировать кошелек">
+              📋
             </button>
           </div>
 
@@ -416,12 +390,16 @@
         <button onclick="toggleAdminModal(false)" style="background: none; border: none; color: #888; font-size: 18px; cursor: pointer;">✕</button>
       </div>
 
-      <!-- Курс GRAM -->
+      <!-- Курс GRAM с Bybit -->
       <div>
-        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курс 1 GRAM ($):</label>
-        <div style="display: flex; gap: 6px;">
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курс GRAM (Bybit):</label>
+        <button onclick="fetchGramFromBybit()" class="btn-grow" style="width: 100%; padding: 8px; background: #1f1f1f; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 11px; font-weight: bold; margin-bottom: 8px;">
+          🔄 Обновить с Bybit сейчас
+        </button>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <span style="font-size: 11px; color: #aaa;">Ручной курс ($):</span>
           <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1; padding: 6px 10px;">
-          <button onclick="updateGramRate()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 10px; font-weight: bold; font-size: 11px;">
+          <button onclick="updateGramRateManual()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 10px; font-weight: bold; font-size: 11px;">
             ОК
           </button>
         </div>
@@ -491,7 +469,7 @@
       appliedDiscountPercent: 0
     };
 
-    // --- ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА (кнопка скрыта ото всех остальных) ---
+    // --- ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА ---
     function verifyAdminAccess() {
       const user = tg?.initDataUnsafe?.user;
       const isOwner = (user && (user.id === ADMIN_TELEGRAM_ID || (user.username && user.username.toLowerCase() === ADMIN_USERNAME.toLowerCase())))
@@ -525,164 +503,34 @@
       }
     }
 
-    // ================= ИНТЕРАКТИВНЫЙ ГРАФИК GRAM =================
-    let chartTimeframe = '1H';
-    const chartData = {
-      '1H': [1.21, 1.22, 1.215, 1.225, 1.23, 1.228, 1.235, 1.232, 1.238, 1.24],
-      '24H': [1.16, 1.18, 1.17, 1.19, 1.21, 1.20, 1.22, 1.215, 1.23, 1.24],
-      '7D': [1.08, 1.12, 1.10, 1.15, 1.18, 1.17, 1.21, 1.22, 1.20, 1.24]
-    };
-
-    function setChartTf(tf) {
-      chartTimeframe = tf;
-      ['1H', '24H', '7D'].forEach(t => {
-        const btn = document.getElementById('tf' + t);
-        if (t === tf) {
-          btn.style.background = '#262626';
-          btn.style.color = '#fff';
-        } else {
-          btn.style.background = 'transparent';
-          btn.style.color = '#777';
+    // ================= ПОЛУЧЕНИЕ КУРСА GRAM С BYBIT =================
+    async function fetchGramFromBybit() {
+      try {
+        // Официальный публичный API Bybit (спотовый тикер GRAMUSDT)
+        const resp = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=GRAMUSDT');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.result && data.result.list && data.result.list.length > 0) {
+            const lastPrice = parseFloat(data.result.list[0].lastPrice);
+            if (!isNaN(lastPrice) && lastPrice > 0) {
+              state.gramRate = lastPrice;
+              storage.set('uj92_gram_rate', lastPrice.toString());
+              renderPrices();
+              const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              document.getElementById('gramRateTime').textContent = `Обновлено в ${timeStr} (Bybit)`;
+              return;
+            }
+          }
         }
-      });
-      drawChart();
+      } catch (e) {
+        console.warn('Bybit API fetch error:', e);
+      }
+      renderPrices();
     }
 
-    const chartCanvas = document.getElementById('chartCanvas');
-    const chartCtx = chartCanvas.getContext('2d');
-    const tooltip = document.getElementById('chartTooltip');
-    let chartHoverIndex = -1;
-
-    function resizeChartCanvas() {
-      chartCanvas.width = chartCanvas.parentElement.clientWidth * window.devicePixelRatio;
-      chartCanvas.height = 120 * window.devicePixelRatio;
-      chartCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
-      drawChart();
-    }
-    window.addEventListener('resize', resizeChartCanvas);
-
-    function drawChart() {
-      const w = chartCanvas.parentElement.clientWidth;
-      const h = 120;
-      chartCtx.clearRect(0, 0, w, h);
-
-      const pts = chartData[chartTimeframe];
-      const min = Math.min(...pts) * 0.985;
-      const max = Math.max(...pts) * 1.015;
-
-      const getX = i => (i / (pts.length - 1)) * (w - 20) + 10;
-      const getY = val => h - 15 - ((val - min) / (max - min)) * (h - 30);
-
-      // Горизонтальные фоновые линии сетки
-      chartCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      chartCtx.lineWidth = 1;
-      for (let i = 1; i <= 3; i++) {
-        const y = (h / 4) * i;
-        chartCtx.beginPath();
-        chartCtx.moveTo(0, y);
-        chartCtx.lineTo(w, y);
-        chartCtx.stroke();
-      }
-
-      // Линия тренда
-      chartCtx.beginPath();
-      chartCtx.strokeStyle = '#ffffff';
-      chartCtx.lineWidth = 2.2;
-      pts.forEach((p, i) => {
-        const x = getX(i);
-        const y = getY(p);
-        if (i === 0) chartCtx.moveTo(x, y);
-        else chartCtx.lineTo(x, y);
-      });
-      chartCtx.stroke();
-
-      // Градиентная заливка под графиком
-      const grad = chartCtx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
-      grad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-      chartCtx.lineTo(getX(pts.length - 1), h);
-      chartCtx.lineTo(getX(0), h);
-      chartCtx.fillStyle = grad;
-      chartCtx.fill();
-
-      // Последняя точка (пульсирующая)
-      const lastX = getX(pts.length - 1);
-      const lastY = getY(pts[pts.length - 1]);
-      chartCtx.beginPath();
-      chartCtx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-      chartCtx.fillStyle = '#4ade80';
-      chartCtx.fill();
-
-      // Отрисовка перекрестия при наведении
-      if (chartHoverIndex >= 0 && chartHoverIndex < pts.length) {
-        const hX = getX(chartHoverIndex);
-        const hY = getY(pts[chartHoverIndex]);
-
-        chartCtx.beginPath();
-        chartCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        chartCtx.setLineDash([3, 3]);
-        chartCtx.moveTo(hX, 0);
-        chartCtx.lineTo(hX, h);
-        chartCtx.stroke();
-        chartCtx.setLineDash([]);
-
-        chartCtx.beginPath();
-        chartCtx.arc(hX, hY, 5, 0, Math.PI * 2);
-        chartCtx.fillStyle = '#ffffff';
-        chartCtx.fill();
-
-        // Позиционирование тултипа
-        tooltip.style.display = 'block';
-        tooltip.style.left = hX + 'px';
-        tooltip.style.top = hY + 'px';
-        tooltip.textContent = '$' + pts[chartHoverIndex].toFixed(3);
-      } else {
-        tooltip.style.display = 'none';
-      }
-    }
-
-    function handleChartMove(e) {
-      const rect = chartCanvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const x = clientX - rect.left;
-      const w = rect.width;
-      const pts = chartData[chartTimeframe];
-      const index = Math.round(((x - 10) / (w - 20)) * (pts.length - 1));
-
-      if (index >= 0 && index < pts.length) {
-        chartHoverIndex = index;
-        document.getElementById('chartCurrentPrice').textContent = '$' + pts[index].toFixed(2);
-      }
-      drawChart();
-    }
-
-    chartCanvas.addEventListener('mousemove', handleChartMove);
-    chartCanvas.addEventListener('mouseleave', () => {
-      chartHoverIndex = -1;
-      document.getElementById('chartCurrentPrice').textContent = '$' + state.gramRate.toFixed(2);
-      drawChart();
-    });
-    chartCanvas.addEventListener('touchmove', handleChartMove, { passive: true });
-    chartCanvas.addEventListener('touchend', () => {
-      chartHoverIndex = -1;
-      document.getElementById('chartCurrentPrice').textContent = '$' + state.gramRate.toFixed(2);
-      drawChart();
-    });
-
-    // Небольшое живое колебание графика для реалистичности
-    setInterval(() => {
-      const arr = chartData['1H'];
-      const delta = (Math.random() - 0.48) * 0.005;
-      let newPrice = parseFloat((arr[arr.length - 1] + delta).toFixed(3));
-      if (newPrice < 1.20) newPrice = 1.21;
-      if (newPrice > 1.28) newPrice = 1.26;
-      arr.shift();
-      arr.push(newPrice);
-      if (chartHoverIndex === -1) {
-        document.getElementById('chartCurrentPrice').textContent = '$' + newPrice.toFixed(2);
-      }
-      drawChart();
-    }, 4000);
+    // Запуск проверки при входе и каждый 1 час (3600000 мс)
+    fetchGramFromBybit();
+    setInterval(fetchGramFromBybit, 3600000);
 
     // ================= БАЗА ПРОМОКОДОВ =================
     let promoDatabase = [];
@@ -841,11 +689,12 @@
       updatePaymentDisplay();
     }
 
+    // --- КНОПКА КОПИРОВАНИЯ (БЕЗ ТЕКСТА) ---
     function copyWallet() {
       navigator.clipboard.writeText(TON_WALLET).then(() => {
         const btn = document.getElementById('copyBtn');
         btn.textContent = '✓';
-        setTimeout(() => { btn.textContent = 'Копия'; }, 1800);
+        setTimeout(() => { btn.textContent = '📋'; }, 1800);
       }).catch(() => {
         alert(TON_WALLET);
       });
@@ -909,18 +758,19 @@
       if (show) renderAdminPromoList();
     }
 
-    function updateGramRate() {
+    function updateGramRateManual() {
       const val = parseFloat(document.getElementById('adminGramInput').value);
       if (val && val > 0) {
         state.gramRate = val;
         storage.set('uj92_gram_rate', val.toString());
         renderPrices();
-        document.getElementById('chartCurrentPrice').textContent = '$' + val.toFixed(2);
-        alert('Курс GRAM обновлен: $' + val);
+        document.getElementById('gramRateTime').textContent = 'Установлен вручную';
+        alert('Курс GRAM сохранен: $' + val);
       }
     }
 
     function renderPrices() {
+      document.getElementById('gramRateDisplay').textContent = '$' + state.gramRate.toFixed(2);
       document.getElementById('adminGramInput').value = state.gramRate;
 
       const g08 = (0.80 / state.gramRate).toFixed(2);
@@ -983,7 +833,7 @@
       });
     }
 
-    // ================= ОТРИСОВКА НАСЫЩЕННЫХ ВОЛН НА CANVAS =================
+    // ================= ОТРИСОВКА ВОЛН НА CANVAS =================
     const canvas = document.getElementById('waveCanvas');
     const ctx = canvas.getContext('2d');
     let width, height, step = 0;
@@ -1029,7 +879,6 @@
     verifyAdminAccess();
     renderPrices();
     renderAdminPromoList();
-    setTimeout(resizeChartCanvas, 100);
   </script>
 </body>
 </html>
