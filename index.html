@@ -31,7 +31,7 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
-    /* Фоновые волны */
+    /* Фоновые контрастные волны */
     #waveCanvas {
       position: fixed;
       top: 0;
@@ -40,7 +40,7 @@
       height: 100vh;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.25;
+      opacity: 0.65;
     }
 
     .app-container {
@@ -56,21 +56,22 @@
       justify-content: space-between;
     }
 
-    /* Анимации кнопок */
+    /* Анимация увеличения кнопок при наведении и клике */
     .btn-grow {
-      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, border-color 0.15s;
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, border-color 0.15s;
       cursor: pointer;
     }
     .btn-grow:hover {
-      transform: scale(1.03);
+      transform: scale(1.035);
     }
     .btn-grow:active {
-      transform: scale(0.97);
+      transform: scale(0.96);
     }
 
     .card-item {
-      background: rgba(15, 15, 15, 0.92);
-      border: 1px solid #262626;
+      background: rgba(12, 12, 12, 0.90);
+      border: 1px solid #282828;
+      backdrop-filter: blur(8px);
       border-radius: 16px;
       padding: 14px 16px;
       cursor: pointer;
@@ -80,8 +81,8 @@
       transition: transform 0.18s ease, border-color 0.18s ease;
     }
     .card-item:hover {
-      transform: translateY(-2px) scale(1.01);
-      border-color: #555555;
+      transform: translateY(-2px) scale(1.015);
+      border-color: #666666;
     }
 
     .hidden {
@@ -113,41 +114,47 @@
 </head>
 <body>
 
-  <!-- Анимированный фон -->
+  <!-- Анимированный Canvas с контрастными волнами -->
   <canvas id="waveCanvas"></canvas>
 
   <div class="app-container">
     
     <!-- Шапка -->
-    <header style="margin-bottom: 16px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 12px;">
-        <div>
+    <header style="margin-bottom: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 12px;">
+        <!-- Логотип: 5 кликов открывают скрытый вход в админку для ПК -->
+        <div onclick="handleTitleClicks()" style="cursor: pointer; user-select: none;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <h1 style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">UJ92_shop</h1>
-            <span class="badge" style="background: #fff; color: #000;">bot</span>
+            <h1 style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px;">UJ92_shop</h1>
+            <span class="badge" style="background: #ffffff; color: #000000;">bot</span>
           </div>
-          <p style="font-size: 11px; color: #888; margin-top: 2px;">Магазин аккаунтов Telegram</p>
+          <p style="font-size: 11px; color: #999; margin-top: 2px;">Магазин аккаунтов Telegram</p>
         </div>
 
-        <div style="display: flex; gap: 8px;">
-          <a href="https://t.me/uj_92_rew" target="_blank" class="btn-grow" style="text-decoration: none; color: #eee; font-size: 12px; background: #141414; border: 1px solid #333; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 4px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <!-- Отзывы -->
+          <a href="https://t.me/uj_92_rew" target="_blank" class="btn-grow" style="text-decoration: none; color: #eeeeee; font-size: 12px; background: rgba(20,20,20,0.9); border: 1px solid #333; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 4px;">
             <span>⭐</span>
             <span style="font-weight: 600;">Отзывы</span>
           </a>
-          <button onclick="toggleAdminModal(true)" class="btn-grow" style="background: #141414; border: 1px solid #333; color: #fff; padding: 6px 10px; border-radius: 10px; font-size: 13px;">
-            ⚙️
+
+          <!-- Кнопка админки: ПО УМОЛЧАНИЮ СКРЫТА ото всех (класс hidden) -->
+          <button id="adminSettingsBtn" onclick="toggleAdminModal(true)" class="btn-grow hidden" style="background: #ffffff; border: 1px solid #ffffff; color: #000000; padding: 6px 10px; border-radius: 10px; font-size: 13px;" title="Панель администратора">
+            ⚙️ Админ
           </button>
         </div>
       </div>
 
-      <!-- Статус админа и курс GRAM -->
-      <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: #0a0a0a; border: 1px solid #222; padding: 8px 12px; border-radius: 12px;">
+      <!-- Статус админа + биржевой курс TON и GRAM -->
+      <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; background: rgba(10,10,10,0.85); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 12px;">
         <div id="adminStatusDisplay" style="display: flex; align-items: center; gap: 6px;">
           <span id="statusDot" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
           <span id="statusText" style="color: #ccc; font-weight: 500;">Админ @uj_92: Онлайн</span>
         </div>
-        <div class="font-mono" style="color: #888;">
-          1 GRAM ≈ <span id="gramRateDisplay" style="color: #fff; font-weight: bold;">$1.24</span>
+        
+        <!-- Биржевой курс TON -->
+        <div class="font-mono" style="color: #888;" title="Курс обновляется с биржи автоматически">
+          1 TON ≈ <span id="tonRateDisplay" style="color: #fff; font-weight: bold;">$5.20</span>
         </div>
       </div>
     </header>
@@ -167,12 +174,12 @@
             <span style="font-size: 28px;">🇺🇸</span>
             <div>
               <div style="font-weight: bold; font-size: 15px;">Америка</div>
-              <div class="font-mono" style="font-size: 12px; color: #777;">+1 код региона</div>
+              <div class="font-mono" style="font-size: 12px; color: #888;">+1 код региона</div>
             </div>
           </div>
           <div style="text-align: right;">
-            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</div>
-            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-0.80">~0.65 GRAM</div>
+            <div class="font-mono" style="font-weight: 900; font-size: 16px;">$0.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-0.80">~0.15 TON</div>
           </div>
         </div>
 
@@ -182,12 +189,12 @@
             <span style="font-size: 28px;">🇧🇩</span>
             <div>
               <div style="font-weight: bold; font-size: 15px;">Бангладеш</div>
-              <div class="font-mono" style="font-size: 12px; color: #777;">+880 код региона</div>
+              <div class="font-mono" style="font-size: 12px; color: #888;">+880 код региона</div>
             </div>
           </div>
           <div style="text-align: right;">
-            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$1.00</div>
-            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-1.00">~0.81 GRAM</div>
+            <div class="font-mono" style="font-weight: 900; font-size: 16px;">$1.00</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-1.00">~0.19 TON</div>
           </div>
         </div>
 
@@ -197,12 +204,12 @@
             <span style="font-size: 28px;">🇮🇳</span>
             <div>
               <div style="font-weight: bold; font-size: 15px;">Индия</div>
-              <div class="font-mono" style="font-size: 12px; color: #777;">+91 код региона</div>
+              <div class="font-mono" style="font-size: 12px; color: #888;">+91 код региона</div>
             </div>
           </div>
           <div style="text-align: right;">
-            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</div>
-            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-0.80-2">~0.65 GRAM</div>
+            <div class="font-mono" style="font-weight: 900; font-size: 16px;">$0.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-0.80-2">~0.15 TON</div>
           </div>
         </div>
 
@@ -212,12 +219,12 @@
             <span style="font-size: 28px;">🇬🇧</span>
             <div>
               <div style="font-weight: bold; font-size: 15px;">Британия</div>
-              <div class="font-mono" style="font-size: 12px; color: #777;">+44 код региона</div>
+              <div class="font-mono" style="font-size: 12px; color: #888;">+44 код региона</div>
             </div>
           </div>
           <div style="text-align: right;">
-            <div class="font-mono" style="font-weight: 800; font-size: 16px;">$1.80</div>
-            <div class="font-mono" style="font-size: 11px; color: #777;" id="gramPrice-1.80">~1.45 GRAM</div>
+            <div class="font-mono" style="font-weight: 900; font-size: 16px;">$1.80</div>
+            <div class="font-mono" style="font-size: 11px; color: #888;" id="catTon-1.80">~0.35 TON</div>
           </div>
         </div>
       </section>
@@ -228,15 +235,15 @@
           ← Вернуться в каталог
         </button>
 
-        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="background: rgba(16,16,16,0.9); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span id="selectedFlag" style="font-size: 24px;">🇺🇸</span>
             <span id="selectedTitle" style="font-weight: bold; font-size: 15px;">Америка (+1)</span>
           </div>
-          <span id="selectedPriceUsd" class="font-mono" style="font-weight: 800; font-size: 16px;">$0.80</span>
+          <span id="selectedPriceUsd" class="font-mono" style="font-weight: 900; font-size: 16px;">$0.80</span>
         </div>
 
-        <div style="background: #111; border: 1px solid #222; padding: 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="background: rgba(16,16,16,0.9); border: 1px solid #2a2a2a; padding: 16px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
           <label style="font-size: 12px; text-transform: uppercase; color: #ccc; font-weight: 600;">
             Ваш юзернейм в Telegram:
           </label>
@@ -244,12 +251,12 @@
             <span class="font-mono" style="position: absolute; left: 12px; top: 10px; color: #666;">@</span>
             <input type="text" id="inputUsername" placeholder="username" style="width: 100%; padding-left: 32px;" class="font-mono">
           </div>
-          <p style="font-size: 11px; color: #777;">
-            На этот юзернейм админ отправит код для входа в аккаунт.
+          <p style="font-size: 11px; color: #888;">
+            На этот юзернейм администратор отправит код авторизации.
           </p>
         </div>
 
-        <button onclick="submitUsername()" class="btn-grow" style="width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 14px; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+        <button onclick="submitUsername()" class="btn-grow" style="width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 14px; font-weight: 900; font-size: 13px; text-transform: uppercase;">
           Перейти к оплате →
         </button>
       </section>
@@ -260,29 +267,32 @@
           ← Изменить юзернейм
         </button>
 
-        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
           <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888;">
             <span>Покупатель: <b id="paySummaryUser" style="color: #fff;" class="font-mono">@user</b></span>
             <span id="paySummaryCountry" style="color: #fff;">Америка (+1)</span>
           </div>
 
-          <!-- Выбор валюты -->
+          <!-- Выбор валюты (USDT / TON / GRAM) -->
           <div style="margin-top: 4px;">
             <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600; display: block; margin-bottom: 6px;">
-              Валюта перевода (сеть TON):
+              Вариант оплаты (сеть TON):
             </span>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 12px;">
-                ₮ USDT (TON)
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+              <button id="btnCurUsdt" onclick="setCurrency('USDT')" class="btn-grow" style="padding: 10px 4px; border-radius: 10px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 800; font-size: 11px;">
+                ₮ USDT
               </button>
-              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 12px;">
-                ⚡ GRAM (TON)
+              <button id="btnCurTon" onclick="setCurrency('TON')" class="btn-grow" style="padding: 10px 4px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 11px;">
+                💎 TON
+              </button>
+              <button id="btnCurGram" onclick="setCurrency('GRAM')" class="btn-grow" style="padding: 10px 4px; border-radius: 10px; border: 1px solid #333; background: #141414; color: #aaa; font-weight: 800; font-size: 11px;">
+                ⚡ GRAM
               </button>
             </div>
           </div>
 
-          <div style="border-top: 1px solid #222; padding-top: 10px; display: flex; justify-content: space-between; align-items: baseline;">
-            <span style="font-size: 11px; text-transform: uppercase; color: #888;">Итого к оплате:</span>
+          <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 11px; text-transform: uppercase; color: #888;">Итого к переводу:</span>
             <div style="text-align: right;">
               <span id="payOldPrice" class="font-mono hidden" style="font-size: 12px; color: #666; text-decoration: line-through; margin-right: 6px;"></span>
               <span id="payFinalAmount" class="font-mono" style="font-size: 22px; font-weight: 900; color: #fff;">0.80 USDT</span>
@@ -291,7 +301,7 @@
         </div>
 
         <!-- Промокод -->
-        <div style="background: #111; border: 1px solid #222; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 8px;">
           <label style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Промокод на скидку:</label>
           <div style="display: flex; gap: 8px;">
             <input type="text" id="inputPromo" placeholder="ВВЕДИТЕ ПРОМОКОД" style="flex: 1; text-transform: uppercase;" class="font-mono">
@@ -303,13 +313,13 @@
         </div>
 
         <!-- Кошелек и QR-код -->
-        <div style="background: #111; border: 1px solid #222; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="background: rgba(16,16,16,0.92); border: 1px solid #2a2a2a; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 600;">Кошелек TON:</span>
             <span style="font-size: 10px; background: #1a1a1a; padding: 2px 6px; border-radius: 6px; color: #888; border: 1px solid #282828;">Сеть The Open Network</span>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 8px; background: #0a0a0a; border: 1px solid #262626; padding: 8px 10px; border-radius: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; background: #0a0a0a; border: 1px solid #333; padding: 8px 10px; border-radius: 12px;">
             <div id="walletAddressText" class="font-mono" style="flex: 1; font-size: 11px; color: #eee; word-break: break-all; line-height: 1.3;">
               UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y
             </div>
@@ -318,18 +328,18 @@
             </button>
           </div>
 
-          <div style="display: flex; justify-content: center; padding: 8px 0;">
+          <div style="display: flex; justify-content: center; padding: 6px 0;">
             <div style="background: #fff; padding: 8px; border-radius: 12px; line-height: 0;">
               <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=ton://transfer/UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y" alt="QR" width="130" height="130" style="display: block;">
             </div>
           </div>
-          <p style="font-size: 11px; text-align: center; color: #666;">
+          <p style="font-size: 11px; text-align: center; color: #777;">
             Отсканируйте через Tonkeeper или Wallet в Telegram
           </p>
         </div>
 
         <!-- Кнопка «Я ОПЛАТИЛ» -->
-        <button onclick="confirmPayment()" class="btn-grow" style="width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 16px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,255,255,0.15);">
+        <button onclick="confirmPayment()" class="btn-grow" style="width: 100%; padding: 16px; background: #ffffff; color: #000000; border: none; border-radius: 16px; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255,255,255,0.2);">
           ✓ Я ОПЛАТИЛ
         </button>
       </section>
@@ -342,11 +352,11 @@
         <div>
           <h2 style="font-size: 18px; font-weight: 800;">Заявка сформирована</h2>
           <p style="font-size: 12px; color: #888; margin-top: 4px;">
-            Данные отправлены боту. Также вы можете написать администратору напрямую:
+            Данные отправлены боту. Также напишите администратору напрямую для получения кода:
           </p>
         </div>
 
-        <div class="font-mono" style="background: #111; border: 1px solid #222; border-radius: 14px; padding: 12px; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px;">
+        <div class="font-mono" style="background: rgba(16,16,16,0.9); border: 1px solid #2a2a2a; border-radius: 14px; padding: 12px; font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px;">
           <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Товар:</span><span id="resCountry"></span></div>
           <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Юзернейм:</span><span id="resUser"></span></div>
           <div style="display: flex; justify-content: space-between;"><span style="color: #666;">Сумма:</span><span id="resAmount" style="font-weight: bold; color: #fff;"></span></div>
@@ -366,15 +376,15 @@
     </main>
 
     <!-- Подвал -->
-    <footer style="margin-top: 20px; border-top: 1px solid #1a1a1a; padding-top: 10px; text-align: center; font-size: 11px; color: #555;">
-      UJ92_shop &bull; Администратор: <a href="https://t.me/uj_92" target="_blank" style="color: #777; text-decoration: underline;">@uj_92</a>
+    <footer style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; text-align: center; font-size: 11px; color: #666;">
+      UJ92_shop &bull; Администратор: <a href="https://t.me/uj_92" target="_blank" style="color: #888; text-decoration: underline;">@uj_92</a>
     </footer>
 
   </div>
 
-  <!-- Модальное окно настроек админа -->
-  <div id="adminModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px;">
-    <div style="background: #0d0d0d; border: 1px solid #262626; width: 100%; max-width: 360px; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; max-height: 90vh; overflow-y: auto;">
+  <!-- ================= ОКНО АДМИН-ПАНЕЛИ ================= -->
+  <div id="adminModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: #0d0d0d; border: 1px solid #333; width: 100%; max-width: 360px; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; max-height: 90vh; overflow-y: auto;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 8px;">
         <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase;">Панель администратора</h3>
         <button onclick="toggleAdminModal(false)" style="background: none; border: none; color: #888; font-size: 18px; cursor: pointer;">✕</button>
@@ -382,7 +392,7 @@
 
       <!-- Статус Онлайн -->
       <div>
-        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Ваш статус:</label>
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Ваш статус для клиентов:</label>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
           <button id="adminBtnOnline" onclick="setAdminStatus(true)" class="btn-grow" style="padding: 8px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 1px solid #10b981; background: #064e3b; color: #a7f3d0;">
             🟢 Онлайн
@@ -393,18 +403,24 @@
         </div>
       </div>
 
-      <!-- Курс GRAM -->
+      <!-- Курс TON и GRAM -->
       <div style="border-top: 1px solid #222; padding-top: 10px;">
-        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курс 1 GRAM ($):</label>
-        <div style="display: flex; gap: 6px;">
-          <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1;">
-          <button onclick="updateGramRate()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 0 12px; border-radius: 10px; font-weight: bold; font-size: 12px;">
-            ОК
+        <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 6px;">Курсы валют:</label>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <button onclick="fetchTonRate()" class="btn-grow" style="padding: 8px; background: #1e1e1e; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 11px; font-weight: bold;">
+            🔄 Обновить курс TON с биржи сейчас
           </button>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <span style="font-size: 11px; color: #aaa;">1 GRAM ($):</span>
+            <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1; padding: 6px 10px;">
+            <button onclick="updateGramRate()" class="btn-grow" style="background: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 10px; font-weight: bold; font-size: 11px;">
+              ОК
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Управление промокодами -->
+      <!-- Промокоды -->
       <div style="border-top: 1px solid #222; padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
         <label style="font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold;">Добавить промокод:</label>
         <input type="text" id="newPromoCode" placeholder="КОД (например: SALE20)" class="font-mono" style="text-transform: uppercase;">
@@ -421,9 +437,9 @@
           + Сохранить
         </button>
 
-        <div style="margin-top: 6px;">
+        <div style="margin-top: 4px;">
           <span style="font-size: 10px; color: #666; text-transform: uppercase;">Список промокодов:</span>
-          <div id="promoListContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px; max-height: 120px; overflow-y: auto;"></div>
+          <div id="promoListContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px; max-height: 110px; overflow-y: auto;"></div>
         </div>
       </div>
 
@@ -434,35 +450,30 @@
   </div>
 
   <script>
-    // Безопасное хранилище (защита от ошибок в Telegram Webview)
+    // Безопасное хранилище
     const storage = {
       get: function(key, fallback) {
         try {
           const val = localStorage.getItem(key);
           return val !== null ? val : fallback;
-        } catch(e) {
-          return fallback;
-        }
+        } catch(e) { return fallback; }
       },
       set: function(key, val) {
-        try {
-          localStorage.setItem(key, val);
-        } catch(e) {}
+        try { localStorage.setItem(key, val); } catch(e) {}
       }
     };
 
     const tg = window.Telegram?.WebApp;
     if (tg) {
-      try {
-        tg.expand();
-        tg.ready();
-      } catch(e) {}
+      try { tg.expand(); tg.ready(); } catch(e) {}
     }
 
     const TON_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y";
     const ADMIN_USERNAME = "uj_92";
+    const ADMIN_TELEGRAM_ID = 6189216877; // Ваш числовой ID
 
     let state = {
+      tonRate: parseFloat(storage.get('uj92_ton_rate', '5.20')) || 5.20,
       gramRate: parseFloat(storage.get('uj92_gram_rate', '1.24')) || 1.24,
       isAdminOnline: storage.get('uj92_admin_online', 'true') === 'true',
       selectedCountry: null,
@@ -470,19 +481,93 @@
       selectedPriceUsd: 0,
       selectedFlag: '',
       username: '',
-      currency: 'USDT',
+      currency: 'USDT', // 'USDT', 'TON', 'GRAM'
       appliedPromo: null,
       appliedDiscountPercent: 0
     };
 
+    // --- ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА ---
+    function verifyAdminAccess() {
+      const user = tg?.initDataUnsafe?.user;
+      const isOwner = (user && (user.id === ADMIN_TELEGRAM_ID || (user.username && user.username.toLowerCase() === ADMIN_USERNAME.toLowerCase())))
+                      || storage.get('uj92_admin_verified') === 'true';
+
+      const btn = document.getElementById('adminSettingsBtn');
+      if (btn) {
+        if (isOwner) {
+          btn.classList.remove('hidden');
+        } else {
+          btn.classList.add('hidden');
+        }
+      }
+    }
+
+    // Секретный вход для админа с ПК: 5 кликов по названию UJ92_shop
+    let titleClickCount = 0;
+    let titleClickTimer = null;
+    function handleTitleClicks() {
+      titleClickCount++;
+      clearTimeout(titleClickTimer);
+      titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 2000);
+
+      if (titleClickCount >= 5) {
+        titleClickCount = 0;
+        const pass = prompt('Введите пароль администратора:');
+        if (pass === '9292') {
+          storage.set('uj92_admin_verified', 'true');
+          verifyAdminAccess();
+          toggleAdminModal(true);
+        } else if (pass !== null) {
+          alert('Неверный пароль');
+        }
+      }
+    }
+
+    // --- АВТОМАТИЧЕСКИЙ КУРС TON С БИРЖИ ---
+    async function fetchTonRate() {
+      try {
+        // Запрос к Binance API
+        const resp = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=TONUSDT');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.price) {
+            state.tonRate = parseFloat(data.price);
+            storage.set('uj92_ton_rate', state.tonRate.toString());
+            renderPrices();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Binance fetch failed, trying CoinGecko fallback...');
+      }
+
+      try {
+        // Резервный запрос к CoinGecko API
+        const resp = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data['the-open-network'] && data['the-open-network'].usd) {
+            state.tonRate = parseFloat(data['the-open-network'].usd);
+            storage.set('uj92_ton_rate', state.tonRate.toString());
+            renderPrices();
+          }
+        }
+      } catch (e) {
+        console.warn('All rate APIs failed, using cached rate:', state.tonRate);
+      }
+    }
+
+    // Запуск автообновления каждые 60 секунд
+    fetchTonRate();
+    setInterval(fetchTonRate, 60000);
+
+    // База промокодов
     let promoDatabase = [];
     try {
       promoDatabase = JSON.parse(storage.get('uj92_promos', '[]'));
       if (!promoDatabase || promoDatabase.length === 0) {
         promoDatabase = [
-          { code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} },
-          { code: 'OLD20', discount: 20, limitPerUser: 1, status: 'ended', usedUsers: {} },
-          { code: 'WINTER', discount: 10, limitPerUser: 1, status: 'no_longer_exists', usedUsers: {} }
+          { code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} }
         ];
       }
     } catch(e) {
@@ -542,14 +627,21 @@
     function setCurrency(cur) {
       state.currency = cur;
       const bUsdt = document.getElementById('btnCurUsdt');
+      const bTon = document.getElementById('btnCurTon');
       const bGram = document.getElementById('btnCurGram');
+
+      [bUsdt, bTon, bGram].forEach(b => {
+        b.style.background = '#141414';
+        b.style.color = '#aaa';
+        b.style.borderColor = '#333';
+      });
 
       if (cur === 'USDT') {
         bUsdt.style.background = '#fff'; bUsdt.style.color = '#000'; bUsdt.style.borderColor = '#fff';
-        bGram.style.background = '#141414'; bGram.style.color = '#aaa'; bGram.style.borderColor = '#333';
+      } else if (cur === 'TON') {
+        bTon.style.background = '#fff'; bTon.style.color = '#000'; bTon.style.borderColor = '#fff';
       } else {
         bGram.style.background = '#fff'; bGram.style.color = '#000'; bGram.style.borderColor = '#fff';
-        bUsdt.style.background = '#141414'; bUsdt.style.color = '#aaa'; bUsdt.style.borderColor = '#333';
       }
       updatePaymentDisplay();
     }
@@ -561,9 +653,9 @@
       if (state.appliedDiscountPercent > 0) {
         finalUsd = finalUsd * (1 - state.appliedDiscountPercent / 100);
         oldEl.classList.remove('hidden');
-        oldEl.textContent = state.currency === 'USDT' 
-          ? '$' + state.selectedPriceUsd.toFixed(2) 
-          : (state.selectedPriceUsd / state.gramRate).toFixed(2) + ' GRAM';
+        if (state.currency === 'USDT') oldEl.textContent = '$' + state.selectedPriceUsd.toFixed(2);
+        else if (state.currency === 'TON') oldEl.textContent = (state.selectedPriceUsd / state.tonRate).toFixed(2) + ' TON';
+        else oldEl.textContent = (state.selectedPriceUsd / state.gramRate).toFixed(2) + ' GRAM';
       } else {
         oldEl.classList.add('hidden');
       }
@@ -571,6 +663,8 @@
       const amountEl = document.getElementById('payFinalAmount');
       if (state.currency === 'USDT') {
         amountEl.textContent = finalUsd.toFixed(2) + ' USDT';
+      } else if (state.currency === 'TON') {
+        amountEl.textContent = (finalUsd / state.tonRate).toFixed(2) + ' TON';
       } else {
         amountEl.textContent = (finalUsd / state.gramRate).toFixed(2) + ' GRAM';
       }
@@ -668,9 +762,7 @@
       };
 
       if (tg) {
-        try {
-          tg.sendData(JSON.stringify(orderData));
-        } catch(e) {}
+        try { tg.sendData(JSON.stringify(orderData)); } catch(e) {}
       }
 
       const text = encodeURIComponent(
@@ -734,28 +826,29 @@
       if (val && val > 0) {
         state.gramRate = val;
         storage.set('uj92_gram_rate', val.toString());
-        renderGramPrices();
-        alert('Курс обновлен: $' + val);
+        renderPrices();
+        alert('Курс GRAM обновлен: $' + val);
       }
     }
 
-    function renderGramPrices() {
-      document.getElementById('gramRateDisplay').textContent = '$' + state.gramRate.toFixed(2);
+    function renderPrices() {
+      document.getElementById('tonRateDisplay').textContent = '$' + state.tonRate.toFixed(2);
       document.getElementById('adminGramInput').value = state.gramRate;
 
-      const p08 = (0.80 / state.gramRate).toFixed(2);
-      const p10 = (1.00 / state.gramRate).toFixed(2);
-      const p18 = (1.80 / state.gramRate).toFixed(2);
+      // Отображение цен в каталоге
+      const t08 = (0.80 / state.tonRate).toFixed(2);
+      const t10 = (1.00 / state.tonRate).toFixed(2);
+      const t18 = (1.80 / state.tonRate).toFixed(2);
 
-      const el08 = document.getElementById('gramPrice-0.80');
-      const el08_2 = document.getElementById('gramPrice-0.80-2');
-      const el10 = document.getElementById('gramPrice-1.00');
-      const el18 = document.getElementById('gramPrice-1.80');
+      const el08 = document.getElementById('catTon-0.80');
+      const el08_2 = document.getElementById('catTon-0.80-2');
+      const el10 = document.getElementById('catTon-1.00');
+      const el18 = document.getElementById('catTon-1.80');
 
-      if (el08) el08.textContent = '~' + p08 + ' GRAM';
-      if (el08_2) el08_2.textContent = '~' + p08 + ' GRAM';
-      if (el10) el10.textContent = '~' + p10 + ' GRAM';
-      if (el18) el18.textContent = '~' + p18 + ' GRAM';
+      if (el08) el08.textContent = `~${t08} TON`;
+      if (el08_2) el08_2.textContent = `~${t08} TON`;
+      if (el10) el10.textContent = `~${t10} TON`;
+      if (el18) el18.textContent = `~${t18} TON`;
     }
 
     function createPromo() {
@@ -803,7 +896,7 @@
       });
     }
 
-    // Фоновая плавная анимация волн
+    // ================= ОТРИСОВКА НАСЫЩЕННЫХ ВОЛН НА CANVAS =================
     const canvas = document.getElementById('waveCanvas');
     const ctx = canvas.getContext('2d');
     let width, height, step = 0;
@@ -817,29 +910,39 @@
 
     function draw() {
       ctx.clearRect(0, 0, width, height);
-      step += 0.008;
-      const lines = [
-        { y: height * 0.35, len: 0.0035, amp: 30, spd: 0.7, col: 'rgba(255,255,255,0.22)' },
-        { y: height * 0.55, len: 0.0025, amp: 40, spd: -0.5, col: 'rgba(180,180,180,0.18)' },
-        { y: height * 0.75, len: 0.0040, amp: 35, spd: 0.9, col: 'rgba(220,220,220,0.15)' }
+      step += 0.009;
+
+      // 7 выразительных волн с разной амплитудой, скоростью и контрастом
+      const waves = [
+        { y: height * 0.15, len: 0.0030, amp: 38, spd: 0.8, color: 'rgba(255, 255, 255, 0.45)', width: 2.2 },
+        { y: height * 0.28, len: 0.0022, amp: 50, spd: -0.6, color: 'rgba(200, 200, 200, 0.35)', width: 1.8 },
+        { y: height * 0.42, len: 0.0038, amp: 42, spd: 1.0, color: 'rgba(240, 240, 240, 0.50)', width: 2.0 },
+        { y: height * 0.55, len: 0.0020, amp: 55, spd: -0.5, color: 'rgba(160, 160, 160, 0.30)', width: 1.8 },
+        { y: height * 0.68, len: 0.0032, amp: 45, spd: 0.9, color: 'rgba(255, 255, 255, 0.40)', width: 2.0 },
+        { y: height * 0.80, len: 0.0025, amp: 60, spd: -0.7, color: 'rgba(180, 180, 180, 0.35)', width: 1.8 },
+        { y: height * 0.92, len: 0.0040, amp: 40, spd: 1.2, color: 'rgba(230, 230, 230, 0.45)', width: 2.2 }
       ];
-      lines.forEach(l => {
+
+      waves.forEach(w => {
         ctx.beginPath();
-        ctx.strokeStyle = l.col;
-        ctx.lineWidth = 1.5;
-        for (let x = 0; x <= width; x += 12) {
-          const y = l.y + Math.sin(x * l.len + step * l.spd) * l.amp;
+        ctx.strokeStyle = w.color;
+        ctx.lineWidth = w.width;
+        for (let x = 0; x <= width; x += 10) {
+          const y = w.y + Math.sin(x * w.len + step * w.spd) * w.amp;
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
       });
+
       requestAnimationFrame(draw);
     }
     draw();
 
+    // Инициализация при открытии
+    verifyAdminAccess();
     updateAdminStatusUI();
-    renderGramPrices();
+    renderPrices();
     renderAdminPromoList();
   </script>
 </body>
