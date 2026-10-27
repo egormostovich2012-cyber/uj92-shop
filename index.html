@@ -6,7 +6,6 @@
   <title>UJ92_shop</title>
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 
   <style>
     * {
@@ -24,7 +23,7 @@
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
-      padding-bottom: 82px;
+      padding-bottom: 84px;
     }
 
     .font-mono {
@@ -172,83 +171,7 @@
       border-color: #3b82f6;
     }
 
-    /* Шторка Счёта (Фото 1 - стиль Tonkeeper) */
-    .sheet-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.78);
-      backdrop-filter: blur(5px);
-      z-index: 90;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .tk-sheet {
-      width: 100%;
-      max-width: 440px;
-      background: #10161f;
-      border-top: 1px solid #222c3a;
-      border-radius: 26px 26px 0 0;
-      padding: 20px 18px 28px;
-      color: #ffffff;
-      animation: slideUp 0.22s ease-out;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-    .tk-card {
-      background: #1c2533;
-      border-radius: 18px;
-      padding: 16px;
-      margin-top: 16px;
-    }
-    .tk-comment-pill {
-      background: #273244;
-      border-radius: 10px;
-      padding: 9px 14px;
-      font-size: 13px;
-      color: #e2e8f0;
-      display: inline-block;
-      margin-top: 10px;
-      margin-left: 48px;
-      word-break: break-all;
-    }
-    .tk-confirm-btn {
-      margin-top: 20px;
-      width: 100%;
-      height: 54px;
-      background: #1c2533;
-      border-radius: 16px;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      border: 1px solid #2b384e;
-      cursor: pointer;
-      position: relative;
-    }
-    .tk-confirm-thumb {
-      width: 72px;
-      height: 44px;
-      background: #3b82f6;
-      border-radius: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: #fff;
-      font-weight: bold;
-    }
-    .tk-confirm-label {
-      flex: 1;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 700;
-      color: #94a3b8;
-      padding-right: 40px;
-    }
-
-    /* Трекер выполнения заказа (Фото 2) */
+    /* Меню выполнения заказа (как на Фото 2) */
     .cdek-circle-btn {
       width: 58px;
       height: 58px;
@@ -297,7 +220,7 @@
     .tl-red { background: #ef4444; color: #fff; }
     .tl-gray { background: #222226; color: #666; border: 1px solid #333; }
 
-    /* Профиль (Фото 3) */
+    /* Профиль (как на Фото 3) */
     .profile-box {
       background: rgba(24, 24, 28, 0.95);
       border: 1px solid #2e2e34;
@@ -338,7 +261,7 @@
 
         <div style="display: flex; gap: 8px; align-items: center;">
           <div style="background: #141418; border: 1px solid #2c2c34; padding: 6px 10px; border-radius: 14px; font-size: 11px; font-weight: 800;" class="font-mono">
-            💎 1 GRAM = $<span id="headerGramRate">1.24</span>
+            💎 1 GRAM = $<span id="headerGramRate">1.21</span>
           </div>
           <button id="adminSettingsBtn" onclick="toggleAdminModal(true)" class="btn-grow hidden" style="background: #fff; color: #000; border: none; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: 800;">
             ⚙️
@@ -380,7 +303,7 @@
       <!-- Выбор метода оплаты (GRAM или USDT TON) -->
       <div style="background: #141418; border: 1px solid #28282e; padding: 14px; border-radius: 16px; display: flex; flex-direction: column; gap: 8px;">
         <span style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 700;">
-          Метод оплаты (сеть TON):
+          Метод оплаты (счёт в кошельке):
         </span>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <button id="payMethodGram" onclick="setPaymentCurrency('GRAM')" class="btn-grow" style="padding: 12px; border-radius: 12px; border: 1px solid #fff; background: #fff; color: #000; font-weight: 900; font-size: 12px;">
@@ -404,14 +327,14 @@
         <div id="cartPromoStatus" class="hidden" style="font-size: 12px;"></div>
       </div>
 
-      <!-- Итоговая сумма и кнопка выставления счёта -->
+      <!-- Итоговая сумма и прямой переход к счёту в кошельке -->
       <div style="background: #141418; border: 1px solid #28282e; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <div style="font-size: 11px; color: #888; text-transform: uppercase;">К оплате:</div>
+          <div style="font-size: 11px; color: #888; text-transform: uppercase;">Счёт к оплате:</div>
           <div id="cartSummaryMain" class="font-mono" style="font-size: 20px; font-weight: 900; color: #fff; margin-top: 2px;">0.00 GRAM</div>
           <div id="cartSummarySub" class="font-mono" style="font-size: 12px; color: #777;">$0.00</div>
         </div>
-        <button onclick="openInvoiceSheet()" class="btn-grow" style="padding: 14px 20px; background: #3b82f6; color: #fff; border: none; border-radius: 14px; font-weight: 900; font-size: 13px; text-transform: uppercase;">
+        <button onclick="createOrderAndOpenWalletInvoice()" class="btn-grow" style="padding: 14px 20px; background: #3b82f6; color: #fff; border: none; border-radius: 14px; font-weight: 900; font-size: 13px; text-transform: uppercase;">
           Перейти к оплате →
         </button>
       </div>
@@ -425,14 +348,14 @@
         <button onclick="switchMainTab('account')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px 8px;">
           ‹
         </button>
-        <div id="trackHeaderNum" class="font-mono" style="font-size: 16px; font-weight: 900;">№ UJ92-000000</div>
+        <div id="trackHeaderNum" class="font-mono" style="font-size: 16px; font-weight: 900;">№ CAZf3ATN</div>
         <div style="width: 28px;"></div>
       </div>
 
       <!-- Плашка получателя -->
       <div style="background: #16161a; border: 1px solid #28282e; border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <div style="font-size: 12px; color: #888;">👤 Получатель аккаунтов</div>
+          <div style="font-size: 12px; color: #888;">👤 Покупатель Telegram</div>
           <div id="trackBuyerName" style="font-size: 14px; font-weight: 800; margin-top: 3px;">@username</div>
         </div>
         <span style="color: #666; font-size: 18px;">›</span>
@@ -473,7 +396,7 @@
         </div>
       </div>
 
-      <!-- Карточка «Статусы выполнения» (как на Фото 2) -->
+      <!-- Карточка «Статусы заказа» (как на Фото 2) -->
       <div style="background: #16161a; border: 1px solid #28282e; border-radius: 20px; padding: 18px 16px;">
         <div style="font-weight: 800; font-size: 15px; margin-bottom: 16px;">Статусы заказа</div>
 
@@ -485,7 +408,7 @@
               <span style="font-weight: 700; font-size: 14px;">Создан</span>
               <span id="tlDate1" style="font-size: 11px; color: #777;"></span>
             </div>
-            <div id="tlDesc1" style="font-size: 12px; color: #aaa; margin-top: 4px;">Счёт выставлен в UJ92_shop</div>
+            <div id="tlDesc1" style="font-size: 12px; color: #aaa; margin-top: 4px;">Счёт отправлен в ваш кошелёк</div>
           </div>
         </div>
 
@@ -498,7 +421,7 @@
               <span id="tlDate2" style="font-size: 11px; color: #777;"></span>
             </div>
             <div id="tlDesc2" style="font-size: 12px; color: #aaa; margin-top: 4px;">
-              Проверяем поступление в блокчейне TON...
+              Ожидаем подтверждения счёта в кошельке...
             </div>
           </div>
         </div>
@@ -518,10 +441,15 @@
         </div>
       </div>
 
-      <!-- Нижняя плашка статуса оплаты + Кнопка ручной перепроверки -->
+      <!-- Кнопка повторного открытия счёта в кошельке, если клиент случайно закрыл Tonkeeper -->
+      <button id="reopenWalletBtn" onclick="reopenWalletInvoice()" class="btn-grow" style="width: 100%; padding: 14px; background: #3b82f6; color: #fff; border: none; border-radius: 16px; font-weight: 900; font-size: 13px; text-transform: uppercase;">
+        👛 Открыть счёт в кошельке
+      </button>
+
+      <!-- Нижняя плашка статуса оплаты (как на Фото 2) -->
       <div style="background: #16161a; border: 1px solid #28282e; border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 20px;">👛</span>
+          <span style="font-size: 20px;">💳</span>
           <span id="bottomPayBadgeText" style="font-weight: 900; font-size: 15px; color: #f59e0b;">Проверка оплаты...</span>
         </div>
         <button id="recheckBtn" onclick="verifyActiveOrderPayment()" class="btn-grow" style="background: #27272f; color: #fff; border: 1px solid #3f3f4a; padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: 800;">
@@ -533,11 +461,11 @@
     <!-- ================= 4. ОТДЕЛ: АККАУНТ (КАК НА ФОТО 3) ================= -->
     <section id="sectionAccount" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
       
-      <!-- Верхняя строка с балансом/курсом GRAM (как на Фото 3) -->
+      <!-- Верхняя строка с курсом GRAM (как на Фото 3) -->
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 13px; font-weight: 800; color: #888;">Профиль Telegram</span>
         <div style="background: #182232; border: 1px solid #283a56; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
-          <span>💎</span> <span id="accGramRatePill" class="font-mono">1 GRAM = $1.24</span>
+          <span>💎</span> <span id="accGramRatePill" class="font-mono">1 GRAM = $1.21</span>
         </div>
       </div>
 
@@ -557,7 +485,7 @@
             </div>
           </div>
 
-          <!-- Плашка количества заказов (как «Инвентарь 0 🎁» на Фото 3) -->
+          <!-- Плашка количества заказов (как на Фото 3) -->
           <div class="profile-inv-btn">
             <div>
               <div style="font-size: 11px; color: #888; font-weight: 600;">Заказы</div>
@@ -610,79 +538,6 @@
 
   </div>
 
-  <!-- ================= МОДАЛЬНОЕ ОКНО СЧЁТА (ТОЧНО КАК НА ФОТО 1) ================= -->
-  <div id="invoiceSheetOverlay" class="sheet-overlay hidden">
-    <div class="tk-sheet">
-      <!-- Заголовок шторки -->
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="width: 28px;"></div>
-        <div style="text-align: center;">
-          <div style="font-size: 17px; font-weight: 800;">Подтвердить действие</div>
-          <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
-            Кошелёк: 💳 <span id="sheetWalletName">Tonkeeper (TON)</span>
-          </div>
-        </div>
-        <button onclick="closeInvoiceSheet()" style="width: 28px; height: 28px; border-radius: 50%; background: #1e293b; border: none; color: #94a3b8; font-size: 14px; cursor: pointer;">✕</button>
-      </div>
-
-      <!-- Карточка счёта (Отправить + комментарий + комиссия) -->
-      <div class="tk-card">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 36px; height: 36px; border-radius: 50%; background: #273244; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #94a3b8;">
-              ↑
-            </div>
-            <div>
-              <div style="font-size: 15px; font-weight: 700; color: #fff;">Отправить</div>
-              <div class="font-mono" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">UQBsw7...X6F1Y</div>
-            </div>
-          </div>
-
-          <div style="text-align: right;">
-            <div id="sheetMainCryptoAmount" class="font-mono" style="font-size: 15px; font-weight: 800; color: #fff;">0.00 GRAM</div>
-            <div id="sheetSubUsdAmount" class="font-mono" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">$0.00</div>
-          </div>
-        </div>
-
-        <!-- Капсула с кодом комментария заказа (как на Фото 1) -->
-        <div id="sheetCommentPill" class="tk-comment-pill font-mono">UJ92-000000</div>
-
-        <div style="border-top: 1px solid #263142; margin: 14px 0;"></div>
-
-        <!-- Строка комиссии -->
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 36px; height: 36px; border-radius: 50%; background: #273244; display: flex; align-items: center; justify-content: center; font-size: 14px;">
-              💎
-            </div>
-            <div style="font-size: 14px; font-weight: 600; color: #e2e8f0;">Комиссия</div>
-          </div>
-          <div style="text-align: right;">
-            <div class="font-mono" style="font-size: 13px; font-weight: 700; color: #e2e8f0;">≈ 0,005 TON</div>
-            <div class="font-mono" style="font-size: 11px; color: #94a3b8;">сеть TON</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Кнопка привязки кошелька (если ещё не привязан) -->
-      <div id="sheetConnectBox" style="margin-top: 12px;">
-        <button onclick="connectTonWallet()" class="btn-grow" style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 14px; font-size: 12px; font-weight: 700;">
-          🔗 Привязать TON-кошелёк (или оплатить напрямую)
-        </button>
-      </div>
-
-      <!-- Синяя кнопка-слайдер «Подтвердить» (как на Фото 1) -->
-      <div onclick="confirmAndPayInvoice()" class="tk-confirm-btn btn-grow">
-        <div class="tk-confirm-thumb">→</div>
-        <div class="tk-confirm-label">Подтвердить</div>
-      </div>
-
-      <div style="text-align: center; font-size: 12px; color: #64748b; margin-top: 14px;" class="font-mono">
-        Итого: <span id="sheetFooterTotal">$0.00</span> ⓘ
-      </div>
-    </div>
-  </div>
-
   <!-- ================= НИЖНЯЯ НАВИГАЦИЯ (2 ОТДЕЛА) ================= -->
   <nav class="bottom-nav">
     <button id="navBtnShop" onclick="switchMainTab('shop')" class="nav-item active">
@@ -706,7 +561,7 @@
       <div>
         <label style="font-size: 11px; color: #888; font-weight: bold;">Курс GRAM ($):</label>
         <div style="display: flex; gap: 6px; margin-top: 4px;">
-          <input type="number" step="0.01" id="adminGramInput" value="1.24" class="font-mono" style="flex: 1;">
+          <input type="number" step="0.01" id="adminGramInput" value="1.21" class="font-mono" style="flex: 1;">
           <button onclick="saveAdminGramRate()" style="background: #fff; color: #000; border: none; padding: 0 14px; border-radius: 10px; font-weight: 800; font-size: 12px;">ОК</button>
         </div>
       </div>
@@ -730,7 +585,6 @@
   </div>
 
   <script>
-    // Безопасное хранилище
     const storage = {
       get: (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? v : fb; } catch(e) { return fb; } },
       set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) {} }
@@ -741,17 +595,11 @@
       try { tg.expand(); tg.ready(); } catch(e) {}
     }
 
-    // Константы магазина и уведомлений
     const BOT_TOKEN = "8960664106:AAEZKPLMdPSE_hp044AR5baQrwT0RQo_wtQ";
     const ADMIN_ID = 6189216877;
     const ADMIN_USERNAME = "uj_92";
     const TON_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y";
-
-    // Мастер-контракты жетонов в сети TON для формирования точного счёта Tonkeeper
-    const JETTON_MASTERS = {
-      GRAM: { address: "EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O", decimals: 9 },
-      USDT: { address: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs", decimals: 6 }
-    };
+    const USDT_JETTON_MASTER = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
 
     const PRODUCTS = [
       { id: 'us', country: 'Америка', code: '+1', price: 0.80, flag: '🇺🇸' },
@@ -761,17 +609,15 @@
     ];
 
     let state = {
-      gramRate: parseFloat(storage.get('uj92_gram_rate', '1.24')) || 1.24,
+      gramRate: parseFloat(storage.get('uj92_gram_rate_v3', '1.21')) || 1.21,
       cart: {},
-      currency: 'GRAM', // По умолчанию GRAM как на Фото 1
+      currency: 'GRAM',
       appliedPromo: null,
       appliedDiscount: 0,
-      draftInvoice: null,
-      activeTrackOrderId: null,
-      connectedWalletAddress: null
+      activeTrackOrderId: null
     };
 
-    // Промокоды
+    // База промокодов
     let promoDatabase = [];
     try {
       promoDatabase = JSON.parse(storage.get('uj92_promos', '[]'));
@@ -782,18 +628,17 @@
       promoDatabase = [{ code: 'START15', discount: 15, limitPerUser: 1, status: 'active', usedUsers: {} }];
     }
 
-    // История заказов пользователя
+    // История заказов
     let userOrders = [];
     try {
-      userOrders = JSON.parse(storage.get('uj92_orders_v2', '[]'));
+      userOrders = JSON.parse(storage.get('uj92_orders_v3', '[]'));
     } catch(e) {
       userOrders = [];
     }
     function saveOrders() {
-      storage.set('uj92_orders_v2', JSON.stringify(userOrders));
+      storage.set('uj92_orders_v3', JSON.stringify(userOrders));
     }
 
-    // Данные пользователя из Telegram
     function getTgUser() {
       const u = tg?.initDataUnsafe?.user;
       if (u) {
@@ -804,63 +649,35 @@
           photo: u.photo_url || null
         };
       }
-      return { id: 0, name: 'Гость', username: '@guest', photo: null };
+      return { id: 0, name: 'Клиент', username: '@guest', photo: null };
     }
 
-    // ================= ИНИЦИАЛИЗАЦИЯ TON CONNECT =================
-    let tonConnectUI = null;
-    try {
-      tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://uj-92-shop.github.io/uj92-shop/tonconnect-manifest.json',
-        uiPreferences: { theme: TON_CONNECT_UI.THEME.DARK }
-      });
-      tonConnectUI.onStatusChange(wallet => {
-        if (wallet && wallet.account) {
-          let addr = wallet.account.address;
-          try {
-            if (TON_CONNECT_UI.toUserFriendlyAddress) addr = TON_CONNECT_UI.toUserFriendlyAddress(addr);
-          } catch(e) {}
-          state.connectedWalletAddress = addr;
-          document.getElementById('sheetWalletName').textContent = addr.slice(0, 4) + '...' + addr.slice(-4);
-          document.getElementById('sheetConnectBox').classList.add('hidden');
-        } else {
-          state.connectedWalletAddress = null;
-          document.getElementById('sheetWalletName').textContent = 'Кошелёк';
-          document.getElementById('sheetConnectBox').classList.remove('hidden');
-        }
-      });
-    } catch(e) {}
-
-    async function connectTonWallet() {
-      if (tonConnectUI) {
-        try { await tonConnectUI.openModal(); } catch(e) {}
-      }
-    }
-
-    // ================= КУРС GRAM С BYBIT =================
-    async function fetchGramFromBybit() {
+    // ================= АКТУАЛЬНЫЙ КУРС $1.21 С BYBIT =================
+    async function fetchRateFromBybit() {
       try {
-        const resp = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=GRAMUSDT');
+        const resp = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=TONUSDT');
         if (resp.ok) {
           const data = await resp.json();
           const p = parseFloat(data?.result?.list?.[0]?.lastPrice);
           if (!isNaN(p) && p > 0) {
             state.gramRate = p;
-            storage.set('uj92_gram_rate', p.toString());
+            storage.set('uj92_gram_rate_v3', p.toString());
             updateRateDisplays();
           }
         }
       } catch(e) {}
     }
+
     function updateRateDisplays() {
       document.getElementById('headerGramRate').textContent = state.gramRate.toFixed(2);
       document.getElementById('accGramRatePill').textContent = `1 GRAM = $${state.gramRate.toFixed(2)}`;
+      document.getElementById('adminGramInput').value = state.gramRate.toFixed(2);
       renderCatalog();
     }
-    fetchGramFromBybit();
-    setInterval(fetchGramFromBybit, 3600000);
+    fetchRateFromBybit();
+    setInterval(fetchRateFromBybit, 3600000);
 
-    // ================= ПЕРЕКЛЮЧЕНИЕ ОТДЕЛОВ =================
+    // ================= НАВИГАЦИЯ ПО ОТДЕЛАМ =================
     function switchMainTab(tab) {
       ['sectionShop', 'sectionCart', 'sectionOrderTrack', 'sectionAccount'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
@@ -880,7 +697,7 @@
       window.scrollTo(0, 0);
     }
 
-    // ================= КАТАЛОГ И ВЫБОР КОЛИЧЕСТВА =================
+    // ================= КАТАЛОГ И КОРЗИНА =================
     function renderCatalog() {
       const box = document.getElementById('catalogContainer');
       box.innerHTML = '';
@@ -976,7 +793,6 @@
       }
     }
 
-    // ================= ЭКРАН КОРЗИНЫ =================
     function openCartScreen() {
       const { totalQty } = getCartTotals();
       if (totalQty === 0) return;
@@ -1074,47 +890,93 @@
       renderCartScreen();
     }
 
-    // ================= ШТОРКА СЧЁТА (КАК НА ФОТО 1) =================
-    function generateOrderId() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      let code = 'UJ92-';
-      for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    // ================= ВЫСТАВЛЕНИЕ СЧЁТА ПРЯМО В TONKEEPER (КАК НА ФОТО 1) =================
+    function generateOrderCommentCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+      let code = 'UJ92_';
+      for (let i = 0; i < 14; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
       return code;
     }
 
-    function openInvoiceSheet() {
+    // Формирует прямую ссылку-счёт для открытия окна «Подтвердить действие» внутри Tonkeeper
+    function buildTonkeeperInvoiceUrl(order) {
+      if (order.currency === 'GRAM') {
+        // Основная монета (9 знаков после запятой) — открывает окно счёта точно как на Фото 1
+        const nanoAmount = Math.round(order.cryptoAmount * 1e9).toString();
+        return `https://app.tonkeeper.com/transfer/${TON_WALLET}?amount=${nanoAmount}&text=${encodeURIComponent(order.id)}`;
+      } else {
+        // USDT в сети TON (6 знаков после запятой)
+        const usdtUnits = Math.round(order.cryptoAmount * 1e6).toString();
+        return `https://app.tonkeeper.com/transfer/${TON_WALLET}?jetton=${USDT_JETTON_MASTER}&amount=${usdtUnits}&text=${encodeURIComponent(order.id)}`;
+      }
+    }
+
+    function openWalletWithInvoice(order) {
+      const invoiceUrl = buildTonkeeperInvoiceUrl(order);
+      if (tg && typeof tg.openLink === 'function') {
+        tg.openLink(invoiceUrl);
+      } else {
+        window.location.href = invoiceUrl;
+      }
+    }
+
+    function createOrderAndOpenWalletInvoice() {
       const totals = getCartTotals();
       if (totals.totalQty === 0) return;
 
-      const orderId = generateOrderId();
-      state.draftInvoice = {
+      const orderId = generateOrderCommentCode();
+      const newOrder = {
         id: orderId,
         currency: state.currency,
         cryptoAmount: parseFloat(totals.finalCrypto.toFixed(2)),
         usdAmount: parseFloat(totals.finalUsd.toFixed(2)),
         items: totals.items,
         promo: state.appliedPromo ? `${state.appliedPromo} (-${state.appliedDiscount}%)` : 'Нет',
-        createdAt: new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        createdAt: new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        status: 'pending',
+        paidAt: null
       };
 
-      document.getElementById('sheetMainCryptoAmount').textContent = `${state.draftInvoice.cryptoAmount.toFixed(2).replace('.', ',')} ${state.currency}`;
-      document.getElementById('sheetSubUsdAmount').textContent = `$${state.draftInvoice.usdAmount.toFixed(2).replace('.', ',')}`;
-      document.getElementById('sheetCommentPill').textContent = orderId;
-      document.getElementById('sheetFooterTotal').textContent = `$${state.draftInvoice.usdAmount.toFixed(2).replace('.', ',')}`;
+      userOrders.unshift(newOrder);
+      saveOrders();
 
-      document.getElementById('invoiceSheetOverlay').classList.remove('hidden');
+      // Фиксируем использование промокода
+      if (state.appliedPromo) {
+        const p = promoDatabase.find(x => x.code === state.appliedPromo);
+        const uKey = getTgUser().username.toLowerCase();
+        if (p) {
+          if (!p.usedUsers) p.usedUsers = {};
+          p.usedUsers[uKey] = (p.usedUsers[uKey] || 0) + 1;
+          storage.set('uj92_promos', JSON.stringify(promoDatabase));
+        }
+      }
+
+      // Очищаем корзину
+      state.cart = {};
+      state.appliedPromo = null;
+      state.appliedDiscount = 0;
+
+      // 1. Отправляем уведомления в чат с покупателем и лично админу @uj_92
+      notifyTelegramChats(newOrder, 'created');
+
+      // 2. Включаем экран выполнения заказа в боте (Фото 2)
+      openOrderTracking(newOrder.id);
+
+      // 3. Сразу открываем счёт в самом кошельке Tonkeeper (Фото 1)
+      openWalletWithInvoice(newOrder);
     }
 
-    function closeInvoiceSheet() {
-      document.getElementById('invoiceSheetOverlay').classList.add('hidden');
+    function reopenWalletInvoice() {
+      const order = userOrders.find(o => o.id === state.activeTrackOrderId);
+      if (order) openWalletWithInvoice(order);
     }
 
-    // ОТПРАВКА УВЕДОМЛЕНИЙ АДМИНУ (@uj_92) И ПОКУПАТЕЛЮ В ЧАТ
+    // ================= УВЕДОМЛЕНИЯ В ЧАТ ПОКУПАТЕЛЮ И ЛИЧНО @uj_92 =================
     async function notifyTelegramChats(order, eventType) {
       const user = getTgUser();
       const itemsStr = order.items.map(i => `${i.flag} ${i.country} (${i.code}) × ${i.qty} шт.`).join('\n');
 
-      // 1. Обязательное сообщение лично админу @uj_92 (ID 6189216877)
+      // 1. ОБЯЗАТЕЛЬНОЕ СООБЩЕНИЕ ЛИЧНО ВАМ (@uj_92 / ID 6189216877)
       const adminText = eventType === 'paid'
         ? `💰 <b>ОПЛАТА ПОДТВЕРЖДЕНА БЛОКЧЕЙНОМ!</b>\n\n` +
           `• Заказ: <code>${order.id}</code>\n` +
@@ -1123,13 +985,13 @@
           `• Товары:\n${itemsStr}\n\n` +
           `✅ <b>Выдайте покупателю номер!</b>`
         : `🚨 <b>НОВЫЙ ЗАКАЗ В UJ92_SHOP!</b>\n\n` +
-          `• Счёт: <code>${order.id}</code>\n` +
+          `• Номер заказа: <code>${order.id}</code>\n` +
           `• Покупатель: ${user.name} (${user.username}, ID: <code>${user.id}</code>)\n` +
-          `• Сумма счёта: <b>${order.cryptoAmount} ${order.currency} ($${order.usdAmount})</b>\n` +
+          `• Счёт на сумму: <b>${order.cryptoAmount} ${order.currency} ($${order.usdAmount})</b>\n` +
           `• Промокод: ${order.promo}\n` +
           `• Товары:\n${itemsStr}\n` +
-          `• Комментарий к оплате: <code>${order.id}</code>\n\n` +
-          `<i>Ожидаем оплату счёта в сети TON...</i>`;
+          `• Комментарий в счёте: <code>${order.id}</code>\n\n` +
+          `<i>Счёт открыт в кошельке покупателя, ожидаем оплату...</i>`;
 
       try {
         await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -1149,19 +1011,18 @@
         });
       } catch(e) {}
 
-      // 2. Дублирование информации о заказе в чат с покупателем
+      // 2. ДУБЛИРОВАНИЕ ИНФОРМАЦИИ О ЗАКАЗЕ В ЧАТ С ПОКУПАТЕЛЕМ
       if (user.id && user.id !== 0) {
         const buyerText = eventType === 'paid'
-          ? `✅ <b>Оплата по заказу № ${order.id} успешно получена!</b>\n\n` +
-            `• Сумма: <b>${order.cryptoAmount} ${order.currency}</b>\n` +
+          ? `✅ <b>Оплата по заказу № ${order.id} подтверждена!</b>\n\n` +
+            `• Сумма: <b>${order.cryptoAmount} ${order.currency} ($${order.usdAmount})</b>\n` +
             `• Товары:\n${itemsStr}\n\n` +
-            `Администратор @${ADMIN_USERNAME} уже получил уведомление и сейчас выдаст вам номер.`
-          : `🧾 <b>Счёт № ${order.id} сформирован!</b>\n\n` +
-            `<b>Ваш заказ:</b>\n${itemsStr}\n\n` +
-            `• <b>К оплате:</b> ${order.cryptoAmount} ${order.currency} ($${order.usdAmount})\n` +
-            `• <b>Кошелёк:</b> <code>${TON_WALLET}</code>\n` +
-            `• <b>Комментарий (обязательно):</b> <code>${order.id}</code>\n\n` +
-            `<i>Если возникла ошибка или нужна помощь — напишите в поддержку: @${ADMIN_USERNAME}</i>`;
+            `Администратор @${ADMIN_USERNAME} уже получил подтверждение и сейчас выдаст вам номер.`
+          : `🧾 <b>Заказ № ${order.id} создан!</b>\n\n` +
+            `<b>Состав заказа:</b>\n${itemsStr}\n\n` +
+            `• <b>Сумма счёта:</b> ${order.cryptoAmount} ${order.currency} ($${order.usdAmount})\n` +
+            `• <b>Комментарий к счёту:</b> <code>${order.id}</code>\n\n` +
+            `Подтвердите счёт в открывшемся окне вашего кошелька. Если возникла ошибка — обратитесь в поддержку: @${ADMIN_USERNAME}`;
 
         try {
           await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -1177,62 +1038,6 @@
             })
           });
         } catch(e) {}
-      }
-
-      // Также передаём в bot.py через WebApp SDK, если доступно
-      if (tg && eventType === 'created') {
-        try { tg.sendData(JSON.stringify(order)); } catch(e) {}
-      }
-    }
-
-    // Вызов счёта в Tonkeeper и переход к меню выполнения заказа
-    async function confirmAndPayInvoice() {
-      const inv = state.draftInvoice;
-      if (!inv) return;
-
-      closeInvoiceSheet();
-
-      // Сохраняем заказ со статусом "pending" (ЧЕСТНЫЙ СТАТУС — ещё НЕ оплачено)
-      const newOrder = {
-        ...inv,
-        status: 'pending', // 'pending' | 'paid' | 'error'
-        paidAt: null
-      };
-
-      userOrders.unshift(newOrder);
-      saveOrders();
-
-      // Записываем использование промокода
-      if (state.appliedPromo) {
-        const p = promoDatabase.find(x => x.code === state.appliedPromo);
-        const uKey = getTgUser().username.toLowerCase();
-        if (p) {
-          if (!p.usedUsers) p.usedUsers = {};
-          p.usedUsers[uKey] = (p.usedUsers[uKey] || 0) + 1;
-          storage.set('uj92_promos', JSON.stringify(promoDatabase));
-        }
-      }
-
-      // Очищаем корзину
-      state.cart = {};
-      state.appliedPromo = null;
-      state.appliedDiscount = 0;
-
-      // Отправляем уведомления в чат покупателю и админу @uj_92
-      notifyTelegramChats(newOrder, 'created');
-
-      // Открываем экран отслеживания заказа (Фото 2)
-      openOrderTracking(newOrder.id);
-
-      // Формируем нативный инвойс Tonkeeper с точным количеством GRAM или USDT и комментарием заказа
-      const jettonInfo = JETTON_MASTERS[inv.currency];
-      const nanoUnits = Math.round(inv.cryptoAmount * Math.pow(10, jettonInfo.decimals)).toString();
-      const tkDeepLink = `https://app.tonkeeper.com/transfer/${TON_WALLET}?jetton=${jettonInfo.address}&amount=${nanoUnits}&text=${encodeURIComponent(inv.id)}`;
-
-      if (tg && typeof tg.openLink === 'function') {
-        tg.openLink(tkDeepLink);
-      } else {
-        window.open(tkDeepLink, '_blank');
       }
     }
 
@@ -1264,14 +1069,13 @@
 
       renderTrackingStepsUI(order);
 
-      // Запускаем честную проверку блокчейна
       if (checkInterval) clearInterval(checkInterval);
       if (order.status !== 'paid') {
         verifyActiveOrderPayment();
         let attempts = 0;
         checkInterval = setInterval(() => {
           attempts++;
-          if (attempts > 18) { // Через ~2 минуты без оплаты выводим честное предупреждение
+          if (attempts > 18) {
             clearInterval(checkInterval);
             if (order.status !== 'paid') {
               order.status = 'error';
@@ -1305,6 +1109,7 @@
       const desc3 = document.getElementById('tlDesc3');
 
       const bottomText = document.getElementById('bottomPayBadgeText');
+      const reopenBtn = document.getElementById('reopenWalletBtn');
 
       if (order.status === 'paid') {
         row2.className = 'timeline-row done';
@@ -1313,23 +1118,24 @@
         title2.textContent = 'Получена оплата';
         title2.style.color = '#22c55e';
         date2.textContent = order.paidAt || '';
-        desc2.innerHTML = `Транзакция подтверждена блокчейном TON (${order.cryptoAmount} ${order.currency})`;
+        desc2.innerHTML = `Счёт оплачен (${order.cryptoAmount} ${order.currency})`;
 
         dot3.className = 'tl-dot tl-green';
         dot3.textContent = '📱';
         title3.style.color = '#ffffff';
         title3.textContent = 'Готов к выдаче';
-        desc3.innerHTML = `Напишите администратору <a href="https://t.me/uj_92" target="_blank" style="color: #3b82f6; font-weight: bold;">@uj_92</a> для получения кода входа`;
+        desc3.innerHTML = `Напишите администратору <a href="https://t.me/uj_92" target="_blank" style="color: #3b82f6; font-weight: bold;">@uj_92</a> для получения номера`;
 
         bottomText.textContent = 'Оплачено';
         bottomText.style.color = '#22c55e';
+        if (reopenBtn) reopenBtn.classList.add('hidden');
       } else if (order.status === 'error') {
         row2.className = 'timeline-row';
         dot2.className = 'tl-dot tl-red';
         dot2.textContent = '!';
-        title2.textContent = 'Оплата не найдена / Ошибка';
+        title2.textContent = 'Ошибка / Оплата не найдена';
         title2.style.color = '#ef4444';
-        desc2.innerHTML = `Перевод с комментарием <b>${order.id}</b> пока не обнаружен в сети TON. Если вы уже оплатили — обратитесь в поддержку: <a href="https://t.me/uj_92" target="_blank" style="color: #3b82f6; font-weight: bold;">@uj_92</a>`;
+        desc2.innerHTML = `Оплата по счёту <b>${order.id}</b> не обнаружена в блокчейне. Обратитесь к поддержке: <a href="https://t.me/uj_92" target="_blank" style="color: #3b82f6; font-weight: bold;">@uj_92</a>`;
 
         dot3.className = 'tl-dot tl-gray';
         title3.style.color = '#777';
@@ -1337,13 +1143,14 @@
 
         bottomText.innerHTML = 'Ошибка — напишите @uj_92';
         bottomText.style.color = '#ef4444';
+        if (reopenBtn) reopenBtn.classList.remove('hidden');
       } else {
         row2.className = 'timeline-row';
         dot2.className = 'tl-dot tl-yellow';
         dot2.textContent = '🔄';
-        title2.textContent = 'Ожидание оплаты счёта';
+        title2.textContent = 'Проверка оплаты счёта';
         title2.style.color = '#ffffff';
-        desc2.innerHTML = `Ищем перевод <b>${order.cryptoAmount} ${order.currency}</b> с комментарием <b>${order.id}</b> в блокчейне TON. Если возникла ошибка — обратитесь к <a href="https://t.me/uj_92" target="_blank" style="color: #3b82f6;">@uj_92</a>`;
+        desc2.innerHTML = `Проверяем поступление <b>${order.cryptoAmount} ${order.currency}</b> с комментарием <b>${order.id}</b>. Если возникла ошибка — обратитесь в поддержку <a href="https://t.me/uj_92" target="_blank" style="color: #3b82f6;">@uj_92</a>`;
 
         dot3.className = 'tl-dot tl-gray';
         title3.style.color = '#777';
@@ -1351,10 +1158,10 @@
 
         bottomText.textContent = 'Ожидает оплаты';
         bottomText.style.color = '#f59e0b';
+        if (reopenBtn) reopenBtn.classList.remove('hidden');
       }
     }
 
-    // Реальная проверка транзакции (Jetton GRAM/USDT и TON) через открытый API блокчейна TON
     async function verifyActiveOrderPayment() {
       const order = userOrders.find(o => o.id === state.activeTrackOrderId);
       if (!order || order.status === 'paid') return;
@@ -1455,7 +1262,7 @@
         card.innerHTML = `
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="font-mono" style="font-weight: 900; font-size: 14px; color: #fff;">№ ${o.id}</span>
+              <span class="font-mono" style="font-weight: 900; font-size: 13px; color: #fff;">№ ${o.id.slice(0, 12)}</span>
               <span style="font-size: 11px; color: #666;">${o.createdAt}</span>
             </div>
             <div style="font-size: 12px; color: #aaa; margin-top: 4px;">${itemsSummary}</div>
@@ -1463,7 +1270,7 @@
           </div>
           <div style="text-align: right;">
             <span class="badge" style="background: rgba(255,255,255,0.06); color: ${badgeColor}; border: 1px solid ${badgeColor};">${badgeText}</span>
-            <div style="font-size: 11px; color: #666; margin-top: 6px;">Открыть статус ›</div>
+            <div style="font-size: 11px; color: #666; margin-top: 6px;">Статус ›</div>
           </div>
         `;
         listEl.appendChild(card);
@@ -1501,7 +1308,7 @@
       const v = parseFloat(document.getElementById('adminGramInput').value);
       if (v > 0) {
         state.gramRate = v;
-        storage.set('uj92_gram_rate', v.toString());
+        storage.set('uj92_gram_rate_v3', v.toString());
         updateRateDisplays();
         alert('Курс обновлён');
       }
@@ -1577,7 +1384,6 @@
     }
     drawWaves();
 
-    // Инициализация
     verifyAdminAccess();
     initUserAvatar();
     updateRateDisplays();
