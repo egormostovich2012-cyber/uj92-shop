@@ -171,7 +171,7 @@
       border-color: #3b82f6;
     }
 
-    /* Меню выполнения заказа (как на Фото 2) */
+    /* Меню выполнения заказа */
     .cdek-circle-btn {
       width: 58px;
       height: 58px;
@@ -220,7 +220,7 @@
     .tl-red { background: #ef4444; color: #fff; }
     .tl-gray { background: #222226; color: #666; border: 1px solid #333; }
 
-    /* Профиль (как на Фото 3) */
+    /* Профиль */
     .profile-box {
       background: rgba(24, 24, 28, 0.95);
       border: 1px solid #2e2e34;
@@ -340,7 +340,7 @@
       </div>
     </section>
 
-    <!-- ================= 3. ЭКРАН ВЫПОЛНЕНИЯ ЗАКАЗА (КАК НА ФОТО 2) ================= -->
+    <!-- ================= 3. ЭКРАН ВЫПОЛНЕНИЯ ЗАКАЗА ================= -->
     <section id="sectionOrderTrack" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
       
       <!-- Верхняя панель с номером заказа -->
@@ -348,7 +348,7 @@
         <button onclick="switchMainTab('account')" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 4px 8px;">
           ‹
         </button>
-        <div id="trackHeaderNum" class="font-mono" style="font-size: 16px; font-weight: 900;">№ CAZf3ATN</div>
+        <div id="trackHeaderNum" class="font-mono" style="font-size: 16px; font-weight: 900;">№ UJ92</div>
         <div style="width: 28px;"></div>
       </div>
 
@@ -361,7 +361,7 @@
         <span style="color: #666; font-size: 18px;">›</span>
       </div>
 
-      <!-- 3 круглые кнопки действий (как на Фото 2) -->
+      <!-- 3 круглые кнопки действий -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center; padding: 6px 0;">
         <div onclick="toggleOrderDataCollapse()" style="cursor: pointer;">
           <div class="cdek-circle-btn btn-grow">📋</div>
@@ -396,7 +396,7 @@
         </div>
       </div>
 
-      <!-- Карточка «Статусы заказа» (как на Фото 2) -->
+      <!-- Карточка «Статусы заказа» -->
       <div style="background: #16161a; border: 1px solid #28282e; border-radius: 20px; padding: 18px 16px;">
         <div style="font-weight: 800; font-size: 15px; margin-bottom: 16px;">Статусы заказа</div>
 
@@ -441,12 +441,12 @@
         </div>
       </div>
 
-      <!-- Кнопка повторного открытия счёта в кошельке, если клиент случайно закрыл Tonkeeper -->
+      <!-- Кнопка повторного открытия счёта в кошельке -->
       <button id="reopenWalletBtn" onclick="reopenWalletInvoice()" class="btn-grow" style="width: 100%; padding: 14px; background: #3b82f6; color: #fff; border: none; border-radius: 16px; font-weight: 900; font-size: 13px; text-transform: uppercase;">
         👛 Открыть счёт в кошельке
       </button>
 
-      <!-- Нижняя плашка статуса оплаты (как на Фото 2) -->
+      <!-- Нижняя плашка статуса оплаты -->
       <div style="background: #16161a; border: 1px solid #28282e; border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <span style="font-size: 20px;">💳</span>
@@ -458,10 +458,10 @@
       </div>
     </section>
 
-    <!-- ================= 4. ОТДЕЛ: АККАУНТ (КАК НА ФОТО 3) ================= -->
+    <!-- ================= 4. ОТДЕЛ: АККАУНТ ================= -->
     <section id="sectionAccount" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
       
-      <!-- Верхняя строка с курсом GRAM (как на Фото 3) -->
+      <!-- Верхняя строка с курсом GRAM -->
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 13px; font-weight: 800; color: #888;">Профиль Telegram</span>
         <div style="background: #182232; border: 1px solid #283a56; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
@@ -469,7 +469,7 @@
         </div>
       </div>
 
-      <!-- Главная карточка профиля (точная верстка Фото 3) -->
+      <!-- Главная карточка профиля -->
       <div class="profile-box">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #2a2a32;">
           <!-- Аватарка + Имя с профиля Telegram -->
@@ -485,7 +485,7 @@
             </div>
           </div>
 
-          <!-- Плашка количества заказов (как на Фото 3) -->
+          <!-- Плашка количества заказов -->
           <div class="profile-inv-btn">
             <div>
               <div style="font-size: 11px; color: #888; font-weight: 600;">Заказы</div>
@@ -497,7 +497,7 @@
           </div>
         </div>
 
-        <!-- Нижняя строка статистики в карточке профиля (3 колонки как на Фото 3) -->
+        <!-- Нижняя строка статистики в карточке профиля -->
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding-top: 14px;">
           <div>
             <div id="accStatSpentUsd" class="font-mono" style="font-size: 13px; font-weight: 800; color: #fff;">$0.00</div>
@@ -595,7 +595,8 @@
       try { tg.expand(); tg.ready(); } catch(e) {}
     }
 
-    const BOT_TOKEN = "8960664106:AAEZKPLMdPSE_hp044AR5baQrwT0RQo_wtQ";
+    // БЕЗОПАСНЫЕ КОНСТАНТЫ (ТОКЕН БОТА УДАЛЕН ИЗ ОТКРЫТОГО КОДА!)
+    const BACKEND_NOTIFY_URL = "https://uj92-shop.onrender.com/notify";
     const ADMIN_ID = 6189216877;
     const ADMIN_USERNAME = "uj_92";
     const TON_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y";
@@ -890,7 +891,7 @@
       renderCartScreen();
     }
 
-    // ================= ВЫСТАВЛЕНИЕ СЧЁТА ПРЯМО В TONKEEPER (КАК НА ФОТО 1) =================
+    // ================= ВЫСТАВЛЕНИЕ СЧЁТА ПРЯМО В TONKEEPER =================
     function generateOrderCommentCode() {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
       let code = 'UJ92_';
@@ -898,14 +899,11 @@
       return code;
     }
 
-    // Формирует прямую ссылку-счёт для открытия окна «Подтвердить действие» внутри Tonkeeper
     function buildTonkeeperInvoiceUrl(order) {
       if (order.currency === 'GRAM') {
-        // Основная монета (9 знаков после запятой) — открывает окно счёта точно как на Фото 1
         const nanoAmount = Math.round(order.cryptoAmount * 1e9).toString();
         return `https://app.tonkeeper.com/transfer/${TON_WALLET}?amount=${nanoAmount}&text=${encodeURIComponent(order.id)}`;
       } else {
-        // USDT в сети TON (6 знаков после запятой)
         const usdtUnits = Math.round(order.cryptoAmount * 1e6).toString();
         return `https://app.tonkeeper.com/transfer/${TON_WALLET}?jetton=${USDT_JETTON_MASTER}&amount=${usdtUnits}&text=${encodeURIComponent(order.id)}`;
       }
@@ -940,7 +938,6 @@
       userOrders.unshift(newOrder);
       saveOrders();
 
-      // Фиксируем использование промокода
       if (state.appliedPromo) {
         const p = promoDatabase.find(x => x.code === state.appliedPromo);
         const uKey = getTgUser().username.toLowerCase();
@@ -951,18 +948,12 @@
         }
       }
 
-      // Очищаем корзину
       state.cart = {};
       state.appliedPromo = null;
       state.appliedDiscount = 0;
 
-      // 1. Отправляем уведомления в чат с покупателем и лично админу @uj_92
       notifyTelegramChats(newOrder, 'created');
-
-      // 2. Включаем экран выполнения заказа в боте (Фото 2)
       openOrderTracking(newOrder.id);
-
-      // 3. Сразу открываем счёт в самом кошельке Tonkeeper (Фото 1)
       openWalletWithInvoice(newOrder);
     }
 
@@ -971,77 +962,29 @@
       if (order) openWalletWithInvoice(order);
     }
 
-    // ================= УВЕДОМЛЕНИЯ В ЧАТ ПОКУПАТЕЛЮ И ЛИЧНО @uj_92 =================
+    // ================= БЕЗОПАСНАЯ ОТПРАВКА УВЕДОМЛЕНИЙ ЧЕРЕЗ RENDER (БЕЗ ТОКЕНА) =================
     async function notifyTelegramChats(order, eventType) {
       const user = getTgUser();
-      const itemsStr = order.items.map(i => `${i.flag} ${i.country} (${i.code}) × ${i.qty} шт.`).join('\n');
-
-      // 1. ОБЯЗАТЕЛЬНОЕ СООБЩЕНИЕ ЛИЧНО ВАМ (@uj_92 / ID 6189216877)
-      const adminText = eventType === 'paid'
-        ? `💰 <b>ОПЛАТА ПОДТВЕРЖДЕНА БЛОКЧЕЙНОМ!</b>\n\n` +
-          `• Заказ: <code>${order.id}</code>\n` +
-          `• Покупатель: ${user.name} (${user.username}, ID: <code>${user.id}</code>)\n` +
-          `• Сумма: <b>${order.cryptoAmount} ${order.currency} ($${order.usdAmount})</b>\n` +
-          `• Товары:\n${itemsStr}\n\n` +
-          `✅ <b>Выдайте покупателю номер!</b>`
-        : `🚨 <b>НОВЫЙ ЗАКАЗ В UJ92_SHOP!</b>\n\n` +
-          `• Номер заказа: <code>${order.id}</code>\n` +
-          `• Покупатель: ${user.name} (${user.username}, ID: <code>${user.id}</code>)\n` +
-          `• Счёт на сумму: <b>${order.cryptoAmount} ${order.currency} ($${order.usdAmount})</b>\n` +
-          `• Промокод: ${order.promo}\n` +
-          `• Товары:\n${itemsStr}\n` +
-          `• Комментарий в счёте: <code>${order.id}</code>\n\n` +
-          `<i>Счёт открыт в кошельке покупателя, ожидаем оплату...</i>`;
-
       try {
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        await fetch(BACKEND_NOTIFY_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: ADMIN_ID,
-            text: adminText,
-            parse_mode: 'HTML',
-            reply_markup: {
-              inline_keyboard: [[{
-                text: "💬 Написать покупателю",
-                url: user.username.startsWith('@') ? `https://t.me/${user.username.slice(1)}` : `tg://user?id=${user.id}`
-              }]]
-            }
+            order: order,
+            user: user,
+            eventType: eventType
           })
         });
-      } catch(e) {}
+      } catch (e) {
+        console.warn('Notify error:', e);
+      }
 
-      // 2. ДУБЛИРОВАНИЕ ИНФОРМАЦИИ О ЗАКАЗЕ В ЧАТ С ПОКУПАТЕЛЕМ
-      if (user.id && user.id !== 0) {
-        const buyerText = eventType === 'paid'
-          ? `✅ <b>Оплата по заказу № ${order.id} подтверждена!</b>\n\n` +
-            `• Сумма: <b>${order.cryptoAmount} ${order.currency} ($${order.usdAmount})</b>\n` +
-            `• Товары:\n${itemsStr}\n\n` +
-            `Администратор @${ADMIN_USERNAME} уже получил подтверждение и сейчас выдаст вам номер.`
-          : `🧾 <b>Заказ № ${order.id} создан!</b>\n\n` +
-            `<b>Состав заказа:</b>\n${itemsStr}\n\n` +
-            `• <b>Сумма счёта:</b> ${order.cryptoAmount} ${order.currency} ($${order.usdAmount})\n` +
-            `• <b>Комментарий к счёту:</b> <code>${order.id}</code>\n\n` +
-            `Подтвердите счёт в открывшемся окне вашего кошелька. Если возникла ошибка — обратитесь в поддержку: @${ADMIN_USERNAME}`;
-
-        try {
-          await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: user.id,
-              text: buyerText,
-              parse_mode: 'HTML',
-              reply_markup: {
-                inline_keyboard: [[{ text: "💬 Поддержка @uj_92", url: `https://t.me/${ADMIN_USERNAME}` }]]
-              }
-            })
-          });
-        } catch(e) {}
+      if (tg && eventType === 'created') {
+        try { tg.sendData(JSON.stringify(order)); } catch(e) {}
       }
     }
 
-    // ================= ЭКРАН ВЫПОЛНЕНИЯ ЗАКАЗА (ФОТО 2) И РЕАЛЬНАЯ ПРОВЕРКА БЛОКЧЕЙНА =================
+    // ================= ЭКРАН ВЫПОЛНЕНИЯ ЗАКАЗА И РЕАЛЬНАЯ ПРОВЕРКА БЛОКЧЕЙНА =================
     let checkInterval = null;
 
     function openOrderTracking(orderId) {
@@ -1207,7 +1150,7 @@
       if (btn) btn.textContent = '🔄 Проверить';
     }
 
-    // ================= ОТДЕЛ АККАУНТА (КАК НА ФОТО 3) =================
+    // ================= ОТДЕЛ АККАУНТА =================
     function initUserAvatar() {
       const user = getTgUser();
       const miniAv = document.getElementById('navMiniAvatar');
