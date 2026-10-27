@@ -15,18 +15,26 @@ from aiogram.types import (
     WebAppInfo,
 )
 
+# --- НАСТРОЙКИ ---
 BOT_TOKEN = "8960664106:AAEZKPLMdPSE_hp044AR5baQrwT0RQo_wtQ"
 ADMIN_ID = 6189216877
 ADMIN_USERNAME = "uj_92"
 WEB_APP_URL = "https://uj-92-shop.github.io/uj92-shop/"
 STORE_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y"
 
+COUNTRIES_MAP = {
+    "us": "Америка (+1)",
+    "bd": "Бангладеш (+880)",
+    "in": "Индия (+91)",
+    "gb": "Британия (+44)",
+}
+
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 
-# Команда /start
+# /start
 @dp.message(CommandStart())
 async def start_handler(message: types.Message):
     keyboard = ReplyKeyboardMarkup(
@@ -53,26 +61,32 @@ async def start_handler(message: types.Message):
                     text="⭐ Отзывы", url="https://t.me/uj_92_rew"
                 )
             ],
+            [
+                InlineKeyboardButton(
+                    text="💬 Поддержка", url=f"https://t.me/{ADMIN_USERNAME}"
+                )
+            ],
         ]
     )
     first_name = html.escape(message.from_user.first_name or "клиент")
     text = (
         f"👋 Привет, {first_name}!\n\n"
         f"Добро пожаловать в магазин аккаунтов <b>UJ92_shop</b>.\n"
-        f"Здесь вы можете приобрести номера США (+1), Бангладеш (+880), "
-        f"Индии (+91) и Британии (+44) с прямой оплатой в сети TON.\n\n"
-        f"Нажмите кнопку ниже, чтобы открыть каталог:"
+        f"Для заказа выберите нужное количество номеров в каталоге и оплатите счёт в сети TON.\n\n"
+        f"<i>При возникновении вопросов: @{ADMIN_USERNAME}</i>"
     )
     await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
-    await message.answer("Перейти к каталогу:", reply_markup=inline_kb)
+    await message.answer("Перейти к покупкам:", reply_markup=inline_kb)
 
 
-# Фоновый сканер сети TON
-async def monitor_blockchain_for_order(order_code, chat_id, buyer_user, country, code, price_val, currency):
-    logging.info(f"Начат поиск транзакции #{order_code} в блокчейне...")
+# Фоновый сканер сети TON (проверка по уникальному коду заказа)
+async def monitor_blockchain_for_order(
+    order_code, chat_id, buyer_user, total_sum, items_text
+):
+    logging.info(f"Сканирование блокчейна TON для заказа #{order_code}...")
     url = f"https://tonapi.io/v2/blockchain/accounts/{STORE_WALLET}/transactions?limit=20"
-    
-    for attempt in range(25):
+
+    for attempt in range(25):  # 25 проверок по 7 секунд (~3 минуты)
         await asyncio.sleep(7)
         try:
             async with aiohttp.ClientSession() as session:
@@ -82,53 +96,80 @@ async def monitor_blockchain_for_order(order_code, chat_id, buyer_user, country,
                         txs = data.get("transactions", [])
                         for tx in txs:
                             in_msg = tx.get("in_msg", {})
-                            comment = in_msg.get("decoded_body", {}).get("text", "")
-                            
-                            # Проверяем уникальный код чека в комментарии
+                            comment = (
+                                in_msg.get("decoded_body", {}).get("text", "")
+                            )
+
                             if order_code in comment:
                                 tx_hash = tx.get("hash", "")
-                                tx_url = f"https://tonviewer.com/transaction/{tx_hash}"
+                                tx_url = (
+                                    f"https://tonviewer.com/transaction/{tx_hash}"
+                                )
 
                                 # 1. Уведомление покупателю
-                                buyer_text = (
-                                    f"✅ <b>ОПЛАТА ПОДТВЕРЖДЕНА В СЕТИ TON!</b>\n\n"
-                                    f"• Код чека: <b>#{order_code}</b>\n"
-                                    f"• Товар: <b>Номер {country} ({code})</b>\n"
-                                    f"• Сумма: <b>{price_val} {currency}</b>\n\n"
-                                    f"Администратор @{ADMIN_USERNAME} получил уведомление и свяжется с вами для передачи кода авторизации."
+                                buyer_done = (
+                                    f"✅ <b>ОПЛАТА ПОЛУЧЕНА И ПОДТВЕРЖДЕНА В СЕТИ TON!</b>\n\n"
+                                    f"• Номер счёта: <b>#{order_code}</b>\n"
+                                    f"• Сумма: <b>{total_sum}</b>\n\n"
+                                    f"Администратор @{ADMIN_USERNAME} получил уведомление и свяжется с вами для выдачи кода авторизации."
                                 )
                                 buyer_kb = InlineKeyboardMarkup(
-                                    inline_keyboard=[[InlineKeyboardButton(text="💬 Написать админу", url=f"https://t.me/{ADMIN_USERNAME}")]]
+                                    inline_keyboard=[
+                                        [
+                                            InlineKeyboardButton(
+                                                text="💬 Написать админу",
+                                                url=f"https://t.me/{ADMIN_USERNAME}",
+                                            )
+                                        ]
+                                    ]
                                 )
-                                await bot.send_message(chat_id=chat_id, text=buyer_text, parse_mode="HTML", reply_markup=buyer_kb)
+                                await bot.send_message(
+                                    chat_id=chat_id,
+                                    text=buyer_done,
+                                    parse_mode="HTML",
+                                    reply_markup=buyer_kb,
+                                )
 
-                                # 2. Уведомление администратору (6189216877)
-                                admin_confirmed_text = (
-                                    f"💰 <b>ТРАНЗАКЦИЯ ПОДТВЕРЖДЕНА В СЕТИ TON!</b>\n\n"
-                                    f"• Код чека: <b>#{order_code}</b>\n"
-                                    f"• Товар: <b>Номер {country} ({code})</b>\n"
-                                    f"• Покупатель: {buyer_user} (ID: <code>{chat_id}</code>)\n"
-                                    f"• Получено: <b>{price_val} {currency}</b>\n"
-                                    f"• Транзакция: <a href='{tx_url}'>Смотреть в TonViewer</a>\n\n"
-                                    f"<b>Выдайте покупателю номер и код подтверждения!</b>"
+                                # 2. Уведомление администратору (@uj_92 / 6189216877)
+                                admin_confirmed = (
+                                    f"💰 <b>ТРАНЗАКЦИЯ ПОДТВЕРЖДЕНА В БЛОКЧЕЙНЕ!</b>\n\n"
+                                    f"• Счёт: <b>#{order_code}</b>\n"
+                                    f"• Клиент: {buyer_user} (ID: <code>{chat_id}</code>)\n"
+                                    f"• Товары:\n{items_text}\n"
+                                    f"• Сумма: <b>{total_sum}</b>\n"
+                                    f"• Ссылка на сеть: <a href='{tx_url}'>TonViewer</a>\n\n"
+                                    f"<b>Выдайте покупателю номер и код!</b>"
                                 )
                                 admin_kb = InlineKeyboardMarkup(
-                                    inline_keyboard=[[InlineKeyboardButton(text="💬 Написать клиенту", url=f"tg://user?id={chat_id}")]]
+                                    inline_keyboard=[
+                                        [
+                                            InlineKeyboardButton(
+                                                text="💬 Написать клиенту",
+                                                url=f"tg://user?id={chat_id}",
+                                            )
+                                        ]
+                                    ]
                                 )
-                                await bot.send_message(chat_id=ADMIN_ID, text=admin_confirmed_text, parse_mode="HTML", reply_markup=admin_kb)
+                                await bot.send_message(
+                                    chat_id=ADMIN_ID,
+                                    text=admin_confirmed,
+                                    parse_mode="HTML",
+                                    reply_markup=admin_kb,
+                                )
                                 return
         except Exception as e:
-            logging.warning(f"Ошибка проверки блокчейна: {e}")
+            logging.warning(f"Ошибка проверки TonAPI: {e}")
 
-    # Если автоматический поиск истек по таймауту
-    timeout_text = (
-        f"⏳ <b>Транзакция по чеку #{order_code} в обработке.</b>\n\n"
-        f"Если средства уже списались с кошелька, напишите напрямую администратору @{ADMIN_USERNAME} для ускорения выдачи."
+    # Честное сообщение, если за 3 минуты блокчейн не вернул транзакцию
+    timeout_msg = (
+        f"⏳ <b>Счёт #{order_code}</b>\n\n"
+        f"Транзакция пока не обнаружена в блокчейне TON.\n"
+        f"Если средства уже списались с кошелька, обратитесь в поддержку к администратору @{ADMIN_USERNAME}."
     )
-    await bot.send_message(chat_id=chat_id, text=timeout_text, parse_mode="HTML")
+    await bot.send_message(chat_id=chat_id, text=timeout_msg, parse_mode="HTML")
 
 
-# Получение данных чека из Mini App
+# Обработка сформированного счёта из Mini App
 @dp.message(F.web_app_data)
 async def handle_webapp_data(message: types.Message):
     raw_data = message.web_app_data.data
@@ -138,63 +179,86 @@ async def handle_webapp_data(message: types.Message):
         data = {"raw": raw_data}
 
     order_code = html.escape(str(data.get("order_code", "UJ-000000")))
-    country = html.escape(str(data.get("country", "Не указано")))
-    code = html.escape(str(data.get("code", "")))
-    buyer_user = html.escape(str(data.get("buyer_username", f"@{message.from_user.username or 'не указан'}")))
-    currency = html.escape(str(data.get("currency", "USDT")))
-    price_val = html.escape(str(data.get("price_val", "0")))
-
-    # 1. Ответ покупателю с четкой последовательностью
-    buyer_order_text = (
-        f"🧾 <b>ЭЛЕКТРОННЫЙ ЧЕК ЗАКАЗА #{order_code}</b>\n\n"
-        f"• <b>Товар:</b> Номер {country} ({code})\n"
-        f"• <b>Сумма:</b> {price_val}\n"
-        f"• <b>Сеть:</b> The Open Network (TON)\n\n"
-        f"<b>Последовательность выполнения:</b>\n"
-        f"1️⃣ <b>Заказ создан:</b> ✅ Выполнено\n"
-        f"2️⃣ <b>Проверка оплаты:</b> 🔄 Ожидаем подтверждения сети TON...\n"
-        f"3️⃣ <b>Выдача номера:</b> ⏳ В очереди (выдаёт @{ADMIN_USERNAME})"
+    buyer_user = html.escape(
+        str(
+            data.get(
+                "buyer_username", f"@{message.from_user.username or 'не указан'}"
+            )
+        )
     )
-    await message.answer(buyer_order_text, parse_mode="HTML")
+    total_sum = html.escape(str(data.get("total_sum", "0")))
+    raw_items = data.get("items", {})
 
-    # 2. МГНОВЕННОЕ УВЕДОМЛЕНИЕ АДМИНИСТРАТОРУ @uj_92 (6189216877)
-    admin_alert_text = (
+    # Формируем читаемый список товаров
+    items_lines = []
+    if isinstance(raw_items, dict):
+        for pid, qty in raw_items.items():
+            name = COUNTRIES_MAP.get(pid, pid)
+            items_lines.append(f"  — {name}: {qty} шт.")
+    items_text = "\n".join(items_lines) if items_lines else "  — Номера"
+
+    # 1. Дублируем информацию о счёте покупателю в чат
+    buyer_msg = (
+        f"🧾 <b>СЧЁТ НА ОПЛАТУ #{order_code} СФОРМИРОВАН</b>\n\n"
+        f"<b>Состав заказа:</b>\n{items_text}\n\n"
+        f"• <b>Сумма к оплате:</b> {total_sum}\n"
+        f"• <b>Сеть:</b> The Open Network (TON)\n"
+        f"• <b>Кошелек:</b> <code>{STORE_WALLET}</code>\n"
+        f"• <b>Комментарий:</b> <code>{order_code}</code>\n\n"
+        f"<b>Этапы выполнения:</b>\n"
+        f"1️⃣ <b>Счёт выставлен:</b> ✅ Выполнено\n"
+        f"2️⃣ <b>Проверка блокчейна:</b> 🔄 Ожидаем перевод...\n"
+        f"3️⃣ <b>Выдача номеров:</b> ⏳ Ожидает связи с @{ADMIN_USERNAME}\n\n"
+        f"<i>Если у вас возникли сложности с оплатой, напишите в поддержку: @{ADMIN_USERNAME}</i>"
+    )
+    await message.answer(buyer_msg, parse_mode="HTML")
+
+    # 2. ОБЯЗАТЕЛЬНОЕ УВЕДОМЛЕНИЕ АДМИНИСТРАТОРУ @uj_92 (ID 6189216877)
+    admin_alert = (
         f"🚨 <b>НОВЫЙ ЗАКАЗ В МАГАЗИНЕ!</b>\n\n"
-        f"• <b>Чек заказа:</b> <code>#{order_code}</code>\n"
-        f"• <b>Товар:</b> Номер {country} ({code})\n"
-        f"• <b>Покупатель:</b> {buyer_user}\n"
-        f"• <b>Telegram ID:</b> <code>{message.from_user.id}</code>\n"
-        f"• <b>Сумма к получению:</b> <b>{price_val}</b>\n"
+        f"• <b>Номер счёта:</b> <code>#{order_code}</code>\n"
+        f"• <b>Покупатель:</b> {buyer_user} (ID: <code>{message.from_user.id}</code>)\n"
+        f"• <b>Товары:</b>\n{items_text}\n"
+        f"• <b>Сумма:</b> <b>{total_sum}</b>\n"
         f"• <b>Комментарий для сверки:</b> <code>{order_code}</code>\n\n"
-        f"<i>Бот начал проверку транзакции в блокчейне...</i>"
+        f"<i>Бот запустил сканирование блокчейна на поступление средств.</i>"
     )
-    buyer_direct_link = (
+    buyer_chat_link = (
         f"https://t.me/{message.from_user.username}"
         if message.from_user.username
         else f"tg://user?id={message.from_user.id}"
     )
-    admin_btn = InlineKeyboardMarkup(
-        inline_keyboard=[[InlineKeyboardButton(text="💬 Открыть диалог с покупателем", url=buyer_direct_link)]]
+    admin_kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="💬 Написать покупателю", url=buyer_chat_link
+                )
+            ]
+        ]
     )
-    await bot.send_message(chat_id=ADMIN_ID, text=admin_alert_text, parse_mode="HTML", reply_markup=admin_btn)
+    await bot.send_message(
+        chat_id=ADMIN_ID,
+        text=admin_alert,
+        parse_mode="HTML",
+        reply_markup=admin_kb,
+    )
 
-    # 3. Запуск фоновой проверки блокчейна
+    # 3. Запуск фоновой проверки
     asyncio.create_task(
         monitor_blockchain_for_order(
             order_code=order_code,
             chat_id=message.from_user.id,
             buyer_user=buyer_user,
-            country=country,
-            code=code,
-            price_val=price_val,
-            currency=currency
+            total_sum=total_sum,
+            items_text=items_text,
         )
     )
 
 
-# Веб-сервер для удержания процесса на Render
+# Веб-сервер Render
 async def handle_ping(request):
-    return web.Response(text="UJ92 Shop Bot is alive!")
+    return web.Response(text="UJ92 Shop Bot is running!")
 
 
 async def main():
@@ -205,7 +269,7 @@ async def main():
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
-    logging.info(f"Веб-порт {port} открыт для Render.")
+    logging.info(f"Порт {port} открыт.")
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
