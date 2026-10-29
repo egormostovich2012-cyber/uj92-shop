@@ -3,6 +3,7 @@ import html
 import json
 import logging
 import os
+import sys
 import aiohttp
 from aiohttp import web
 from aiogram import Bot, Dispatcher, F, types
@@ -15,14 +16,23 @@ from aiogram.types import (
     WebAppInfo,
 )
 
-# Токен теперь безопасно берется из настроек Render (Environment Variables)
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+logging.basicConfig(level=logging.INFO)
+
+# Получаем токен из настроек Render и очищаем от случайных кавычек/пробелов
+raw_token = os.environ.get("BOT_TOKEN", "")
+BOT_TOKEN = raw_token.strip().strip('"').strip("'")
+
+if not BOT_TOKEN or ":" not in BOT_TOKEN:
+    logging.error(
+        "❌ ОШИБКА: Переменная BOT_TOKEN не найдена или указана неверно в разделе Environment на Render!"
+    )
+    sys.exit(1)
+
 ADMIN_ID = 6189216877
 ADMIN_USERNAME = "uj_92"
 WEB_APP_URL = "https://uj-92-shop.github.io/uj92-shop/"
 STORE_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y"
 
-logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
@@ -78,7 +88,6 @@ async def start_handler(message: types.Message):
     await message.answer("Нажмите кнопку ниже для входа:", reply_markup=inline_kb)
 
 
-# Обработка уведомлений от сайта через защищенный сервер Render
 async def handle_api_notify(request):
     if request.method == "OPTIONS":
         return web.Response(status=200, headers=CORS_HEADERS)
@@ -101,10 +110,12 @@ async def handle_api_notify(request):
         user_tag = html.escape(str(user.get("username", "@guest")))
 
         items_str = "\n".join(
-            [f"• {i.get('flag', '')} {i.get('country', '')} ({i.get('code', '')}) × {i.get('qty', 1)} шт." for i in items]
+            [
+                f"• {i.get('flag', '')} {i.get('country', '')} ({i.get('code', '')}) × {i.get('qty', 1)} шт."
+                for i in items
+            ]
         )
 
-        # 1. Обязательное уведомление лично админу @uj_92 (ID 6189216877)
         if event_type == "paid":
             admin_text = (
                 f"💰 <b>ОПЛАТА ПОДТВЕРЖДЕНА БЛОКЧЕЙНОМ!</b>\n\n"
@@ -126,13 +137,23 @@ async def handle_api_notify(request):
                 f"<i>Счёт открыт в кошельке покупателя, ожидаем оплату...</i>"
             )
 
-        buyer_url = f"https://t.me/{user_tag[1:]}" if user_tag.startswith("@") else f"tg://user?id={user_id}"
-        admin_kb = InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="💬 Написать покупателю", url=buyer_url)]]
+        buyer_url = (
+            f"https://t.me/{user_tag[1:]}"
+            if user_tag.startswith("@")
+            else f"tg://user?id={user_id}"
         )
-        await bot.send_message(chat_id=ADMIN_ID, text=admin_text, parse_mode="HTML", reply_markup=admin_kb)
+        admin_kb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="💬 Написать покупателю", url=buyer_url)]
+            ]
+        )
+        await bot.send_message(
+            chat_id=ADMIN_ID,
+            text=admin_text,
+            parse_mode="HTML",
+            reply_markup=admin_kb,
+        )
 
-        # 2. Дублирование информации в чат с покупателем
         if user_id and int(user_id) != 0:
             if event_type == "paid":
                 buyer_text = (
@@ -151,14 +172,28 @@ async def handle_api_notify(request):
                 )
 
             buyer_kb = InlineKeyboardMarkup(
-                inline_keyboard=[[InlineKeyboardButton(text="💬 Поддержка @uj_92", url=f"https://t.me/{ADMIN_USERNAME}")]]
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="💬 Поддержка @uj_92",
+                            url=f"https://t.me/{ADMIN_USERNAME}",
+                        )
+                    ]
+                ]
             )
-            await bot.send_message(chat_id=int(user_id), text=buyer_text, parse_mode="HTML", reply_markup=buyer_kb)
+            await bot.send_message(
+                chat_id=int(user_id),
+                text=buyer_text,
+                parse_mode="HTML",
+                reply_markup=buyer_kb,
+            )
 
         return web.json_response({"ok": True}, headers=CORS_HEADERS)
     except Exception as e:
         logging.error(f"Ошибка отправки уведомления: {e}")
-        return web.json_response({"ok": False, "error": str(e)}, status=500, headers=CORS_HEADERS)
+        return web.json_response(
+            {"ok": False, "error": str(e)}, status=500, headers=CORS_HEADERS
+        )
 
 
 async def handle_ping(request):
@@ -175,9 +210,8 @@ async def main():
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
-    logging.info(f"Веб-порт {port} открыт.")
+    logging.info(f"Веб-порт {port} успешно открыт.")
 
-    # Сбрасываем вебхук, который могли установить спамеры
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
