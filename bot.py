@@ -1,12 +1,9 @@
 import asyncio
 import html
-import json
 import logging
 import os
 import sys
-import aiohttp
-from aiohttp import web
-from aiogram import Bot, Dispatcher, F, types
+from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 from aiogram.types import (
     InlineKeyboardButton,
@@ -15,23 +12,22 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     WebAppInfo,
 )
+from aiohttp import web
 
 logging.basicConfig(level=logging.INFO)
 
-# Получаем токен из настроек Render и очищаем от случайных кавычек/пробелов
 raw_token = os.environ.get("BOT_TOKEN", "")
 BOT_TOKEN = raw_token.strip().strip('"').strip("'")
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
     logging.error(
-        "❌ ОШИБКА: Переменная BOT_TOKEN не найдена или указана неверно в разделе Environment на Render!"
+        "ОШИБКА: Переменная BOT_TOKEN не задана в Environment на Render!"
     )
     sys.exit(1)
 
 ADMIN_ID = 6189216877
 ADMIN_USERNAME = "uj_92"
 WEB_APP_URL = "https://uj-92-shop.github.io/uj92-shop/"
-STORE_WALLET = "UQBsw7n4ld0lUPutU8HkmuM6ifGHB3YRxYCGQeQlaAtX6F1Y"
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -78,11 +74,11 @@ async def start_handler(message: types.Message):
     first_name = html.escape(message.from_user.first_name or "клиент")
     text = (
         f"👋 Привет, <b>{first_name}</b>!\n\n"
-        f"Добро пожаловать в <b>UJ92_shop</b> — магазин аккаунтов Telegram.\n"
-        f"• Выбирайте нужное количество номеров в корзине\n"
-        f"• Оплачивайте по прямому счёту в GRAM или USDT (TON)\n"
-        f"• Отслеживайте статус заказа в разделе «Аккаунт»\n\n"
-        f"По всем вопросам и поддержке: @{ADMIN_USERNAME}"
+        f"Добро пожаловать в <b>UJ92_shop</b> — магазин номеров и кейсов с подарками Telegram.\n"
+        f"• Пополняйте баланс в GRAM или USDT (TON)\n"
+        f"• Открывайте кейс «Бомж» и собирайте подарки в инвентарь\n"
+        f"• Покупайте номера с мгновенным отслеживанием статуса\n\n"
+        f"Поддержка: @{ADMIN_USERNAME}"
     )
     await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
     await message.answer("Нажмите кнопку ниже для входа:", reply_markup=inline_kb)
@@ -99,6 +95,7 @@ async def handle_api_notify(request):
         event_type = body.get("eventType", "created")
 
         order_id = html.escape(str(order.get("id", "UJ92")))
+        order_type = order.get("orderType", "phone")
         currency = html.escape(str(order.get("currency", "GRAM")))
         crypto_amt = html.escape(str(order.get("cryptoAmount", "0")))
         usd_amt = html.escape(str(order.get("usdAmount", "0")))
@@ -116,26 +113,78 @@ async def handle_api_notify(request):
             ]
         )
 
-        if event_type == "paid":
+        if order_type == "gift_withdraw":
             admin_text = (
-                f"💰 <b>ОПЛАТА ПОДТВЕРЖДЕНА БЛОКЧЕЙНОМ!</b>\n\n"
-                f"• Заказ: <code>{order_id}</code>\n"
+                f"🎁 <b>ЗАЯВКА НА ВЫВОД ПОДАРКА ИЗ ИНВЕНТАРЯ!</b>\n\n"
+                f"• Код заявки: <code>{order_id}</code>\n"
                 f"• Покупатель: {user_name} ({user_tag}, ID: <code>{user_id}</code>)\n"
-                f"• Сумма: <b>{crypto_amt} {currency} (${usd_amt})</b>\n"
-                f"• Товары:\n{items_str}\n\n"
-                f"✅ <b>Выдайте покупателю номер!</b>"
+                f"• Подарок:\n{items_str}\n\n"
+                f"<b>Отправьте этот подарок пользователю в Telegram!</b>"
             )
+            buyer_text = (
+                f"🎁 <b>Заявка № {order_id} на вывод подарка создана!</b>\n\n"
+                f"{items_str}\n\n"
+                f"Администратор @{ADMIN_USERNAME} уже получил уведомление и отправит подарок на ваш аккаунт."
+            )
+        elif order_type == "deposit":
+            if event_type == "paid":
+                admin_text = (
+                    f"💰 <b>ПОПОЛНЕНИЕ БАЛАНСА ПОДТВЕРЖДЕНО!</b>\n\n"
+                    f"• Счёт: <code>{order_id}</code>\n"
+                    f"• Пользователь: {user_name} ({user_tag}, ID: <code>{user_id}</code>)\n"
+                    f"• Зачислено: <b>${usd_amt} ({crypto_amt} {currency})</b>"
+                )
+                buyer_text = (
+                    f"✅ <b>Ваш баланс успешно пополнен на ${usd_amt}!</b>\n"
+                    f"Счёт № <code>{order_id}</code> подтверждён в блокчейне TON."
+                )
+            else:
+                admin_text = (
+                    f"💳 <b>НОВЫЙ СЧЁТ НА ПОПОЛНЕНИЕ БАЛАНСА</b>\n\n"
+                    f"• Счёт: <code>{order_id}</code>\n"
+                    f"• Пользователь: {user_name} ({user_tag}, ID: <code>{user_id}</code>)\n"
+                    f"• Сумма: <b>{crypto_amt} {currency} (${usd_amt})</b>\n"
+                    f"• Комментарий: <code>{order_id}</code>"
+                )
+                buyer_text = (
+                    f"🧾 <b>Счёт № {order_id} на пополнение баланса (${usd_amt}) создан!</b>\n\n"
+                    f"• К оплате: <b>{crypto_amt} {currency}</b>\n"
+                    f"• Комментарий: <code>{order_id}</code>\n\n"
+                    f"Подтвердите оплату в Tonkeeper. При возникновении ошибок пишите @{ADMIN_USERNAME}"
+                )
         else:
-            admin_text = (
-                f"🚨 <b>НОВЫЙ ЗАКАЗ В UJ92_SHOP!</b>\n\n"
-                f"• Номер заказа: <code>{order_id}</code>\n"
-                f"• Покупатель: {user_name} ({user_tag}, ID: <code>{user_id}</code>)\n"
-                f"• Счёт на сумму: <b>{crypto_amt} {currency} (${usd_amt})</b>\n"
-                f"• Промокод: {promo}\n"
-                f"• Товары:\n{items_str}\n"
-                f"• Комментарий в счёте: <code>{order_id}</code>\n\n"
-                f"<i>Счёт открыт в кошельке покупателя, ожидаем оплату...</i>"
-            )
+            if event_type == "paid":
+                admin_text = (
+                    f"💰 <b>ЗАКАЗ ОПЛАЧЕН!</b>\n\n"
+                    f"• Заказ: <code>{order_id}</code>\n"
+                    f"• Покупатель: {user_name} ({user_tag}, ID: <code>{user_id}</code>)\n"
+                    f"• Сумма: <b>{crypto_amt} {currency} (${usd_amt})</b>\n"
+                    f"• Товары:\n{items_str}\n\n"
+                    f"✅ <b>Выдайте покупателю номер!</b>"
+                )
+                buyer_text = (
+                    f"✅ <b>Оплата по заказу № {order_id} подтверждена!</b>\n\n"
+                    f"• Сумма: <b>{crypto_amt} {currency} (${usd_amt})</b>\n"
+                    f"• Товары:\n{items_str}\n\n"
+                    f"Администратор @{ADMIN_USERNAME} сейчас выдаст вам номер."
+                )
+            else:
+                admin_text = (
+                    f"🚨 <b>НОВЫЙ ЗАКАЗ В UJ92_SHOP!</b>\n\n"
+                    f"• Номер заказа: <code>{order_id}</code>\n"
+                    f"• Покупатель: {user_name} ({user_tag}, ID: <code>{user_id}</code>)\n"
+                    f"• Счёт: <b>{crypto_amt} {currency} (${usd_amt})</b>\n"
+                    f"• Промокод: {promo}\n"
+                    f"• Товары:\n{items_str}\n"
+                    f"• Комментарий: <code>{order_id}</code>"
+                )
+                buyer_text = (
+                    f"🧾 <b>Заказ № {order_id} создан!</b>\n\n"
+                    f"<b>Состав заказа:</b>\n{items_str}\n\n"
+                    f"• <b>Сумма счёта:</b> {crypto_amt} {currency} (${usd_amt})\n"
+                    f"• <b>Комментарий:</b> <code>{order_id}</code>\n\n"
+                    f"Подтвердите счёт в кошельке. По всем вопросам: @{ADMIN_USERNAME}"
+                )
 
         buyer_url = (
             f"https://t.me/{user_tag[1:]}"
@@ -155,22 +204,6 @@ async def handle_api_notify(request):
         )
 
         if user_id and int(user_id) != 0:
-            if event_type == "paid":
-                buyer_text = (
-                    f"✅ <b>Оплата по заказу № {order_id} подтверждена!</b>\n\n"
-                    f"• Сумма: <b>{crypto_amt} {currency} (${usd_amt})</b>\n"
-                    f"• Товары:\n{items_str}\n\n"
-                    f"Администратор @{ADMIN_USERNAME} уже получил подтверждение и сейчас выдаст вам номер."
-                )
-            else:
-                buyer_text = (
-                    f"🧾 <b>Заказ № {order_id} создан!</b>\n\n"
-                    f"<b>Состав заказа:</b>\n{items_str}\n\n"
-                    f"• <b>Сумма счёта:</b> {crypto_amt} {currency} (${usd_amt})\n"
-                    f"• <b>Комментарий к счёту:</b> <code>{order_id}</code>\n\n"
-                    f"Подтвердите счёт в открывшемся окне вашего кошелька. Если возникла ошибка — обратитесь в поддержку: @{ADMIN_USERNAME}"
-                )
-
             buyer_kb = InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
