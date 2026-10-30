@@ -41,6 +41,7 @@ CORS_HEADERS = {
 
 @dp.message(CommandStart())
 async def start_handler(message: types.Message):
+    # Основная кнопка "🛍️ Открыть UJ92_shop" на весь экран внизу (возле клавиатуры)
     keyboard = ReplyKeyboardMarkup(
         keyboard=[
             [
@@ -52,14 +53,10 @@ async def start_handler(message: types.Message):
         ],
         resize_keyboard=True,
     )
+    
+    # Больше нет инлайн-кнопки "Открывать мини-приложение" прямо под текстом, чтобы избежать дублирования
     inline_kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="⚡ Запустить приложение",
-                    web_app=WebAppInfo(url=WEB_APP_URL),
-                )
-            ],
             [
                 InlineKeyboardButton(
                     text="⭐ Отзывы", url="https://t.me/uj_92_rew"
@@ -71,6 +68,7 @@ async def start_handler(message: types.Message):
             ],
         ]
     )
+    
     first_name = html.escape(message.from_user.first_name or "клиент")
     text = (
         f"👋 Привет, <b>{first_name}</b>!\n\n"
@@ -80,6 +78,8 @@ async def start_handler(message: types.Message):
         f"• Покупайте номера с мгновенным отслеживанием статуса\n\n"
         f"Поддержка: @{ADMIN_USERNAME}"
     )
+    
+    # Отправляем сообщение с нижней кнопкой и ссылками
     await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
     await message.answer("Нажмите кнопку ниже для входа:", reply_markup=inline_kb)
 
