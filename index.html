@@ -220,7 +220,7 @@
     .tl-red { background: #ef4444; color: #fff; }
     .tl-gray { background: #222226; color: #666; border: 1px solid #333; }
 
-    /* Профиль (как на Фото 3) */
+    /* Профиль */
     .profile-box {
       background: rgba(22, 22, 26, 0.95);
       border: 1px solid #2e2e34;
@@ -296,14 +296,14 @@
       text-align: center;
       overflow: hidden;
       position: relative;
-      margin: 10px 0;
+      margin: 6px 0;
     }
     .roulette-wrapper {
       position: relative;
       width: 100%;
       height: 104px;
       overflow: hidden;
-      margin: 14px 0;
+      margin: 10px 0 4px;
       border-radius: 12px;
       background: #0d0d12;
     }
@@ -313,7 +313,7 @@
       left: 0;
       top: 0;
       height: 100%;
-      transition: transform 3.5s cubic-bezier(0.1, 0.8, 0.1, 1);
+      transition: transform 3.2s cubic-bezier(0.1, 0.8, 0.1, 1);
       will-change: transform;
     }
     .roulette-item {
@@ -334,7 +334,7 @@
       object-fit: contain;
     }
     .roulette-item.marker-won {
-      background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, #121217 100%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, #121217 100%);
     }
     .roulette-pointer {
       position: absolute;
@@ -458,59 +458,21 @@
       </div>
     </section>
 
-    <!-- ================= 3. ОТДЕЛ: КЕЙСЫ ================= -->
+    <!-- ================= 3. ОТДЕЛ: КЕЙСЫ (3 КЕЙСА: БОМЖ, СТУДЕНТ, ПРЕДПРИНИМАТЕЛЬ) ================= -->
     <section id="sectionCases" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <div style="font-size: 17px; font-weight: 900;">Кейсы с подарками</div>
-          <div style="font-size: 11px; color: #888; margin-top: 2px;">Выбитые подарки сохраняются в инвентаре</div>
+          <div style="font-size: 17px; font-weight: 900;">Кейсы с подарками и номерами</div>
+          <div style="font-size: 11px; color: #888; margin-top: 2px;">Все выбитые предметы попадают в инвентарь</div>
         </div>
-        <span class="badge" style="background: #fff; color: #000;">Gifts</span>
+        <span class="badge" style="background: #fff; color: #000;">3 кейса</span>
       </div>
 
-      <!-- КЕЙС «БОМЖ» ($0.40) -->
-      <div class="product-card" style="padding: 18px; border-color: #3a3a44;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="width: 72px; height: 72px; border-radius: 18px; background: #1c1c24; border: 1px solid #33333e; display: flex; align-items: center; justify-content: center; padding: 2px;">
-              <!-- ИСПОЛЬЗУЕТСЯ СГЕНЕРИРОВАННОЕ ИЗОБРАЖЕНИЕ КЕЙСА (image_21.png) -->
-              <img src="image_21.png" alt="Кейс Бомж" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;">
-            </div>
-            <div>
-              <div style="font-size: 19px; font-weight: 900;">Кейс «Бомж»</div>
-              <div style="font-size: 12px; color: #888; margin-top: 2px;">Обычные подарки Telegram</div>
-            </div>
-          </div>
-          <div style="text-align: right;">
-            <div class="font-mono" style="font-size: 20px; font-weight: 900; color: #fff;">$0.40</div>
-            <div class="font-mono" style="font-size: 11px; color: #888;" id="casePriceGramEq">~0.35 GRAM</div>
-          </div>
-        </div>
-
-        <!-- Содержимое кейса -->
-        <div style="border-top: 1px solid #26262e; padding-top: 12px;">
-          <div style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 700; margin-bottom: 10px;">
-            Наполнение кейса и шансы:
-          </div>
-          <div id="caseItemsPreviewGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;"></div>
-        </div>
-
-        <!-- АНИМАЦИЯ РУЛЕТКИ ОТКРЫТИЯ (КАК НА ВИДЕО) -->
-        <div id="caseOpeningModule" class="roulette-container hidden">
-          <div id="caseOpeningStateText" style="font-size: 13px; font-weight: 800; color: #aaa;">Открываем...</div>
-          <div class="roulette-wrapper">
-            <div class="roulette-pointer"></div>
-            <div id="rouletteTape" class="roulette-tape"></div>
-          </div>
-        </div>
-
-        <button id="openCaseBtn" onclick="triggerCaseOpener()" class="btn-grow" style="width: 100%; padding: 15px; background: #ffffff; color: #000000; border: none; border-radius: 16px; font-weight: 900; font-size: 14px; text-transform: uppercase; margin-top: 4px; box-shadow: 0 4px 20px rgba(255,255,255,0.18);">
-          🎁 Открыть за $0.40
-        </button>
-      </div>
+      <!-- Список всех кейсов генерируется автоматически -->
+      <div id="casesListContainer" style="display: flex; flex-direction: column; gap: 14px;"></div>
     </section>
 
-    <!-- ================= 4. ЭКРАН ВЫПОЛНЕНИЯ ЗАКАЗА / ПОПОЛНЕНИЯ (ФОТО 2) ================= -->
+    <!-- ================= 4. ЭКРАН ВЫПОЛНЕНИЯ ЗАКАЗА / ПОПОЛНЕНИЯ ================= -->
     <section id="sectionOrderTrack" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
       
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
@@ -621,10 +583,9 @@
       </div>
     </section>
 
-    <!-- ================= 5. ОТДЕЛ: АККАУНТ (ФОТО 3 + ИНВЕНТАРЬ + ИСТОРИЯ) ================= -->
+    <!-- ================= 5. ОТДЕЛ: АККАУНТ ================= -->
     <section id="sectionAccount" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
       
-      <!-- Главная карточка профиля (точная верстка Фото 3) -->
       <div class="profile-box">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #2a2a32;">
           <div style="display: flex; align-items: center; gap: 12px;">
@@ -683,7 +644,7 @@
       <div id="invBlockAnchor">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <span style="font-size: 12px; text-transform: uppercase; color: #888; font-weight: 800; letter-spacing: 0.5px;">
-            🎁 Инвентарь подарков:
+            🎁 Инвентарь выбитых предметов:
           </span>
           <button id="sellAllInvBtn" onclick="sellAllInventoryItems()" class="hidden" style="background: none; border: none; color: #fbbf24; font-size: 11px; font-weight: 800; cursor: pointer;">
             Продать всё
@@ -747,7 +708,7 @@
     </div>
   </div>
 
-  <!-- ================= ВЫИГРЫШ (ФОТО) ================= -->
+  <!-- ================= ВЫИГРЫШ В КЕЙСЕ ================= -->
   <div id="giftWinModal" class="sheet-backdrop hidden">
     <div class="gift-sheet">
       <div class="sheet-handle"></div>
@@ -773,8 +734,8 @@
         </button>
       </div>
 
-      <button onclick="spinCaseAgain()" class="btn-grow" style="width: 100%; padding: 16px; background: #1c1c24; color: #ffffff; border: 1px solid #33333e; border-radius: 24px; font-weight: 900; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <span>↻</span> <span>Крутить ещё за $0.40</span>
+      <button id="spinAgainBtn" onclick="spinCaseAgain()" class="btn-grow" style="width: 100%; padding: 16px; background: #1c1c24; color: #ffffff; border: 1px solid #33333e; border-radius: 24px; font-weight: 900; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>↻</span> <span id="spinAgainBtnText">Крутить ещё за $0.40</span>
       </button>
     </div>
   </div>
@@ -860,43 +821,119 @@
       { id: 'gb', country: 'Британия', code: '+44', price: 1.80, flag: '🇬🇧' }
     ];
 
-    const BOMZH_CASE_PRICE = 0.40;
-    const BOMZH_CASE_ITEMS = [
-      {
+    // Общая база всех подарков и номеров для кейсов
+    const GIFT_ASSETS = {
+      bear: {
         id: 'bear',
         name: 'Обычный подарок Медведь',
         shortName: 'Мишка',
         price: 0.23,
-        chance: 30,
         img: 'https://em-content.zobj.net/source/telegram/386/teddy-bear_1f9f8.webp',
         fallbackImg: 'https://em-content.zobj.net/source/apple/391/teddy-bear_1f9f8.png'
       },
-      {
+      heart: {
         id: 'heart',
         name: 'Обычный подарок Сердечко',
         shortName: 'Сердечко',
         price: 0.23,
-        chance: 30,
         img: 'https://em-content.zobj.net/source/telegram/386/heart-with-ribbon_1f49d.webp',
         fallbackImg: 'https://em-content.zobj.net/source/apple/391/heart-with-ribbon_1f49d.png'
       },
-      {
+      rose: {
         id: 'rose',
         name: 'Обычный подарок Роза',
         shortName: 'Роза',
         price: 0.38,
-        chance: 20,
         img: 'https://em-content.zobj.net/source/telegram/386/rose_1f339.webp',
         fallbackImg: 'https://em-content.zobj.net/source/apple/391/rose_1f339.png'
       },
-      {
+      bouquet: {
         id: 'bouquet',
         name: 'Обычный подарок Букет',
         shortName: 'Букет',
         price: 0.75,
-        chance: 20,
         img: 'https://em-content.zobj.net/source/telegram/386/bouquet_1f490.webp',
         fallbackImg: 'https://em-content.zobj.net/source/apple/391/bouquet_1f490.png'
+      },
+      diamond: {
+        id: 'diamond',
+        name: 'Подарок Алмаз',
+        shortName: 'Алмаз',
+        price: 1.50,
+        img: 'https://em-content.zobj.net/source/telegram/386/gem-stone_1f48e.webp',
+        fallbackImg: 'https://em-content.zobj.net/source/apple/391/gem-stone_1f48e.png'
+      },
+      num_us: {
+        id: 'num_us',
+        name: 'Номер +1 Америка',
+        shortName: '+1 Америка',
+        price: 0.80,
+        img: 'https://em-content.zobj.net/source/apple/391/flag-united-states_1f1fa-1f1f8.png',
+        fallbackImg: 'https://flagcdn.com/w160/us.png'
+      },
+      num_in: {
+        id: 'num_in',
+        name: 'Номер +91 Индия',
+        shortName: '+91 Индия',
+        price: 0.80,
+        img: 'https://em-content.zobj.net/source/apple/391/flag-india_1f1ee-1f1f3.png',
+        fallbackImg: 'https://flagcdn.com/w160/in.png'
+      },
+      num_bd: {
+        id: 'num_bd',
+        name: 'Номер +880 Бангладеш',
+        shortName: '+880 Бангладеш',
+        price: 1.00,
+        img: 'https://em-content.zobj.net/source/apple/391/flag-bangladesh_1f1e7-1f1e9.png',
+        fallbackImg: 'https://flagcdn.com/w160/bd.png'
+      }
+    };
+
+    // Конфигурация 3 кейсов: «Бомж» ($0.40), «Студент» ($0.60), «Предприниматель» ($1.00)
+    const CASES_CATALOG = [
+      {
+        id: 'bomzh',
+        title: 'Кейс «Бомж»',
+        subtitle: 'Обычные подарки Telegram',
+        price: 0.40,
+        coverImg: 'image_21.png',
+        fallbackCover: GIFT_ASSETS.bear.img,
+        items: [
+          { ...GIFT_ASSETS.bear, chance: 30 },
+          { ...GIFT_ASSETS.heart, chance: 30 },
+          { ...GIFT_ASSETS.rose, chance: 20 },
+          { ...GIFT_ASSETS.bouquet, chance: 20 }
+        ]
+      },
+      {
+        id: 'student',
+        title: 'Кейс «Студент»',
+        subtitle: 'Подарки + Номера США и Индии',
+        price: 0.60,
+        coverImg: 'case_student.png',
+        fallbackCover: GIFT_ASSETS.num_us.img,
+        items: [
+          { ...GIFT_ASSETS.bear, chance: 20 },
+          { ...GIFT_ASSETS.heart, chance: 20 },
+          { ...GIFT_ASSETS.rose, chance: 20 },
+          { ...GIFT_ASSETS.num_us, chance: 20 },
+          { ...GIFT_ASSETS.num_in, chance: 20 }
+        ]
+      },
+      {
+        id: 'business',
+        title: 'Кейс «Предприниматель»',
+        subtitle: 'Номера США, Бангладеш и Алмаз',
+        price: 1.00,
+        coverImg: 'case_business.png',
+        fallbackCover: GIFT_ASSETS.diamond.img,
+        items: [
+          { ...GIFT_ASSETS.bear, chance: 10 },
+          { ...GIFT_ASSETS.rose, chance: 20 },
+          { ...GIFT_ASSETS.num_us, chance: 30 },
+          { ...GIFT_ASSETS.num_bd, chance: 20 },
+          { ...GIFT_ASSETS.diamond, chance: 20 }
+        ]
       }
     ];
 
@@ -925,6 +962,7 @@
       appliedDiscount: 0,
       activeTrackOrderId: null,
       lastWonEntryId: null,
+      lastOpenedCaseId: 'bomzh',
       isOpeningCase: false
     };
 
@@ -965,14 +1003,13 @@
       storage.set(`uj92_orders_${currentUserKey}`, JSON.stringify(userOrders));
     }
 
-    // ================= ПРАВИЛЬНЫЙ ФИКС КУРСА GRAM 1.15 =================
+    // ================= КУРС GRAM $1.15 =================
     function updateRateDisplays() {
       document.getElementById('headerGramRate').textContent = state.gramRate.toFixed(2);
       document.getElementById('adminGramInput').value = state.gramRate.toFixed(2);
-      const caseGramEl = document.getElementById('casePriceGramEq');
-      if (caseGramEl) caseGramEl.textContent = `~${(BOMZH_CASE_PRICE / state.gramRate).toFixed(2)} GRAM`;
       updateBalanceUI();
       renderCatalog();
+      renderCasesTab();
     }
 
     function updateBalanceUI() {
@@ -1001,7 +1038,7 @@
       } else if (tab === 'cases') {
         document.getElementById('sectionCases').classList.remove('hidden');
         document.getElementById('navBtnCases').classList.add('active');
-        renderCasePreview();
+        renderCasesTab();
       } else if (tab === 'account') {
         document.getElementById('sectionAccount').classList.remove('hidden');
         document.getElementById('navBtnAccount').classList.add('active');
@@ -1072,52 +1109,108 @@
       openWalletWithInvoice(depOrder);
     }
 
-    // ================= АНИМАЦИЯ И РУЛЕТКА ДЛЯ КЕЙСА «БОМЖ» =================
-    function renderCasePreview() {
-      const grid = document.getElementById('caseItemsPreviewGrid');
-      grid.innerHTML = '';
-      BOMZH_CASE_ITEMS.forEach(item => {
-        const card = document.createElement('div');
-        card.style.cssText = 'background: #14141a; border: 1px solid #262630; border-radius: 14px; padding: 10px; display: flex; align-items: center; gap: 10px;';
-        card.innerHTML = `
-          <img src="${item.img}" onerror="this.src='${item.fallbackImg}'" style="width: 42px; height: 42px; object-fit: contain;">
-          <div>
-            <div style="font-size: 12px; font-weight: 800;">${item.shortName}</div>
-            <div class="font-mono" style="font-size: 11px; color: #fff; font-weight: 700;">$${item.price.toFixed(2)}</div>
-            <div style="font-size: 10px; color: #888;">Шанс: ${item.chance}%</div>
+    // ================= 3 КЕЙСА («БОМЖ», «СТУДЕНТ», «ПРЕДПРИНИМАТЕЛЬ») И РУЛЕТКА =================
+    function renderCasesTab() {
+      const container = document.getElementById('casesListContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      CASES_CATALOG.forEach(c => {
+        const gramEq = (c.price / state.gramRate).toFixed(2);
+        const itemsHtml = c.items.map(item => `
+          <div style="background: #14141a; border: 1px solid #262630; border-radius: 14px; padding: 9px; display: flex; align-items: center; gap: 9px;">
+            <img src="${item.img}" onerror="this.src='${item.fallbackImg}'" style="width: 38px; height: 38px; object-fit: contain; flex-shrink: 0;">
+            <div style="overflow: hidden;">
+              <div style="font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.shortName}</div>
+              <div class="font-mono" style="font-size: 11px; color: #fff; font-weight: 700;">$${item.price.toFixed(2)}</div>
+              <div style="font-size: 10px; color: #888;">Шанс: ${item.chance}%</div>
+            </div>
           </div>
+        `).join('');
+
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.style.padding = '16px';
+        card.style.borderColor = '#343440';
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 74px; height: 74px; border-radius: 18px; background: #121216; border: 1px solid #33333e; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                <img src="${c.coverImg}" onerror="this.src='${c.fallbackCover}'" alt="${c.title}" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <div>
+                <div style="font-size: 18px; font-weight: 900;">${c.title}</div>
+                <div style="font-size: 11px; color: #888; margin-top: 2px;">${c.subtitle}</div>
+              </div>
+            </div>
+            <div style="text-align: right; flex-shrink: 0;">
+              <div class="font-mono" style="font-size: 19px; font-weight: 900; color: #fff;">$${c.price.toFixed(2)}</div>
+              <div class="font-mono" style="font-size: 11px; color: #888;">~${gramEq} GRAM</div>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid #26262e; padding-top: 12px;">
+            <div style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; margin-bottom: 8px;">
+              Что внутри (${c.items.length} поз.):
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              ${itemsHtml}
+            </div>
+          </div>
+
+          <!-- Блок анимации рулетки для конкретного кейса -->
+          <div id="rouletteBox_${c.id}" class="roulette-container hidden">
+            <div style="font-size: 12px; font-weight: 800; color: #aaa;">Открываем ${c.title}...</div>
+            <div id="rouletteWrap_${c.id}" class="roulette-wrapper">
+              <div class="roulette-pointer"></div>
+              <div id="rouletteTape_${c.id}" class="roulette-tape"></div>
+            </div>
+          </div>
+
+          <button id="openCaseBtn_${c.id}" onclick="triggerCaseOpener('${c.id}')" class="btn-grow" style="width: 100%; padding: 14px; background: #ffffff; color: #000000; border: none; border-radius: 16px; font-weight: 900; font-size: 13px; text-transform: uppercase; margin-top: 2px; box-shadow: 0 4px 18px rgba(255,255,255,0.16);">
+            🎁 Открыть за $${c.price.toFixed(2)}
+          </button>
         `;
-        grid.appendChild(card);
+        container.appendChild(card);
       });
     }
 
-    function rollBomzhCaseGift() {
+    function rollCaseGift(caseObj) {
       const r = Math.random() * 100;
       let acc = 0;
-      for (const item of BOMZH_CASE_ITEMS) {
+      for (const item of caseObj.items) {
         acc += item.chance;
         if (r < acc) return item;
       }
-      return BOMZH_CASE_ITEMS[0];
+      return caseObj.items[0];
     }
 
-    function triggerCaseOpener() {
+    function triggerCaseOpener(caseId) {
       if (state.isOpeningCase) return;
-      if (state.balanceUsd < BOMZH_CASE_PRICE) {
-        if (confirm(`На вашем балансе $${state.balanceUsd.toFixed(2)}. Для открытия кейса «Бомж» нужно $${BOMZH_CASE_PRICE.toFixed(2)}. Пополнить баланс?`)) {
+      const caseObj = CASES_CATALOG.find(c => c.id === caseId);
+      if (!caseObj) return;
+
+      if (state.balanceUsd < caseObj.price) {
+        if (confirm(`На вашем балансе $${state.balanceUsd.toFixed(2)}. Для открытия «${caseObj.title}» нужно $${caseObj.price.toFixed(2)}. Пополнить баланс?`)) {
           openDepositModal();
         }
         return;
       }
 
       state.isOpeningCase = true;
-      document.getElementById('openCaseBtn').disabled = true;
+      state.lastOpenedCaseId = caseId;
 
-      // Списываем баланс
-      state.balanceUsd -= BOMZH_CASE_PRICE;
+      const btn = document.getElementById(`openCaseBtn_${caseId}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ Открываем...';
+      }
+
+      // Списываем стоимость кейса с баланса
+      state.balanceUsd -= caseObj.price;
       saveUserBalance();
 
-      const wonGift = rollBomzhCaseGift();
+      const wonGift = rollCaseGift(caseObj);
       const entryId = 'GIFT_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
       const invEntry = {
         entryId: entryId,
@@ -1134,57 +1227,55 @@
       saveInventory();
       state.lastWonEntryId = entryId;
 
-      // ПРЕПЯТСТВИЯ ДЛЯ РУЛЕТКИ (32 случайных элемента перед финальным)
-      const tape = document.getElementById('rouletteTape');
+      const rBox = document.getElementById(`rouletteBox_${caseId}`);
+      const rWrap = document.getElementById(`rouletteWrap_${caseId}`);
+      const tape = document.getElementById(`rouletteTape_${caseId}`);
+
       tape.style.transition = 'none';
       tape.style.transform = 'translateX(0)';
       tape.innerHTML = '';
 
-      const itemsInTape = [];
-      for (let i = 0; i < 35; i++) {
-        let currentItem = BOMZH_CASE_ITEMS[Math.floor(Math.random() * BOMZH_CASE_ITEMS.length)];
+      for (let i = 0; i < 36; i++) {
+        let currentItem = caseObj.items[Math.floor(Math.random() * caseObj.items.length)];
         if (i === 30) {
-          currentItem = wonGift; // Наш победитель на 30-й позиции (2.7 метра/px от старта)
+          currentItem = wonGift;
         }
-        itemsInTape.push(currentItem);
-
-        const card = document.createElement('div');
-        card.className = `roulette-item ${i === 30 ? 'marker-won' : ''}`;
-        card.innerHTML = `
+        const cell = document.createElement('div');
+        cell.className = `roulette-item ${i === 30 ? 'marker-won' : ''}`;
+        cell.innerHTML = `
           <img src="${currentItem.img}" onerror="this.src='${currentItem.fallbackImg}'" alt="">
-          <div style="font-size: 10px; font-weight: bold; color: #aaa;">${currentItem.shortName}</div>
+          <div style="font-size: 10px; font-weight: bold; color: #ccc;">${currentItem.shortName}</div>
         `;
-        tape.appendChild(card);
+        tape.appendChild(cell);
       }
 
-      // Показываем модуль рулетки и запускаем
-      document.getElementById('caseOpeningModule').classList.remove('hidden');
+      rBox.classList.remove('hidden');
 
-      // 100мс задержки для применения стилей перехода
       setTimeout(() => {
         tape.style.transition = 'transform 3.2s cubic-bezier(0.1, 0.8, 0.1, 1)';
-        // Смещение: (ширина карточки 90px * 30 карточек) - половина контейнера (около 200px) + разброс в 30px
-        const wrapWidth = document.querySelector('.roulette-wrapper').offsetWidth;
+        const wrapWidth = rWrap.offsetWidth || 320;
         const targetOffset = -((30 * 90) - (wrapWidth / 2) + 45);
         tape.style.transform = `translateX(${targetOffset}px)`;
-      }, 100);
+      }, 80);
 
-      // После окончания анимации показываем подарок
       setTimeout(() => {
-        document.getElementById('caseOpeningModule').classList.add('hidden');
-        document.getElementById('openCaseBtn').disabled = false;
+        rBox.classList.add('hidden');
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = `🎁 Открыть за $${caseObj.price.toFixed(2)}`;
+        }
         state.isOpeningCase = false;
 
-        // Показываем поп-ап выигрыша (Ваш Подарок)
         const imgEl = document.getElementById('wonGiftImage');
         imgEl.onerror = () => { imgEl.src = wonGift.fallbackImg; };
         imgEl.src = wonGift.img;
         document.getElementById('wonGiftName').textContent = wonGift.shortName;
         document.getElementById('wonGiftPrice').textContent = `$${wonGift.price.toFixed(2)}`;
         document.getElementById('wonSellBtn').textContent = `Продать $${wonGift.price.toFixed(2)}`;
+        document.getElementById('spinAgainBtnText').textContent = `Крутить ещё за $${caseObj.price.toFixed(2)}`;
 
         document.getElementById('giftWinModal').classList.remove('hidden');
-      }, 3400);
+      }, 3350);
     }
 
     function closeGiftWinModal() {
@@ -1207,12 +1298,13 @@
 
     function spinCaseAgain() {
       closeGiftWinModal();
-      triggerCaseOpener();
+      triggerCaseOpener(state.lastOpenedCaseId || 'bomzh');
     }
 
     // ================= КАТАЛОГ И КОРЗИНА =================
     function renderCatalog() {
       const box = document.getElementById('catalogContainer');
+      if (!box) return;
       box.innerHTML = '';
 
       PRODUCTS.forEach(p => {
@@ -1441,7 +1533,6 @@
       const totals = getCartTotals();
       if (totals.totalQty === 0) return;
 
-      // Оплата с баланса
       if (state.currency === 'BALANCE') {
         if (state.balanceUsd < totals.finalUsd) {
           if (confirm(`Недостаточно средств на балансе ($${state.balanceUsd.toFixed(2)}). Пополнить счёт?`)) {
@@ -1477,7 +1568,6 @@
         return;
       }
 
-      // Прямой счёт в Tonkeeper
       const orderId = generateOrderCommentCode('UJ92_');
       const newOrder = {
         id: orderId,
@@ -1753,7 +1843,7 @@
         sellAllBtn.classList.add('hidden');
         invGrid.innerHTML = `
           <div style="grid-column: 1 / -1; background: #141418; border: 1px solid #26262e; border-radius: 18px; padding: 20px; text-align: center; color: #777; font-size: 12px;">
-            В вашем инвентаре пока нет предметов.<br>Откройте кейс «Бомж» во вкладке «Кейсы»!
+            В вашем инвентаре пока нет предметов.<br>Откройте кейсы во вкладке «Кейсы»!
           </div>
         `;
       } else {
@@ -1852,10 +1942,10 @@
         cryptoAmount: item.price,
         usdAmount: item.price,
         items: [{ flag: '🎁', country: item.name, code: `$${item.price.toFixed(2)}`, qty: 1, sumUsd: item.price }],
-        promo: 'Вывод подарка из кейса'
+        promo: 'Вывод предмета из кейса'
       };
       notifyTelegramChats(withdrawOrder, 'paid');
-      alert(`Заявка на вывод подарка «${item.shortName}» отправлена администратору @uj_92!`);
+      alert(`Заявка на вывод «${item.shortName}» отправлена администратору @uj_92!`);
       renderAccountTab();
     }
 
