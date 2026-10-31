@@ -354,7 +354,7 @@
 
   <div class="app-container">
 
-    <!-- ЕДИНАЯ ВЕРХНЯЯ ШАПКА С БАЛАНСОМ И КУРСОМ GRAM -->
+    <!-- ЕДИНАЯ ВЕРХНЯЯ ШАПКА С БАЛАНСОМ И КУРСОМ GRAM BYBIT -->
     <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 12px; margin-bottom: 14px;">
       <div onclick="handleTitleClicks()" style="cursor: pointer; user-select: none;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -362,7 +362,7 @@
           <span class="badge" style="background: #fff; color: #000;">bot</span>
         </div>
         <p style="font-size: 11px; color: #888; margin-top: 2px;" class="font-mono">
-          Курс: 1 GRAM = $<span id="headerGramRate">1.15</span>
+          Bybit: 1 GRAM = $<span id="headerGramRate">1.15</span>
         </p>
       </div>
 
@@ -458,7 +458,7 @@
       </div>
     </section>
 
-    <!-- ================= 3. ОТДЕЛ: КЕЙСЫ (3 КЕЙСА: БОМЖ, СТУДЕНТ, ПРЕДПРИНИМАТЕЛЬ) ================= -->
+    <!-- ================= 3. ОТДЕЛ: КЕЙСЫ (3 КЕЙСА) ================= -->
     <section id="sectionCases" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
@@ -468,7 +468,6 @@
         <span class="badge" style="background: #fff; color: #000;">3 кейса</span>
       </div>
 
-      <!-- Список всех кейсов генерируется автоматически -->
       <div id="casesListContainer" style="display: flex; flex-direction: column; gap: 14px;"></div>
     </section>
 
@@ -749,8 +748,11 @@
       </div>
 
       <div>
-        <label style="font-size: 11px; color: #888; font-weight: bold;">Курс GRAM ($):</label>
-        <div style="display: flex; gap: 6px; margin-top: 4px;">
+        <label style="font-size: 11px; color: #888; font-weight: bold;">Курс GRAM ($ с Bybit):</label>
+        <button onclick="fetchGramFromBybit()" class="btn-grow" style="width: 100%; padding: 8px; background: #1f1f27; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 11px; font-weight: bold; margin: 4px 0 6px;">
+          🔄 Обновить с Bybit сейчас
+        </button>
+        <div style="display: flex; gap: 6px;">
           <input type="number" step="0.01" id="adminGramInput" value="1.15" class="font-mono" style="flex: 1;">
           <button onclick="saveAdminGramRate()" style="background: #fff; color: #000; border: none; padding: 0 14px; border-radius: 10px; font-weight: 800; font-size: 12px;">ОК</button>
         </div>
@@ -889,11 +891,12 @@
       }
     };
 
-    // Конфигурация 3 кейсов: «Бомж» ($0.40), «Студент» ($0.60), «Предприниматель» ($1.00)
+    // Конфигурация 3 кейсов (с переносом «Пред-приниматель» на новую строку)
     const CASES_CATALOG = [
       {
         id: 'bomzh',
         title: 'Кейс «Бомж»',
+        displayTitleHtml: 'Кейс «Бомж»',
         subtitle: 'Обычные подарки Telegram',
         price: 0.40,
         coverImg: 'image_21.png',
@@ -908,6 +911,7 @@
       {
         id: 'student',
         title: 'Кейс «Студент»',
+        displayTitleHtml: 'Кейс «Студент»',
         subtitle: 'Подарки + Номера США и Индии',
         price: 0.60,
         coverImg: 'case_student.png',
@@ -922,7 +926,8 @@
       },
       {
         id: 'business',
-        title: 'Кейс «Предприниматель»',
+        title: 'Кейс «Пред-приниматель»',
+        displayTitleHtml: 'Кейс «Пред-<br>приниматель»',
         subtitle: 'Номера США, Бангладеш и Алмаз',
         price: 1.00,
         coverImg: 'case_business.png',
@@ -953,7 +958,7 @@
     const currentUserKey = `user_${getTgUser().id}`;
 
     let state = {
-      gramRate: parseFloat(storage.get('uj92_gram_rate_custom', '1.15')) || 1.15,
+      gramRate: parseFloat(storage.get('uj92_gram_rate_bybit', '1.15')) || 1.15,
       balanceUsd: parseFloat(storage.get(`uj92_bal_${currentUserKey}`, '0.00')) || 0.00,
       cart: {},
       currency: 'GRAM',
@@ -1003,7 +1008,22 @@
       storage.set(`uj92_orders_${currentUserKey}`, JSON.stringify(userOrders));
     }
 
-    // ================= КУРС GRAM $1.15 =================
+    // ================= АВТООБНОВЛЕНИЕ КУРСА GRAM С BYBIT =================
+    async function fetchGramFromBybit() {
+      try {
+        const resp = await fetch('https://api.bybit.com/v5/market/tickers?category=spot&symbol=TONUSDT');
+        if (resp.ok) {
+          const data = await resp.json();
+          const p = parseFloat(data?.result?.list?.[0]?.lastPrice);
+          if (!isNaN(p) && p > 0) {
+            state.gramRate = p;
+            storage.set('uj92_gram_rate_bybit', p.toString());
+            updateRateDisplays();
+          }
+        }
+      } catch(e) {}
+    }
+
     function updateRateDisplays() {
       document.getElementById('headerGramRate').textContent = state.gramRate.toFixed(2);
       document.getElementById('adminGramInput').value = state.gramRate.toFixed(2);
@@ -1011,6 +1031,8 @@
       renderCatalog();
       renderCasesTab();
     }
+    fetchGramFromBybit();
+    setInterval(fetchGramFromBybit, 60000);
 
     function updateBalanceUI() {
       const gramEq = (state.balanceUsd / state.gramRate).toFixed(2);
@@ -1109,7 +1131,7 @@
       openWalletWithInvoice(depOrder);
     }
 
-    // ================= 3 КЕЙСА («БОМЖ», «СТУДЕНТ», «ПРЕДПРИНИМАТЕЛЬ») И РУЛЕТКА =================
+    // ================= 3 КЕЙСА («БОМЖ», «СТУДЕНТ», «ПРЕД-ПРИНИМАТЕЛЬ») И РУЛЕТКА =================
     function renderCasesTab() {
       const container = document.getElementById('casesListContainer');
       if (!container) return;
@@ -1139,8 +1161,8 @@
                 <img src="${c.coverImg}" onerror="this.src='${c.fallbackCover}'" alt="${c.title}" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
               <div>
-                <div style="font-size: 18px; font-weight: 900;">${c.title}</div>
-                <div style="font-size: 11px; color: #888; margin-top: 2px;">${c.subtitle}</div>
+                <div style="font-size: 18px; font-weight: 900; line-height: 1.15;">${c.displayTitleHtml}</div>
+                <div style="font-size: 11px; color: #888; margin-top: 3px;">${c.subtitle}</div>
               </div>
             </div>
             <div style="text-align: right; flex-shrink: 0;">
@@ -1160,7 +1182,7 @@
 
           <!-- Блок анимации рулетки для конкретного кейса -->
           <div id="rouletteBox_${c.id}" class="roulette-container hidden">
-            <div style="font-size: 12px; font-weight: 800; color: #aaa;">Открываем ${c.title}...</div>
+            <div style="font-size: 12px; font-weight: 800; color: #aaa;">Открываем...</div>
             <div id="rouletteWrap_${c.id}" class="roulette-wrapper">
               <div class="roulette-pointer"></div>
               <div id="rouletteTape_${c.id}" class="roulette-tape"></div>
@@ -1206,7 +1228,6 @@
         btn.textContent = '⏳ Открываем...';
       }
 
-      // Списываем стоимость кейса с баланса
       state.balanceUsd -= caseObj.price;
       saveUserBalance();
 
@@ -1980,7 +2001,7 @@
       const v = parseFloat(document.getElementById('adminGramInput').value);
       if (v > 0) {
         state.gramRate = v;
-        storage.set('uj92_gram_rate_custom', v.toString());
+        storage.set('uj92_gram_rate_bybit', v.toString());
         updateRateDisplays();
         alert('Курс обновлён');
       }
