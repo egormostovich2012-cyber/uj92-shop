@@ -8,8 +8,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
     WebAppInfo,
 )
 from aiohttp import web
@@ -41,22 +40,15 @@ CORS_HEADERS = {
 
 @dp.message(CommandStart())
 async def start_handler(message: types.Message):
-    # Основная кнопка "🛍️ Открыть UJ92_shop" на весь экран внизу (возле клавиатуры)
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [
-                KeyboardButton(
-                    text="🛍️ Открыть UJ92_shop",
-                    web_app=WebAppInfo(url=WEB_APP_URL),
-                )
-            ]
-        ],
-        resize_keyboard=True,
-    )
-    
-    # Больше нет инлайн-кнопки "Открывать мини-приложение" прямо под текстом, чтобы избежать дублирования
+    # Возвращаем кнопку запуска прямо в сообщение бота
     inline_kb = InlineKeyboardMarkup(
         inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="⚡ Запустить приложение",
+                    web_app=WebAppInfo(url=WEB_APP_URL),
+                )
+            ],
             [
                 InlineKeyboardButton(
                     text="⭐ Отзывы", url="https://t.me/uj_92_rew"
@@ -68,20 +60,25 @@ async def start_handler(message: types.Message):
             ],
         ]
     )
-    
+
     first_name = html.escape(message.from_user.first_name or "клиент")
     text = (
         f"👋 Привет, <b>{first_name}</b>!\n\n"
         f"Добро пожаловать в <b>UJ92_shop</b> — магазин номеров и кейсов с подарками Telegram.\n"
         f"• Пополняйте баланс в GRAM или USDT (TON)\n"
-        f"• Открывайте кейс «Бомж» и собирайте подарки в инвентарь\n"
+        f"• Открывайте кейсы и собирайте подарки в инвентарь\n"
         f"• Покупайте номера с мгновенным отслеживанием статуса\n\n"
         f"Поддержка: @{ADMIN_USERNAME}"
     )
-    
-    # Отправляем сообщение с нижней кнопкой и ссылками
-    await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
-    await message.answer("Нажмите кнопку ниже для входа:", reply_markup=inline_kb)
+
+    # Принудительно убираем нижнюю серую кнопку ReplyKeyboardRemove()
+    await message.answer(
+        text, reply_markup=ReplyKeyboardRemove(), parse_mode="HTML"
+    )
+    # Отправляем сообщение с инлайн-кнопкой запуска
+    await message.answer(
+        "Нажмите кнопку ниже для входа:", reply_markup=inline_kb
+    )
 
 
 async def handle_api_notify(request):
@@ -118,13 +115,13 @@ async def handle_api_notify(request):
                 f"🎁 <b>ЗАЯВКА НА ВЫВОД ПОДАРКА ИЗ ИНВЕНТАРЯ!</b>\n\n"
                 f"• Код заявки: <code>{order_id}</code>\n"
                 f"• Покупатель: {user_name} ({user_tag}, ID: <code>{user_id}</code>)\n"
-                f"• Подарок:\n{items_str}\n\n"
-                f"<b>Отправьте этот подарок пользователю в Telegram!</b>"
+                f"• Предмет:\n{items_str}\n\n"
+                f"<b>Выдайте этот предмет пользователю в Telegram!</b>"
             )
             buyer_text = (
-                f"🎁 <b>Заявка № {order_id} на вывод подарка создана!</b>\n\n"
+                f"🎁 <b>Заявка № {order_id} на вывод создана!</b>\n\n"
                 f"{items_str}\n\n"
-                f"Администратор @{ADMIN_USERNAME} уже получил уведомление и отправит подарок на ваш аккаунт."
+                f"Администратор @{ADMIN_USERNAME} уже получил уведомление и свяжется с вами."
             )
         elif order_type == "deposit":
             if event_type == "paid":
